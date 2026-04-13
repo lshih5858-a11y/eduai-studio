@@ -1,24 +1,25 @@
 """
 ==============================================================================
-[2단계] 종목 필터링 및 스코어링 모듈 (analysis/scorer.py)
+[2단계] 종목 필터링 및 스코어링 모듈 (analysis/scorer.py) — v3
 ==============================================================================
 
-■ CoT 2단계: 종목 필터링 및 스코어링(점수화) 로직
+■ 점수 구성 (100점 만점) — v3에서 원래 설계대로 복원
+  ┌──────────────────────────────────────────────────────────────────────┐
+  │ 지표               │ 배점 │ 산정 방식                                 │
+  ├──────────────────────────────────────────────────────────────────────┤
+  │ 저평가 PER          │ 20점 │ 전체 종목 하위 백분위 (낮을수록 고점수)    │
+  │ 저평가 PBR          │ 20점 │ 전체 종목 하위 백분위 (낮을수록 고점수)   │
+  │                    │      │ ※ PBR 없으면 ROE 역전 지표로 대체          │
+  ├──────────────────────────────────────────────────────────────────────┤
+  │ 수급 기관 순매수     │ 20점 │ 5일 누적 기관 순매수 상위 백분위          │
+  │ 수급 외국인 순매수   │ 20점 │ 5일 누적 외국인 순매수 상위 백분위        │
+  ├──────────────────────────────────────────────────────────────────────┤
+  │ 기술 거래량 급증     │ 10점 │ 5일평균 / 20일평균 ≥ 1.5배 → 10점       │
+  │ 기술 이동평균 정배열  │ 10점 │ 5MA > 20MA > 60MA → 10점               │
+  └──────────────────────────────────────────────────────────────────────┘
 
-  [지표 1] 저평가 지표 (Valuation Score) — 최대 40점
-    - PER 하위 30% 이내 → 최대 20점 (낮을수록 고점수)
-    - PBR 하위 30% 이내 → 최대 20점 (낮을수록 고점수)
-    - PER ≤ 0 (적자) 또는 누락 시 0점 처리
-
-  [지표 2] 성장·수급 지표 (Momentum Score) — 최대 40점
-    - 최근 5거래일 기관 순매수 금액 → 최대 20점 (많을수록 고점수)
-    - 최근 5거래일 외국인 순매수 금액 → 최대 20점 (많을수록 고점수)
-
-  [지표 3] 변동성·기술 지표 (Technical Score) — 최대 20점
-    - 거래량 급증(최근 5일 거래량 평균 / 20일 거래량 평균 > 1.5) → 10점
-    - 이동평균선 정배열(5일MA > 20일MA > 60일MA) → 10점
-
-  최종 점수 = Valuation + Momentum + Technical (100점 만점)
+  ※ v3에서는 기관·외국인 실제 순매수 데이터를 네이버 금융에서 수집
+    (pykrx KRX API가 이 환경에서 차단되어 대체 소스 사용)
 
 ==============================================================================
 """
@@ -30,304 +31,402 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 유틸리티: 백분위 기반 점수 변환
-# ─────────────────────────────────────────────────────────────────────────────
+# =============================================================================
+# 유틸리티: 백분위 점수 변환
+# =============================================================================
 
 def percentile_score(series: pd.Series, higher_is_better: bool = False) -> pd.Series:
-  """
-  시리즈 값을 0~100 백분위 점수로 변환한다.
+    """
+    수치 시리즈를 0~100 백분위 점수로 변환한다.
 
-  Parameters
-  ----------
-  series          : 점수화할 수치 시리즈
-  higher_is_better: True → 높을수록 고점수 / False → 낮을수록 고점수
+    Parameters
+    ----------
+    series           : 점수화할 수치 시리즈 (NaN 포함 가능)
+    higher_is_better : True  → 높은 값에 높은 점수 (수급, 모멘텀)
+                       False → 낮은 값에 높은 점수 (PER, PBR)
 
-  Returns
-  -------
-  pd.Series  (0.0 ~ 100.0)
-  """
-  # 결측값 제거 후 순위 계산
-  rank = series.rank(method="average", na_option="bottom")
-  n = series.notna().sum()
-  if n == 0:
-    return pd.Series(0.0, index=series.index)
+    Returns
+    -------
+    pd.Series : 0~100 사이 백분위 점수 (NaN 종목은 0점)
 
-  pct = (rank / n) * 100  # 1% ~ 100%
+    예시:
+        [10, 20, 30] → higher_is_better=False → [100, 50, 0] (낮은 값이 높은 점수)
+        [10, 20, 30] → higher_is_better=True  → [0,  50, 100]
+    """
+    rank = series.rank(method="average", na_option="bottom")
+    n    = series.notna().sum()
+    if n == 0:
+        return pd.Series(0.0, index=series.index)
 
-  if not higher_is_better:
-    pct = 100 - pct  # 낮을수록 좋으면 역전
+    pct = (rank / n) * 100
+    if not higher_is_better:
+        pct = 100 - pct  # 낮을수록 높은 점수로 반전
 
-  return pct.clip(0, 100)
+    return pct.clip(0, 100)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# [지표 1] 저평가 점수 계산
-# ─────────────────────────────────────────────────────────────────────────────
+# =============================================================================
+# [지표 1] 저평가 점수 — PER · PBR 기반 (40점 만점)
+# =============================================================================
 
 def calc_valuation_score(fund_df: pd.DataFrame, max_score: float = 40.0) -> pd.Series:
-  """
-  PER·PBR 기반 저평가 점수를 계산한다.
+    """
+    PER·PBR 기반 저평가 점수 계산 (최대 40점).
 
-  Parameters
-  ----------
-  fund_df   : fetch_fundamental_data() 의 반환 DataFrame
-  max_score : 최대 배점 (기본 40점)
+    산정 방식:
+    - PER (20점): 전체 종목 중 낮은 PER일수록 고점수 (하위 백분위)
+    - PBR (20점): 전체 종목 중 낮은 PBR일수록 고점수 (하위 백분위)
+      * PBR 컬럼이 없거나 결측이 많으면 ROE 역수(1/ROE) 대체
+      * PBR 있으면 낮을수록 저평가 = 좋은 것
+      * ROE 대체 시 높은 ROE = 효율적 자산운용 = 좋은 것 (방향 반전)
 
-  Returns
-  -------
-  pd.Series  index=종목코드, values=저평가점수(0~max_score)
-  """
-  logger.info("📐 [지표1] 저평가 점수(Valuation) 계산 중...")
-  df = fund_df.copy()
+    이상값 제거:
+    - PER ≤ 0 (적자 기업) → 제외
+    - PER > 200 (버블 수준) → 제외
+    - PBR ≤ 0 → 제외
+    - PBR > 20 (극단적 고PBR) → 제외
 
-  # ── PER 처리 ────────────────────────────────────────────────────────────
-  # PER ≤ 0 이거나 매우 크면 신뢰도 낮음 → NaN 처리
-  per = df["PER"].copy() if "PER" in df.columns else pd.Series(dtype=float)
-  per = per.replace(0, np.nan)
-  per[per < 0] = np.nan        # 적자 기업
-  per[per > 200] = np.nan      # 극단적 고PER 제외 (200배 초과)
+    Parameters
+    ----------
+    fund_df   : 기본지표 DataFrame (index=종목코드, columns=[PER, PBR, ROE, ...])
+    max_score : 최대 배점 (기본 40점)
 
-  # ── PBR 처리 ────────────────────────────────────────────────────────────
-  pbr = df["PBR"].copy() if "PBR" in df.columns else pd.Series(dtype=float)
-  pbr = pbr.replace(0, np.nan)
-  pbr[pbr < 0] = np.nan
-  pbr[pbr > 20] = np.nan       # 극단적 고PBR 제외
+    Returns
+    -------
+    pd.Series : index=종목코드, values=0~40점
+    """
+    logger.info("📐 [지표1] 저평가 점수(Valuation) 계산 중...")
 
-  # ── 백분위 점수화 (낮을수록 저평가 → 고점수) ───────────────────────────
-  per_score = percentile_score(per, higher_is_better=False) * (max_score / 2 / 100)
-  pbr_score = percentile_score(pbr, higher_is_better=False) * (max_score / 2 / 100)
+    if fund_df.empty:
+        logger.warning("  ⚠️ 기본지표 데이터 없음 → 저평가 점수 전체 0점 처리")
+        return pd.Series(dtype=float).rename("valuation_score")
 
-  # 공통 인덱스로 정렬 후 합산
-  combined_index = per_score.index.union(pbr_score.index)
-  val_score = (
-    per_score.reindex(combined_index).fillna(0)
-    + pbr_score.reindex(combined_index).fillna(0)
-  )
+    # 각 지표의 최대 배점 = max_score / 2 (20점)
+    half = max_score / 2
+    scale = half / 100  # 백분위(0~100) → 배점(0~20) 변환 인수
 
-  logger.info(f"  ✅ 저평가 점수 계산 완료: {val_score.notna().sum()}개 종목")
-  return val_score.rename("valuation_score")
+    # ── PER 처리 ──────────────────────────────────────────────────────────────
+    if "PER" in fund_df.columns:
+        per = fund_df["PER"].copy().astype(float)
+        per[per <= 0]  = np.nan  # 적자 기업 제외
+        per[per > 200] = np.nan  # 극단적 버블 제외
+        per_valid_cnt  = per.notna().sum()
+    else:
+        logger.warning("  ⚠️ PER 컬럼 없음 → PER 점수 0점")
+        per = pd.Series(np.nan, index=fund_df.index)
+        per_valid_cnt = 0
+
+    # ── PBR 처리 (없으면 ROE 역수 대체) ───────────────────────────────────────
+    pbr_source = "없음"
+    pbr_higher = False  # 낮을수록 저평가 (기본값)
+
+    if "PBR" in fund_df.columns:
+        pbr = fund_df["PBR"].copy().astype(float)
+        pbr[pbr <= 0]  = np.nan
+        pbr[pbr > 20]  = np.nan
+        pbr_valid_cnt  = pbr.notna().sum()
+
+        if pbr_valid_cnt >= 10:  # 유효 데이터 10개 이상이면 PBR 사용
+            pbr_source = "PBR"
+        else:
+            # PBR 유효 데이터 부족 → ROE 대체
+            if "ROE" in fund_df.columns:
+                pbr = fund_df["ROE"].copy().astype(float)
+                pbr[pbr <= 0] = np.nan
+                pbr_source = "ROE(PBR대체)"
+                pbr_higher = True  # ROE는 높을수록 우량
+            else:
+                pbr = pd.Series(np.nan, index=fund_df.index)
+    elif "ROE" in fund_df.columns:
+        # PBR 컬럼 자체 없음 → ROE 대체
+        pbr = fund_df["ROE"].copy().astype(float)
+        pbr[pbr <= 0] = np.nan
+        pbr_source = "ROE(PBR대체)"
+        pbr_higher = True
+    else:
+        pbr = pd.Series(np.nan, index=fund_df.index)
+
+    logger.info(
+        f"  PER 유효={per_valid_cnt}개 | "
+        f"PBR 소스={pbr_source} 유효={pbr.notna().sum()}개"
+    )
+
+    # ── 백분위 점수화 → 배점으로 환산 ─────────────────────────────────────────
+    per_score = percentile_score(per, higher_is_better=False) * scale
+    pbr_score = percentile_score(pbr, higher_is_better=pbr_higher) * scale
+
+    # ── 합산 ──────────────────────────────────────────────────────────────────
+    combined_idx = per_score.index.union(pbr_score.index)
+    val_score = (
+        per_score.reindex(combined_idx).fillna(0.0)
+        + pbr_score.reindex(combined_idx).fillna(0.0)
+    )
+
+    valid_cnt = (val_score > 0).sum()
+    logger.info(
+        f"  ✅ 저평가 점수 완료: 유효={valid_cnt}개 | "
+        f"평균={val_score[val_score > 0].mean():.2f}점 | "
+        f"최고={val_score.max():.2f}점"
+    )
+    return val_score.rename("valuation_score")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# [지표 2] 기관/외국인 수급 점수 계산
-# ─────────────────────────────────────────────────────────────────────────────
+# =============================================================================
+# [지표 2] 수급 점수 — 기관·외국인 순매수 기반 (40점 만점)
+# =============================================================================
 
-def calc_momentum_score(
-  investor_data: dict[str, pd.DataFrame],
-  max_score: float = 40.0,
+def calc_supply_demand_score(
+    investor_df: pd.DataFrame,
+    max_score: float = 40.0,
 ) -> pd.Series:
-  """
-  기관·외국인 5일 순매수 합계를 기반으로 수급 점수를 계산한다.
+    """
+    기관·외국인 5일 누적 순매수 기반 수급 점수 계산 (최대 40점).
 
-  Parameters
-  ----------
-  investor_data : fetch_investor_trading() 의 반환 딕셔너리
-  max_score     : 최대 배점 (기본 40점)
+    산정 방식:
+    - 기관 5일 누적 순매수 (20점): 전체 종목 중 상위 백분위
+    - 외국인 5일 누적 순매수 (20점): 전체 종목 중 상위 백분위
 
-  Returns
-  -------
-  pd.Series  index=종목코드, values=수급점수(0~max_score)
-  """
-  logger.info("💹 [지표2] 수급 점수(Momentum) 계산 중...")
+    Parameters
+    ----------
+    investor_df : 수급 DataFrame (index=종목코드, columns=[기관누적, 외국인누적])
+    max_score   : 최대 배점 (기본 40점)
 
-  frames = []
-  for market, df in investor_data.items():
-    if df.empty:
-      continue
-    frames.append(df)
+    Returns
+    -------
+    pd.Series : index=종목코드, values=0~40점
+    """
+    logger.info("💹 [지표2] 수급 점수(Supply-Demand) 계산 중...")
 
-  if not frames:
-    logger.warning("⚠️ 수급 데이터 없음 → 수급 점수 전부 0점 처리")
-    return pd.Series(dtype=float).rename("momentum_score")
+    if investor_df is None or investor_df.empty:
+        logger.warning("  ⚠️ 수급 데이터 없음 → 수급 점수 전체 0점 처리")
+        return pd.Series(dtype=float).rename("supply_demand_score")
 
-  # KOSPI + KOSDAQ 합산
-  merged = pd.concat(frames)
-  # 중복 종목코드는 합산 (KOSPI·KOSDAQ 동시 상장 방지)
-  merged = merged.groupby(merged.index).sum()
+    half  = max_score / 2
+    scale = half / 100
 
-  col_names = merged.columns.tolist()
+    # ── 기관 순매수 ───────────────────────────────────────────────────────────
+    if "기관누적" in investor_df.columns:
+        inst = investor_df["기관누적"].copy().astype(float)
+        inst_valid = inst.notna().sum()
+    else:
+        inst = pd.Series(np.nan, index=investor_df.index)
+        inst_valid = 0
 
-  # 기관합계 컬럼 찾기
-  inst_col = next((c for c in col_names if "기관" in c), None)
-  # 외국인합계 컬럼 찾기
-  fore_col = next((c for c in col_names if "외국인" in c), None)
+    # ── 외국인 순매수 ─────────────────────────────────────────────────────────
+    if "외국인누적" in investor_df.columns:
+        frgn = investor_df["외국인누적"].copy().astype(float)
+        frgn_valid = frgn.notna().sum()
+    else:
+        frgn = pd.Series(np.nan, index=investor_df.index)
+        frgn_valid = 0
 
-  if inst_col is None or fore_col is None:
-    logger.warning(f"⚠️ 수급 컬럼 탐지 실패 (사용 가능한 컬럼: {col_names[:4]})")
-    return pd.Series(dtype=float).rename("momentum_score")
+    logger.info(f"  기관 유효={inst_valid}개 | 외국인 유효={frgn_valid}개")
 
-  inst = merged[inst_col].copy()
-  fore = merged[fore_col].copy()
+    # ── 백분위 점수화 ─────────────────────────────────────────────────────────
+    inst_score = percentile_score(inst, higher_is_better=True) * scale
+    frgn_score = percentile_score(frgn, higher_is_better=True) * scale
 
-  # 백분위 점수화 (높을수록 순매수 강함 → 고점수)
-  inst_score = percentile_score(inst, higher_is_better=True) * (max_score / 2 / 100)
-  fore_score = percentile_score(fore, higher_is_better=True) * (max_score / 2 / 100)
+    combined_idx = inst_score.index.union(frgn_score.index)
+    sd_score = (
+        inst_score.reindex(combined_idx).fillna(0.0)
+        + frgn_score.reindex(combined_idx).fillna(0.0)
+    )
 
-  momentum_score = inst_score.add(fore_score, fill_value=0)
+    valid_cnt = (sd_score > 0).sum()
+    logger.info(
+        f"  ✅ 수급 점수 완료: 유효={valid_cnt}개 | "
+        f"평균={sd_score[sd_score > 0].mean():.2f}점 | "
+        f"최고={sd_score.max():.2f}점"
+    )
+    return sd_score.rename("supply_demand_score")
 
-  logger.info(f"  ✅ 수급 점수 계산 완료: {momentum_score.notna().sum()}개 종목")
-  return momentum_score.rename("momentum_score")
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# [지표 3] 거래량·이동평균 기술 점수 계산
-# ─────────────────────────────────────────────────────────────────────────────
+# =============================================================================
+# [지표 3] 기술적 점수 — 거래량 급증 + 이동평균 정배열 (20점 만점)
+# =============================================================================
 
 def calc_technical_score(
-  ohlcv_dict: dict[str, pd.DataFrame],
-  max_score: float = 20.0,
-  vol_ratio_threshold: float = 1.5,
-  ma_windows: tuple = (5, 20, 60),
+    ohlcv_dict: dict,
+    max_score: float = 20.0,
+    vol_ratio_threshold: float = 1.5,
+    ma_windows: tuple = (5, 20, 60),
 ) -> pd.Series:
-  """
-  거래량 급증 + 이동평균 정배열 여부를 기반으로 기술적 점수를 계산한다.
+    """
+    거래량 급증(10점) + 이동평균 정배열(10점) 기술적 지표 (최대 20점).
 
-  Parameters
-  ----------
-  ohlcv_dict          : {종목코드: OHLCV DataFrame} 딕셔너리
-  max_score           : 최대 배점 (기본 20점)
-  vol_ratio_threshold : 거래량 급증 기준 (5일평균/20일평균 비율)
-  ma_windows          : 이동평균선 기간 (5, 20, 60)
+    ① 거래량 급증 (10점)
+       최근 5일 평균 거래량 ÷ 직전 5~25일 평균 거래량 ≥ vol_ratio_threshold
+       → 단기 매수 세력 유입 신호
 
-  Returns
-  -------
-  pd.Series  index=종목코드, values=기술점수(0~max_score)
-  """
-  logger.info("📊 [지표3] 기술적 점수(Technical) 계산 중...")
-  ma5, ma20, ma60 = ma_windows
-  tech_scores = {}
+    ② 이동평균 정배열 (10점)
+       5일 이동평균 > 20일 이동평균 > 60일 이동평균
+       → 단기·중기·장기 상승 추세 확인
 
-  for code, df in ohlcv_dict.items():
-    score = 0.0
+    Parameters
+    ----------
+    ohlcv_dict          : {종목코드: OHLCV DataFrame}
+    max_score           : 최대 배점 (기본 20점)
+    vol_ratio_threshold : 거래량 급증 기준 비율 (기본 1.5배)
+    ma_windows          : 이동평균 기간 (5, 20, 60)
 
-    # 거래량 컬럼 탐지 ('거래량' 또는 'Volume')
-    vol_col = None
-    for c in df.columns:
-      if "거래량" in c or c.lower() == "volume":
-        vol_col = c
-        break
+    Returns
+    -------
+    pd.Series : index=종목코드, values=0|10|20
+    """
+    logger.info("📊 [지표3] 기술적 점수(Technical) 계산 중...")
 
-    # 종가 컬럼 탐지 ('종가' 또는 'Close')
-    close_col = None
-    for c in df.columns:
-      if "종가" in c or c.lower() == "close":
-        close_col = c
-        break
+    if not ohlcv_dict:
+        logger.warning("  ⚠️ OHLCV 데이터 없음 → 기술적 점수 전체 0점 처리")
+        return pd.Series(dtype=float).rename("tech_score")
 
-    if vol_col is None or close_col is None or len(df) < ma60:
-      # 데이터 부족 시 0점
-      tech_scores[code] = 0.0
-      continue
+    ma5, ma20, ma60 = ma_windows
+    half = max_score / 2  # 10점
 
-    close  = df[close_col].astype(float)
-    volume = df[vol_col].astype(float)
+    tech_scores: dict = {}
+    vol_spike_cnt  = 0
+    ma_aligned_cnt = 0
 
-    # ── 거래량 급증 체크 ───────────────────────────────────────────────
-    # 최근 5거래일 평균 vs 직전 20거래일 평균 비율
-    recent_vol  = volume.iloc[-5:].mean()
-    baseline_vol = volume.iloc[-25:-5].mean()  # 5~25일 전 평균
+    for code, df in ohlcv_dict.items():
+        score = 0.0
 
-    if baseline_vol > 0 and (recent_vol / baseline_vol) >= vol_ratio_threshold:
-      score += max_score / 2  # 10점 (20점 기준)
+        # ── 컬럼 탐지 ─────────────────────────────────────────────────────────
+        vol_col = next(
+            (c for c in df.columns if "거래량" in c or c.lower() == "volume"), None
+        )
+        close_col = next(
+            (c for c in df.columns if "종가" in c or c.lower() == "close"), None
+        )
 
-    # ── 이동평균 정배열 체크 ───────────────────────────────────────────
-    # 5일MA > 20일MA > 60일MA 이면 정배열(상승 추세)
-    ma5_val  = close.rolling(ma5).mean().iloc[-1]
-    ma20_val = close.rolling(ma20).mean().iloc[-1]
-    ma60_val = close.rolling(ma60).mean().iloc[-1]
+        # 데이터 부족 시 0점
+        if vol_col is None or close_col is None or len(df) < ma60:
+            tech_scores[code] = 0.0
+            continue
 
-    if (
-      pd.notna(ma5_val) and pd.notna(ma20_val) and pd.notna(ma60_val)
-      and ma5_val > ma20_val > ma60_val
-    ):
-      score += max_score / 2  # 10점
+        close  = df[close_col].astype(float)
+        volume = df[vol_col].astype(float)
 
-    tech_scores[code] = score
+        # ── ① 거래량 급증 체크 ────────────────────────────────────────────────
+        # 최근 5거래일 평균 vs 직전 5~25거래일 평균
+        recent_vol   = volume.iloc[-5:].mean()      # 최근 5일
+        baseline_vol = volume.iloc[-25:-5].mean()   # 직전 20일 (베이스라인)
 
-  result = pd.Series(tech_scores).rename("tech_score")
-  logger.info(f"  ✅ 기술적 점수 계산 완료: {len(result)}개 종목")
-  return result
+        if baseline_vol > 0 and not np.isnan(baseline_vol):
+            if (recent_vol / baseline_vol) >= vol_ratio_threshold:
+                score += half   # +10점
+                vol_spike_cnt += 1
+
+        # ── ② 이동평균 정배열 체크 ───────────────────────────────────────────
+        ma5_val  = close.rolling(window=ma5).mean().iloc[-1]
+        ma20_val = close.rolling(window=ma20).mean().iloc[-1]
+        ma60_val = close.rolling(window=ma60).mean().iloc[-1]
+
+        if (
+            pd.notna(ma5_val) and pd.notna(ma20_val) and pd.notna(ma60_val)
+            and ma5_val > ma20_val > ma60_val
+        ):
+            score += half   # +10점
+            ma_aligned_cnt += 1
+
+        tech_scores[code] = score
+
+    result = pd.Series(tech_scores).rename("tech_score")
+    full_score_cnt = (result == max_score).sum()
+
+    logger.info(
+        f"  ✅ 기술적 점수 완료: {len(result)}개 종목 | "
+        f"거래량 급증={vol_spike_cnt}개 | "
+        f"MA 정배열={ma_aligned_cnt}개 | "
+        f"만점({max_score:.0f}점)={full_score_cnt}개"
+    )
+    return result
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 통합 스코어링
-# ─────────────────────────────────────────────────────────────────────────────
+# =============================================================================
+# 통합 스코어링 — 최종 상위 N개 종목 선정
+# =============================================================================
 
 def combine_scores(
-  stock_list_df: pd.DataFrame,
-  val_score: pd.Series,
-  mom_score: pd.Series,
-  tech_score: pd.Series,
-  fund_df: pd.DataFrame,
-  market_cap_df: pd.DataFrame,
-  top_n: int = 10,
+    stock_list_df: pd.DataFrame,
+    val_score: pd.Series,
+    sd_score: pd.Series,
+    tech_score: pd.Series,
+    fund_df: pd.DataFrame,
+    investor_df: pd.DataFrame = None,
+    top_n: int = 10,
 ) -> pd.DataFrame:
-  """
-  3가지 점수를 합산하여 최종 순위 DataFrame을 반환한다.
+    """
+    3가지 점수를 합산하여 상위 top_n 종목을 반환한다.
 
-  Parameters
-  ----------
-  stock_list_df : fetch_stock_list() 의 DataFrame (Code, Name, Market)
-  val_score     : 저평가 점수 Series
-  mom_score     : 수급 점수 Series
-  tech_score    : 기술적 점수 Series
-  fund_df       : 기본지표 DataFrame (PER, PBR 포함)
-  market_cap_df : 시가총액 DataFrame
-  top_n         : 상위 N개 종목
+    총점 = 저평가(40점) + 수급(40점) + 기술(20점) = 100점 만점
 
-  Returns
-  -------
-  pd.DataFrame
-    상위 top_n 개 종목의 종합 점수 및 세부 지표
-  """
-  logger.info(f"🏆 종합 점수 합산 및 상위 {top_n}개 종목 선정 중...")
+    Parameters
+    ----------
+    stock_list_df : 종목 리스트 DataFrame (Code, Name, Market, 시가총액)
+    val_score     : 저평가 점수 Series (index=종목코드)
+    sd_score      : 수급 점수 Series (index=종목코드)
+    tech_score    : 기술적 점수 Series (index=종목코드)
+    fund_df       : 기본지표 DataFrame (PER, PBR, ROE 등)
+    investor_df   : 수급 DataFrame (기관누적, 외국인누적)
+    top_n         : 선정 종목 수
 
-  # 종목코드를 인덱스로 설정
-  base = stock_list_df.set_index("Code")[["Name", "Market"]].copy()
+    Returns
+    -------
+    pd.DataFrame : 순위 포함 top_n 행
+        columns=[순위, 종목코드, 종목명, Market, 시가총액, 저평가, 수급, 기술, 총점, PER, PBR, ROE, 외국인비율, 기관누적, 외국인누적]
+    """
+    logger.info(f"🏆 종합 점수 합산 → 상위 {top_n}개 종목 선정 중...")
 
-  # 각 점수 병합
-  base = base.join(val_score,  how="left")
-  base = base.join(mom_score,  how="left")
-  base = base.join(tech_score, how="left")
+    # ── 베이스 DataFrame 구성 ─────────────────────────────────────────────────
+    base = stock_list_df.set_index("Code")[["Name", "Market", "시가총액"]].copy()
 
-  # 결측값 0점 처리
-  base["valuation_score"] = base["valuation_score"].fillna(0)
-  base["momentum_score"]  = base["momentum_score"].fillna(0)
-  base["tech_score"]      = base["tech_score"].fillna(0)
+    # ── 각 점수 조인 ─────────────────────────────────────────────────────────
+    base = base.join(val_score.rename("저평가"),   how="left")
+    base = base.join(sd_score.rename("수급"),      how="left")
+    base = base.join(tech_score.rename("기술"),    how="left")
 
-  # ── 총점 계산 ────────────────────────────────────────────────────────
-  base["total_score"] = (
-    base["valuation_score"]
-    + base["momentum_score"]
-    + base["tech_score"]
-  )
+    # NaN → 0점 처리
+    base[["저평가", "수급", "기술"]] = base[["저평가", "수급", "기술"]].fillna(0.0)
 
-  # ── 기본지표(PER, PBR) 추가 ──────────────────────────────────────────
-  if not fund_df.empty:
-    for col in ["PER", "PBR", "EPS", "BPS"]:
-      if col in fund_df.columns:
-        base = base.join(fund_df[[col]], how="left")
+    # ── 총점 계산 ─────────────────────────────────────────────────────────────
+    base["총점"] = base["저평가"] + base["수급"] + base["기술"]
 
-  # ── 시가총액 추가 ────────────────────────────────────────────────────
-  if not market_cap_df.empty:
-    cap_col = next((c for c in market_cap_df.columns if "시가총액" in c), None)
-    if cap_col:
-      base = base.join(market_cap_df[[cap_col]], how="left")
-      base.rename(columns={cap_col: "시가총액"}, inplace=True)
+    # ── 기본지표 추가 (PER, PBR, ROE, 외국인비율) ────────────────────────────
+    if fund_df is not None and not fund_df.empty:
+        for col in ["PER", "PBR", "ROE", "외국인비율"]:
+            if col in fund_df.columns:
+                base = base.join(fund_df[[col]], how="left")
 
-  # ── 최소 유효성 필터 ─────────────────────────────────────────────────
-  # tech_score > 0 또는 total_score > 0 인 종목만 선정 대상
-  valid_mask = base["total_score"] > 0
-  scored_df = base[valid_mask].copy()
+    # ── 수급 원시 데이터 추가 (기관누적, 외국인누적) ──────────────────────────
+    if investor_df is not None and not investor_df.empty:
+        for col in ["기관누적", "외국인누적"]:
+            if col in investor_df.columns:
+                base = base.join(investor_df[[col]], how="left")
 
-  # 총점 내림차순 정렬
-  scored_df = scored_df.sort_values("total_score", ascending=False)
+    # ── 필터링: 총점 > 0 인 종목만 선정 ─────────────────────────────────────
+    valid = base[base["총점"] > 0].copy()
 
-  # 상위 top_n 개 선정
-  top_df = scored_df.head(top_n).reset_index()
-  top_df.insert(0, "순위", range(1, len(top_df) + 1))
-  top_df.rename(columns={"Code": "종목코드", "Name": "종목명"}, inplace=True)
+    if valid.empty:
+        # 비상 모드: 기술 점수라도 있는 종목 선정
+        valid = base[base["기술"] > 0].copy()
+        logger.warning("  ⚠️ 비상 모드: 기술점수 종목만으로 선정 (저평가·수급 모두 0)")
 
-  logger.info(f"✅ 상위 {top_n}개 종목 선정 완료!")
-  return top_df
+    # ── 상위 top_n 선정 ───────────────────────────────────────────────────────
+    top_df = (
+        valid
+        .sort_values("총점", ascending=False)
+        .head(top_n)
+        .reset_index()
+        .rename(columns={"Code": "종목코드", "Name": "종목명"})
+    )
+    top_df.insert(0, "순위", range(1, len(top_df) + 1))
+
+    logger.info(f"✅ 최종 {len(top_df)}개 종목 선정 완료!")
+    if not top_df.empty:
+        logger.info(
+            f"  1위: {top_df.iloc[0]['종목명']} "
+            f"(총점={top_df.iloc[0]['총점']:.2f}, "
+            f"저평가={top_df.iloc[0]['저평가']:.2f}, "
+            f"수급={top_df.iloc[0]['수급']:.2f}, "
+            f"기술={top_df.iloc[0]['기술']:.2f})"
+        )
+    return top_df
