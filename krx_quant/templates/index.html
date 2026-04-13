@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KRX 퀀트 투자 스코어링 대시보드</title>
+  <style>
+    /* ── 기본 리셋 & 변수 ────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --surface2:  #21262d;
+      --border:    #30363d;
+      --text:      #e6edf3;
+      --subtext:   #8b949e;
+      --blue:      #58a6ff;
+      --green:     #3fb950;
+      --yellow:    #d29922;
+      --red:       #f85149;
+      --purple:    #bc8cff;
+      --cyan:      #39d0d8;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    a { color: var(--blue); text-decoration: none; }
+
+    /* ── 레이아웃 ────────────────────────────────────────────── */
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
+
+    /* ── 헤더 ────────────────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .logo-icon { font-size: 24px; }
+    .logo-text { font-size: 18px; font-weight: 700; color: var(--blue); }
+    .logo-sub  { font-size: 11px; color: var(--subtext); }
+    .last-update {
+      font-size: 12px; color: var(--subtext);
+      background: var(--surface2);
+      padding: 6px 12px; border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+
+    /* ── 히어로 섹션 ─────────────────────────────────────────── */
+    .hero {
+      padding: 40px 0 30px;
+      text-align: center;
+    }
+    .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    .hero h1 span { color: var(--blue); }
+    .hero p { color: var(--subtext); font-size: 14px; margin-bottom: 24px; }
+
+    /* ── 필터 바 ──────────────────────────────────────────────── */
+    .filter-bar {
+      display: flex; gap: 10px; justify-content: center;
+      flex-wrap: wrap; margin-bottom: 30px;
+    }
+    .filter-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 18px; border-radius: 20px;
+      cursor: pointer; font-size: 13px;
+      transition: all .2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+    .run-btn {
+      background: var(--green);
+      border: none; color: #fff;
+      padding: 8px 22px; border-radius: 20px;
+      cursor: pointer; font-size: 14px; font-weight: 600;
+      transition: opacity .2s;
+    }
+    .run-btn:hover { opacity: 0.85; }
+    .run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── 요약 카드 ────────────────────────────────────────────── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px; margin-bottom: 28px;
+    }
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+    }
+    .summary-card .label {
+      font-size: 12px; color: var(--subtext); margin-bottom: 6px;
+    }
+    .summary-card .value {
+      font-size: 22px; font-weight: 700;
+    }
+    .summary-card .value.blue   { color: var(--blue); }
+    .summary-card .value.green  { color: var(--green); }
+    .summary-card .value.yellow { color: var(--yellow); }
+    .summary-card .value.purple { color: var(--purple); }
+
+    /* ── 테이블 ───────────────────────────────────────────────── */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .table-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .table-header h2 { font-size: 16px; font-weight: 600; }
+    .table-header .badge {
+      background: var(--blue);
+      color: #fff; font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 10px;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--surface2); }
+    th {
+      padding: 10px 14px; text-align: left;
+      font-size: 12px; font-weight: 600;
+      color: var(--subtext);
+      text-transform: uppercase; letter-spacing: .5px;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--surface2); }
+
+    /* ── 순위 뱃지 ────────────────────────────────────────────── */
+    .rank-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 50%;
+      font-size: 12px; font-weight: 700;
+    }
+    .rank-1 { background: #ffd700; color: #000; }
+    .rank-2 { background: #c0c0c0; color: #000; }
+    .rank-3 { background: #cd7f32; color: #fff; }
+    .rank-n { background: var(--surface2); color: var(--subtext); }
+
+    /* ── 점수 바 ──────────────────────────────────────────────── */
+    .score-bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .score-bar-bg {
+      flex: 1; height: 6px; background: var(--surface2);
+      border-radius: 3px; overflow: hidden;
+    }
+    .score-bar-fill {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+    }
+    .score-val { font-weight: 700; color: var(--blue); min-width: 40px; text-align: right; }
+
+    /* ── 서브 점수 ────────────────────────────────────────────── */
+    .sub-scores { display: flex; gap: 6px; flex-wrap: wrap; }
+    .sub-tag {
+      font-size: 11px; padding: 2px 8px;
+      border-radius: 4px; font-weight: 600;
+    }
+    .sub-val { background: rgba(88,166,255,.15); color: var(--blue); }
+    .sub-mom { background: rgba(63,185,80,.15);  color: var(--green); }
+    .sub-tec { background: rgba(210,153,34,.15); color: var(--yellow); }
+
+    /* ── 마켓 뱃지 ────────────────────────────────────────────── */
+    .market-tag {
+      font-size: 10px; padding: 2px 7px; border-radius: 4px;
+      font-weight: 700;
+    }
+    .market-kospi  { background: rgba(88,166,255,.2); color: var(--blue); }
+    .market-kosdaq { background: rgba(188,140,255,.2); color: var(--purple); }
+
+    /* ── 로딩 오버레이 ────────────────────────────────────────── */
+    #loading-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(13,17,23,.85);
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px;
+    }
+    #loading-overlay.show { display: flex; }
+    .spinner {
+      width: 48px; height: 48px;
+      border: 4px solid var(--border);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { color: var(--text); font-size: 16px; }
+    .loading-sub  { color: var(--subtext); font-size: 12px; }
+
+    /* ── 알림 토스트 ──────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 12px 20px; border-radius: 8px;
+      font-size: 13px; opacity: 0;
+      transition: opacity .3s;
+      z-index: 10000;
+    }
+    #toast.show { opacity: 1; }
+
+    /* ── 범례 ─────────────────────────────────────────────────── */
+    .legend-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 28px;
+    }
+    .legend-box h3 { font-size: 13px; margin-bottom: 12px; color: var(--subtext); }
+    .legend-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .legend-item { display: flex; align-items: flex-start; gap: 10px; }
+    .legend-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      margin-top: 4px; flex-shrink: 0;
+    }
+    .legend-item p { font-size: 12px; color: var(--subtext); line-height: 1.5; }
+    .legend-item strong { color: var(--text); }
+
+    /* ── 푸터 ─────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 20px 0;
+      text-align: center;
+      color: var(--subtext);
+      font-size: 12px;
+      margin-top: 20px;
+    }
+
+    /* ── 반응형 ───────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 20px; }
+      th, td { padding: 8px 10px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 로딩 오버레이 -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-text">📊 데이터 수집 및 스코어링 중...</div>
+  <div class="loading-sub" id="loading-sub-text">KRX 서버에서 데이터를 가져오는 중입니다. 잠시만 기다려 주세요.</div>
+</div>
+
+<!-- 토스트 알림 -->
+<div id="toast"></div>
+
+<!-- 헤더 -->
+<header>
+  <div class="container header-inner">
+    <div class="logo">
+      <div class="logo-icon">📈</div>
+      <div>
+        <div class="logo-text">KRX Quant Scorer</div>
+        <div class="logo-sub">한국 주식 퀀트 투자 스코어링 시스템</div>
+      </div>
+    </div>
+    <div class="last-update" id="last-update-label">마지막 갱신: -</div>
+  </div>
+</header>
+
+<!-- 메인 -->
+<main class="container">
+
+  <!-- 히어로 -->
+  <div class="hero">
+    <h1>🇰🇷 <span>KRX</span> 퀀트 투자 유망 종목 분석</h1>
+    <p>PER·PBR 저평가 · 기관/외국인 수급 · 이동평균 기술 지표를 결합한<br>
+       객관적 데이터 기반의 상위 10개 투자 유망 종목을 선정합니다.</p>
+
+    <!-- 필터 바 -->
+    <div class="filter-bar">
+      <button class="filter-btn active" data-market="ALL">전체 시장</button>
+      <button class="filter-btn" data-market="KOSPI">KOSPI</button>
+      <button class="filter-btn" data-market="KOSDAQ">KOSDAQ</button>
+      <button class="run-btn" id="run-btn" onclick="runAnalysis()">
+        ▶  분석 실행
+      </button>
+    </div>
+  </div>
+
+  <!-- 요약 카드 -->
+  <div class="summary-grid" id="summary-grid">
+    <div class="summary-card">
+      <div class="label">📅 기준 거래일</div>
+      <div class="value blue" id="card-date">-</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">🏆 1위 종목</div>
+      <div class="value green" id="card-top1">-</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">💯 최고 점수</div>
+      <div class="value yellow" id="card-top1-score">-</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">📊 분석 종목 수</div>
+      <div class="value purple" id="card-total">-</div>
+    </div>
+  </div>
+
+  <!-- 결과 테이블 -->
+  <div class="table-wrap">
+    <div class="table-header">
+      <h2>🏅 투자 유망 상위 10개 종목</h2>
+      <span class="badge" id="result-badge">결과 없음</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="result-table">
+        <thead>
+          <tr>
+            <th>순위</th>
+            <th>종목코드</th>
+            <th>종목명</th>
+            <th>시장</th>
+            <th>종합점수</th>
+            <th>세부 점수</th>
+            <th>PER</th>
+            <th>PBR</th>
+            <th>시가총액</th>
+          </tr>
+        </thead>
+        <tbody id="result-tbody">
+          <tr>
+            <td colspan="9" style="text-align:center; padding:40px; color:var(--subtext);">
+              '분석 실행' 버튼을 눌러 분석을 시작하세요.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 범례 -->
+  <div class="legend-box">
+    <h3>📌 점수 산정 기준 (100점 만점)</h3>
+    <div class="legend-grid">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--blue)"></div>
+        <p><strong>저평가 (40점)</strong><br>
+          PER·PBR 기준 하위 백분위 종목일수록 고점수 부여.<br>
+          적자 기업(PER≤0) 및 극단값은 제외.</p>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--green)"></div>
+        <p><strong>수급 (40점)</strong><br>
+          최근 5거래일 기관·외국인 순매수 강도를<br>
+          백분위로 환산하여 점수화.</p>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--yellow)"></div>
+        <p><strong>기술 (20점)</strong><br>
+          거래량 급증(5일평균/20일평균 ≥ 1.5배) +<br>
+          이동평균 정배열(5MA > 20MA > 60MA).</p>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--red)"></div>
+        <p><strong>⚠️ 투자 유의</strong><br>
+          본 정보는 투자 참고용입니다.<br>
+          투자 결정의 책임은 투자자 본인에게 있습니다.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="container">
+    KRX Quant Scorer — 데이터 출처: KRX(한국거래소) · pykrx · FinanceDataReader<br>
+    ⚠️ 본 서비스는 투자 참고 목적으로만 사용하세요. 투자 손실에 대한 책임은 본인에게 있습니다.
+  </div>
+</footer>
+
+<script>
+  /* ── 마켓 필터 버튼 ────────────────────────────────── */
+  let selectedMarket = 'ALL';
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedMarket = btn.dataset.market;
+    });
+  });
+
+  /* ── 토스트 ────────────────────────────────────────── */
+  function showToast(msg, duration = 3000) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), duration);
+  }
+
+  /* ── 숫자 포맷 ─────────────────────────────────────── */
+  function fmtCap(v) {
+    if (!v || v === null) return '-';
+    const n = parseFloat(v);
+    if (isNaN(n)) return '-';
+    if (n >= 1e12) return (n/1e12).toFixed(1) + '조';
+    if (n >= 1e8)  return (n/1e8).toFixed(0) + '억';
+    return n.toLocaleString();
+  }
+
+  function fmtNum(v, decimals=2) {
+    if (v === null || v === undefined) return '-';
+    const n = parseFloat(v);
+    return isNaN(n) ? '-' : n.toFixed(decimals);
+  }
+
+  /* ── 순위 뱃지 ─────────────────────────────────────── */
+  function rankBadge(r) {
+    const cls = r === 1 ? 'rank-1' : r === 2 ? 'rank-2' : r === 3 ? 'rank-3' : 'rank-n';
+    return `<span class="rank-badge ${cls}">${r}</span>`;
+  }
+
+  /* ── 마켓 태그 ─────────────────────────────────────── */
+  function marketTag(m) {
+    const cls = m === 'KOSPI' ? 'market-kospi' : 'market-kosdaq';
+    return `<span class="market-tag ${cls}">${m}</span>`;
+  }
+
+  /* ── 점수 바 ───────────────────────────────────────── */
+  function scoreBar(score) {
+    const pct = Math.min(100, (score / 100) * 100).toFixed(1);
+    return `
+      <div class="score-bar-wrap">
+        <div class="score-bar-bg">
+          <div class="score-bar-fill" style="width:${pct}%"></div>
+        </div>
+        <div class="score-val">${fmtNum(score)}</div>
+      </div>`;
+  }
+
+  /* ── 세부 점수 태그 ────────────────────────────────── */
+  function subScores(row) {
+    return `
+      <div class="sub-scores">
+        <span class="sub-tag sub-val">저평가 ${fmtNum(row.valuation_score)}</span>
+        <span class="sub-tag sub-mom">수급 ${fmtNum(row.momentum_score)}</span>
+        <span class="sub-tag sub-tec">기술 ${fmtNum(row.tech_score)}</span>
+      </div>`;
+  }
+
+  /* ── 테이블 렌더링 ─────────────────────────────────── */
+  function renderTable(data) {
+    const tbody = document.getElementById('result-tbody');
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--subtext);">
+        조건에 맞는 종목이 없습니다. 다른 시장이나 날짜를 시도해 보세요.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.map(row => `
+      <tr>
+        <td>${rankBadge(row['순위'])}</td>
+        <td style="font-family:monospace; color:var(--subtext)">${row['종목코드'] || '-'}</td>
+        <td style="font-weight:600">${row['종목명'] || '-'}</td>
+        <td>${marketTag(row['Market'] || '')}</td>
+        <td>${scoreBar(row['total_score'])}</td>
+        <td>${subScores(row)}</td>
+        <td>${fmtNum(row['PER'])}</td>
+        <td>${fmtNum(row['PBR'])}</td>
+        <td>${fmtCap(row['시가총액'])}</td>
+      </tr>`).join('');
+  }
+
+  /* ── 요약 카드 갱신 ────────────────────────────────── */
+  function updateCards(meta, data) {
+    const d = meta.trading_date || '-';
+    document.getElementById('card-date').textContent =
+      d.length === 8 ? `${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6)}` : d;
+    if (data && data.length > 0) {
+      document.getElementById('card-top1').textContent       = data[0]['종목명'] || '-';
+      document.getElementById('card-top1-score').textContent = fmtNum(data[0]['total_score']) + '점';
+    }
+    document.getElementById('card-total').textContent = (meta.total_analyzed || '-') + '개';
+    document.getElementById('last-update-label').textContent =
+      '마지막 갱신: ' + new Date().toLocaleTimeString('ko-KR');
+    document.getElementById('result-badge').textContent =
+      `상위 ${data.length}개 종목`;
+  }
+
+  /* ── 분석 실행 ─────────────────────────────────────── */
+  async function runAnalysis() {
+    const btn = document.getElementById('run-btn');
+    const overlay = document.getElementById('loading-overlay');
+
+    btn.disabled = true;
+    btn.textContent = '분석 중...';
+    overlay.classList.add('show');
+
+    // 로딩 메시지 순환
+    const msgs = [
+      'KRX 종목 리스트 수집 중...',
+      'PER·PBR 기본지표 수집 중...',
+      '기관·외국인 수급 데이터 수집 중...',
+      'OHLCV 이동평균 데이터 수집 중...',
+      '스코어링 알고리즘 실행 중...',
+      '상위 10개 종목 선정 중...',
+    ];
+    let msgIdx = 0;
+    const msgEl = document.getElementById('loading-sub-text');
+    const msgTimer = setInterval(() => {
+      msgEl.textContent = msgs[msgIdx % msgs.length];
+      msgIdx++;
+    }, 4000);
+
+    try {
+      const res = await fetch(`/api/analyze?market=${selectedMarket}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+      const json = await res.json();
+
+      if (!res.ok) {
+        const errMsg = json.error || '알 수 없는 오류가 발생했습니다.';
+        showToast('❌ ' + errMsg, 5000);
+        throw new Error(errMsg);
+      }
+
+      renderTable(json.top10 || []);
+      updateCards(json, json.top10 || []);
+      showToast('✅ 분석 완료!');
+
+    } catch (err) {
+      console.error(err);
+      const tbody = document.getElementById('result-tbody');
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--red);">
+        ❌ 오류: ${err.message}<br>
+        <span style="color:var(--subtext);font-size:12px">
+          공휴일·장 마감 전 또는 네트워크 오류일 수 있습니다.
+        </span></td></tr>`;
+    } finally {
+      clearInterval(msgTimer);
+      overlay.classList.remove('show');
+      btn.disabled = false;
+      btn.textContent = '▶  분석 실행';
+    }
+  }
+</script>
+</body>
+</html>
