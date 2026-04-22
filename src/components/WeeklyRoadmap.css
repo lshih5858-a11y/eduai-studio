@@ -1,0 +1,118 @@
+.roadmap-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+}
+
+.roadmap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.875rem;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.roadmap-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.roadmap-hint { font-size: 0.72rem; color: var(--text-muted); }
+
+.roadmap-grid {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 0.35rem;
+}
+
+.week-cell {
+  position: relative;
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.18s;
+  cursor: pointer;
+}
+
+.week-cell:hover,
+.week-cell.hovered {
+  background: rgba(108, 61, 232, 0.15);
+  border-color: var(--phase-color, var(--primary));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.week-cell.selected {
+  background: rgba(108, 61, 232, 0.25);
+  border-color: var(--phase-color, var(--primary));
+  box-shadow: 0 0 0 2px var(--phase-color, var(--primary)), var(--glow);
+}
+
+.week-num {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.week-phase {
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.week-gamma-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ffb347;
+  box-shadow: 0 0 4px #ffb347;
+}
+
+.week-selected-ring {
+  position: absolute;
+  inset: -1px;
+  border-radius: 8px;
+  border: 2px solid var(--phase-color, var(--primary));
+  pointer-events: none;
+  animation: ring-pulse 1.5s infinite;
+}
+
+@keyframes ring-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.roadmap-selected-info {
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(108,61,232,0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(108,61,232,0.2);
+}
+
+.roadmap-selected-title {
+  font-size: 0.82rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .roadmap-grid {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .roadmap-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

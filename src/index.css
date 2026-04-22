@@ -1,0 +1,35 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary: #6c3de8;
+  --primary-dark: #4f28b8;
+  --primary-light: #9b6ff5;
+  --accent: #00d4aa;
+  --accent-dark: #00a882;
+  --bg: #0f0a1e;
+  --bg-card: #1a1230;
+  --bg-card2: #241848;
+  --border: #352860;
+  --text: #e8e0ff;
+  --text-muted: #9b8ec4;
+  --glow: 0 0 20px rgba(108, 61, 232, 0.4);
+  --glow-accent: 0 0 20px rgba(0, 212, 170, 0.3);
+}
+
+body {
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-card); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary-light); }
+
+button { cursor: pointer; border: none; outline: none; font-family: inherit; }
+input, textarea { font-family: inherit; outline: none; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }

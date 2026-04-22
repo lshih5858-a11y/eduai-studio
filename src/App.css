@@ -1,0 +1,154 @@
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(ellipse at top left, #1e0a3c 0%, #0f0a1e 50%, #091428 100%);
+}
+
+/* ── Header ── */
+.app-header {
+  background: linear-gradient(135deg, rgba(108,61,232,0.3) 0%, rgba(0,212,170,0.1) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.5rem;
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-icon { font-size: 1.8rem; }
+.brand-title { font-size: 1.15rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+.brand-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+
+.header-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(0,212,170,0.12);
+  border: 1px solid rgba(0,212,170,0.3);
+  border-radius: 20px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.75rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* ── Body ── */
+.app-body {
+  flex: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ── Roadmap section ── */
+.section-roadmap {
+  width: 100%;
+}
+
+/* ── Main section ── */
+.section-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* ── Tabs ── */
+.tab-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+
+.tab-btn {
+  padding: 0.85rem 1.5rem;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover { color: var(--text); background: rgba(108,61,232,0.08); }
+.tab-btn.active { color: var(--primary-light); border-bottom-color: var(--primary-light); background: rgba(108,61,232,0.1); }
+
+.tab-content { flex: 1; display: flex; flex-direction: column; }
+
+/* ── Footer ── */
+.app-footer {
+  text-align: center;
+  padding: 0.75rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.footer-divider { opacity: 0.4; }
+
+/* ── Shared card styles ── */
+.card {
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.tag-tool { background: rgba(108,61,232,0.2); color: var(--primary-light); border: 1px solid rgba(108,61,232,0.3); }
+.tag-env { background: rgba(0,212,170,0.15); color: var(--accent); border: 1px solid rgba(0,212,170,0.3); }
+.tag-gamma { background: rgba(255,165,0,0.15); color: #ffb347; border: 1px solid rgba(255,165,0,0.3); }
+.tag-week { background: rgba(108,61,232,0.3); color: #c4a8ff; border: 1px solid rgba(108,61,232,0.4); }
+
+@media (max-width: 640px) {
+  .brand-title { font-size: 0.95rem; }
+  .app-body { padding: 0.75rem; }
+  .tab-btn { padding: 0.7rem 0.9rem; font-size: 0.8rem; }
+}
