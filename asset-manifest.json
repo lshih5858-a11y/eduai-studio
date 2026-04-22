@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/eduai-studio/static/css/main.96e867a7.css",
+    "main.js": "/eduai-studio/static/js/main.fee3d6b7.js",
+    "index.html": "/eduai-studio/index.html",
+    "main.96e867a7.css.map": "/eduai-studio/static/css/main.96e867a7.css.map",
+    "main.fee3d6b7.js.map": "/eduai-studio/static/js/main.fee3d6b7.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.96e867a7.css",
+    "static/js/main.fee3d6b7.js"
+  ]
+}
