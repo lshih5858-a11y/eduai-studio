@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2단계: 운동 프로그램 설계</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <a href="/" class="logo">💪 EduAI 운동건강관리</a>
+      <span class="subtitle">2단계: 운동 프로그램 설계</span>
+    </div>
+  </header>
+
+  <main class="stage-main">
+    <div class="stage-header">
+      <div class="stage-badge-lg">2단계</div>
+      <h1>🏋️ 개인 맞춤 운동 프로그램 설계</h1>
+      <p>FITT 원칙 기반 8주 운동 프로그램을 AI가 자동 설계합니다.</p>
+    </div>
+
+    <div class="learning-goals">
+      <h3>📚 학습 목표</h3>
+      <ul>
+        <li>SMART 목표를 설정하고 FITT 원칙을 운동 프로그램에 적용할 수 있다.</li>
+        <li>개인의 체력 수준과 생활 패턴에 맞는 주간 운동 루틴을 구성할 수 있다.</li>
+        <li>AI 생성 프로그램의 적절성을 비판적으로 평가하고 수정할 수 있다.</li>
+      </ul>
+    </div>
+
+    <form id="analysisForm" class="input-form">
+      <div class="form-section">
+        <h3>🧍 기본 정보</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>성별</label>
+            <select name="gender" required>
+              <option value="">선택</option>
+              <option value="남성">남성</option>
+              <option value="여성">여성</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>나이 (세)</label>
+            <input type="number" name="age" min="15" max="80" placeholder="예: 22" required>
+          </div>
+          <div class="form-group">
+            <label>현재 체력 수준</label>
+            <select name="fitness_level">
+              <option value="초급 (운동 경험 거의 없음)">초급 (운동 경험 거의 없음)</option>
+              <option value="초중급 (간헐적 운동 경험)">초중급 (간헐적 운동 경험)</option>
+              <option value="중급 (규칙적 운동 6개월 이상)">중급 (규칙적 운동 6개월 이상)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>🎯 운동 목표 및 환경</h3>
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label>운동 목표 (복수 선택 가능)</label>
+            <div class="checkbox-group">
+              <label><input type="checkbox" name="goal" value="심폐지구력 향상"> 심폐지구력 향상</label>
+              <label><input type="checkbox" name="goal" value="근력 강화"> 근력 강화</label>
+              <label><input type="checkbox" name="goal" value="체지방 감소"> 체지방 감소</label>
+              <label><input type="checkbox" name="goal" value="유연성 향상"> 유연성 향상</label>
+              <label><input type="checkbox" name="goal" value="체형 관리"> 체형 관리</label>
+              <label><input type="checkbox" name="goal" value="스트레스 해소"> 스트레스 해소</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>가용 시간 (주당)</label>
+            <select name="available_time">
+              <option value="주 2회, 회당 30분">주 2회, 회당 30분</option>
+              <option value="주 3회, 회당 40분" selected>주 3회, 회당 40분</option>
+              <option value="주 4회, 회당 45분">주 4회, 회당 45분</option>
+              <option value="주 5회, 회당 60분">주 5회, 회당 60분</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>이용 가능 시설</label>
+            <select name="facility">
+              <option value="헬스장 (풀 장비)">헬스장 (풀 장비)</option>
+              <option value="홈 (매트, 밴드)">홈 (매트, 밴드)</option>
+              <option value="학교 체육관">학교 체육관</option>
+              <option value="야외 (공원, 트랙)">야외 (공원, 트랙)</option>
+            </select>
+          </div>
+          <div class="form-group full-width">
+            <label>특별 주의사항 (부상 이력, 만성 질환 등)</label>
+            <textarea name="precaution" rows="2" placeholder="예: 오른쪽 무릎 통증 경험, 요통 있음, 고혈압 등 (없으면 '없음')"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-analyze">🤖 AI 운동 프로그램 설계 시작</button>
+    </form>
+
+    <div id="resultBox" class="result-box hidden">
+      <div class="result-header">
+        <h3>📋 AI 맞춤 운동 프로그램</h3>
+        <button onclick="copyResult()" class="btn-copy">📋 복사</button>
+      </div>
+      <div id="resultContent" class="result-content"></div>
+    </div>
+
+    <div class="nav-row">
+      <a href="/stage/1" class="btn-nav">← 1단계: 건강 분석</a>
+      <a href="/stage/3" class="btn-nav primary">3단계: 식단 가이드 →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>⚠️ AI 생성 프로그램은 참고용이며 실제 적용 전 전문가 검토를 권장합니다.</p>
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

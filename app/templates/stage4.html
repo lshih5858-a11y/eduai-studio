@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4단계: AI 피드백 & 리포트</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <a href="/" class="logo">💪 EduAI 운동건강관리</a>
+      <span class="subtitle">4단계: AI 피드백 & 리포트</span>
+    </div>
+  </header>
+
+  <main class="stage-main">
+    <div class="stage-header">
+      <div class="stage-badge-lg">4단계</div>
+      <h1>📊 AI 기반 피드백 및 리포트 생성</h1>
+      <p>4주 운동 데이터를 분석하고 클라이언트용 월간 리포트를 자동으로 생성합니다.</p>
+    </div>
+
+    <div class="learning-goals">
+      <h3>📚 학습 목표</h3>
+      <ul>
+        <li>운동 수행 데이터를 체계적으로 기록하고 AI 분석에 활용할 수 있다.</li>
+        <li>AI를 활용하여 클라이언트용 진도 리포트를 생성하고 편집할 수 있다.</li>
+        <li>데이터 기반 피드백을 통해 프로그램을 수정·조정할 수 있다.</li>
+      </ul>
+    </div>
+
+    <form id="analysisForm" class="input-form">
+      <div class="form-section">
+        <h3>📅 4주 운동 실적</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>계획 대비 실천율 (%)</label>
+            <input type="number" name="adherence" min="0" max="100" placeholder="예: 85" required>
+          </div>
+          <div class="form-group">
+            <label>운동 즐거움 (1~10)</label>
+            <input type="range" name="enjoyment" min="1" max="10" value="7" oninput="this.nextElementSibling.textContent=this.value">
+            <span class="range-val">7</span>
+          </div>
+          <div class="form-group full-width">
+            <label>미이행 주요 이유</label>
+            <input type="text" name="miss_reason" placeholder="예: 학업 스트레스, 피로, 질병 등">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>📈 체력 변화 (시작 → 현재)</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>체중: 시작 (kg)</label>
+            <input type="number" name="weight_before" step="0.1" placeholder="예: 65">
+          </div>
+          <div class="form-group">
+            <label>체중: 현재 (kg)</label>
+            <input type="number" name="weight_after" step="0.1" placeholder="예: 63.5">
+          </div>
+          <div class="form-group">
+            <label>체지방률: 시작 (%)</label>
+            <input type="number" name="fat_before" step="0.1" placeholder="예: 28">
+          </div>
+          <div class="form-group">
+            <label>체지방률: 현재 (%)</label>
+            <input type="number" name="fat_after" step="0.1" placeholder="예: 26.5">
+          </div>
+          <div class="form-group">
+            <label>왕복오래달리기: 시작 (회)</label>
+            <input type="number" name="cardio_before" placeholder="예: 35">
+          </div>
+          <div class="form-group">
+            <label>왕복오래달리기: 현재 (회)</label>
+            <input type="number" name="cardio_after" placeholder="예: 42">
+          </div>
+          <div class="form-group">
+            <label>악력: 시작 (kg)</label>
+            <input type="number" name="strength_before" step="0.1" placeholder="예: 27">
+          </div>
+          <div class="form-group">
+            <label>악력: 현재 (kg)</label>
+            <input type="number" name="strength_after" step="0.1" placeholder="예: 30">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>😊 주관적 변화 (10점 만점)</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>에너지 수준: 시작</label>
+            <input type="range" name="energy_before" min="1" max="10" value="5" oninput="this.nextElementSibling.textContent=this.value">
+            <span class="range-val">5</span>
+          </div>
+          <div class="form-group">
+            <label>에너지 수준: 현재</label>
+            <input type="range" name="energy_after" min="1" max="10" value="7" oninput="this.nextElementSibling.textContent=this.value">
+            <span class="range-val">7</span>
+          </div>
+          <div class="form-group">
+            <label>수면의 질: 시작</label>
+            <input type="range" name="sleep_before" min="1" max="10" value="4" oninput="this.nextElementSibling.textContent=this.value">
+            <span class="range-val">4</span>
+          </div>
+          <div class="form-group">
+            <label>수면의 질: 현재</label>
+            <input type="range" name="sleep_after" min="1" max="10" value="6" oninput="this.nextElementSibling.textContent=this.value">
+            <span class="range-val">6</span>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-analyze">🤖 AI 월간 리포트 생성</button>
+    </form>
+
+    <div id="resultBox" class="result-box hidden">
+      <div class="result-header">
+        <h3>📋 AI 월간 건강관리 리포트</h3>
+        <button onclick="copyResult()" class="btn-copy">📋 복사</button>
+      </div>
+      <div id="resultContent" class="result-content"></div>
+    </div>
+
+    <div class="nav-row">
+      <a href="/stage/3" class="btn-nav">← 3단계: 식단 가이드</a>
+      <a href="/" class="btn-nav primary">🏠 처음으로</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>⚠️ 리포트는 교육용 참고 자료이며 실제 클라이언트 제공 전 전문가 검토가 필요합니다.</p>
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

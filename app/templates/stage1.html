@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1단계: 건강 상태 분석</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <a href="/" class="logo">💪 EduAI 운동건강관리</a>
+      <span class="subtitle">1단계: 건강 상태 분석</span>
+    </div>
+  </header>
+
+  <main class="stage-main">
+    <div class="stage-header">
+      <div class="stage-badge-lg">1단계</div>
+      <h1>🔍 건강 상태 분석</h1>
+      <p>BMI · 체력 측정 · 생활습관 데이터를 입력하면 AI가 종합 건강 상태를 분석합니다.</p>
+    </div>
+
+    <div class="learning-goals">
+      <h3>📚 학습 목표</h3>
+      <ul>
+        <li>BMI, 체지방률 등 기본 신체 지표를 측정하고 해석할 수 있다.</li>
+        <li>체력 측정 데이터를 수집하고 AI 분석에 적합한 형태로 정리할 수 있다.</li>
+        <li>생활습관 설문 결과를 AI로 분석하여 개선 우선순위를 도출할 수 있다.</li>
+      </ul>
+    </div>
+
+    <form id="analysisForm" class="input-form">
+      <div class="form-section">
+        <h3>🧍 기본 신체 정보</h3>
+        <p class="privacy-note">⚠️ 개인정보 보호: 실명 대신 익명 코드(예: P-001)를 사용하세요.</p>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>성별</label>
+            <select name="gender" required>
+              <option value="">선택</option>
+              <option value="남성">남성</option>
+              <option value="여성">여성</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>나이 (세)</label>
+            <input type="number" name="age" min="15" max="80" placeholder="예: 22" required>
+          </div>
+          <div class="form-group">
+            <label>키 (cm)</label>
+            <input type="number" name="height" min="140" max="220" step="0.1" placeholder="예: 170" required>
+          </div>
+          <div class="form-group">
+            <label>체중 (kg)</label>
+            <input type="number" name="weight" min="30" max="200" step="0.1" placeholder="예: 65" required>
+          </div>
+          <div class="form-group">
+            <label>체지방률 (%)</label>
+            <input type="number" name="body_fat" min="3" max="60" step="0.1" placeholder="예: 25">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>💪 체력 측정 결과</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>악력-우 (kg)</label>
+            <input type="number" name="grip" min="5" max="80" step="0.1" placeholder="예: 30">
+          </div>
+          <div class="form-group">
+            <label>윗몸일으키기 (1분, 회)</label>
+            <input type="number" name="situp" min="0" max="100" placeholder="예: 30">
+          </div>
+          <div class="form-group">
+            <label>앉아서 윗몸 굽히기 (cm)</label>
+            <input type="number" name="flexibility" min="-30" max="50" placeholder="예: 10">
+          </div>
+          <div class="form-group">
+            <label>왕복오래달리기 (회)</label>
+            <input type="number" name="endurance" min="0" max="200" placeholder="예: 40">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>🌙 생활습관</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>하루 수면 시간</label>
+            <select name="sleep">
+              <option value="4시간 미만">4시간 미만</option>
+              <option value="4~5시간">4~5시간</option>
+              <option value="5~6시간" selected>5~6시간</option>
+              <option value="6~7시간">6~7시간</option>
+              <option value="7~8시간">7~8시간</option>
+              <option value="8시간 이상">8시간 이상</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>하루 걷기 (보)</label>
+            <select name="steps">
+              <option value="3,000보 미만">3,000보 미만</option>
+              <option value="3,000~5,000보" selected>3,000~5,000보</option>
+              <option value="5,000~8,000보">5,000~8,000보</option>
+              <option value="8,000~10,000보">8,000~10,000보</option>
+              <option value="10,000보 이상">10,000보 이상</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>스트레스 수준 (1~10)</label>
+            <input type="range" name="stress" min="1" max="10" value="5" oninput="this.nextElementSibling.textContent=this.value">
+            <span class="range-val">5</span>
+          </div>
+          <div class="form-group full-width">
+            <label>식습관 특이사항</label>
+            <textarea name="diet_note" rows="2" placeholder="예: 아침 결식 빈번, 배달음식 자주 이용, 채식 선호 등"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-analyze">🤖 AI 건강 상태 분석 시작</button>
+    </form>
+
+    <div id="resultBox" class="result-box hidden">
+      <div class="result-header">
+        <h3>📋 AI 건강 상태 분석 결과</h3>
+        <button onclick="copyResult()" class="btn-copy">📋 복사</button>
+      </div>
+      <div id="resultContent" class="result-content"></div>
+    </div>
+
+    <div class="nav-row">
+      <a href="/" class="btn-nav">← 홈으로</a>
+      <a href="/stage/2" class="btn-nav primary">2단계: 운동 프로그램 설계 →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>⚠️ AI 분석 결과는 교육적 참고용이며 의료 진단이 아닙니다.</p>
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
