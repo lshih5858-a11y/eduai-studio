@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3단계: 식단·생활습관 가이드</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <a href="/" class="logo">💪 EduAI 운동건강관리</a>
+      <span class="subtitle">3단계: 식단·생활습관 가이드</span>
+    </div>
+  </header>
+
+  <main class="stage-main">
+    <div class="stage-header">
+      <div class="stage-badge-lg">3단계</div>
+      <h1>🥗 식단 및 생활습관 개선 가이드</h1>
+      <p>에너지 균형·영양소 계산부터 실천 가능한 주간 식단까지 AI가 설계합니다.</p>
+    </div>
+
+    <div class="learning-goals">
+      <h3>📚 학습 목표</h3>
+      <ul>
+        <li>에너지 균형 원칙을 이해하고 개인별 칼로리 필요량을 계산할 수 있다.</li>
+        <li>운동 목표에 맞는 탄수화물·단백질·지방 비율을 설정할 수 있다.</li>
+        <li>수면·스트레스가 운동 수행 능력과 회복에 미치는 영향을 설명할 수 있다.</li>
+      </ul>
+    </div>
+
+    <form id="analysisForm" class="input-form">
+      <div class="form-section">
+        <h3>🧍 기본 정보</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>성별</label>
+            <select name="gender" required>
+              <option value="">선택</option>
+              <option value="남성">남성</option>
+              <option value="여성">여성</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>나이 (세)</label>
+            <input type="number" name="age" min="15" max="80" placeholder="예: 22" required>
+          </div>
+          <div class="form-group">
+            <label>키 (cm)</label>
+            <input type="number" name="height" min="140" max="220" step="0.1" placeholder="예: 170" required>
+          </div>
+          <div class="form-group">
+            <label>체중 (kg)</label>
+            <input type="number" name="weight" min="30" max="200" step="0.1" placeholder="예: 65" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>🎯 목표 및 활동 수준</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>운동 목표</label>
+            <select name="goal">
+              <option value="체지방 감소 + 근력 유지">체지방 감소 + 근력 유지</option>
+              <option value="근육 증가">근육 증가</option>
+              <option value="체중 유지 + 건강 증진">체중 유지 + 건강 증진</option>
+              <option value="전반적 건강 증진">전반적 건강 증진</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>활동 수준</label>
+            <select name="activity">
+              <option value="좌식 (운동 거의 없음)">좌식 (운동 거의 없음)</option>
+              <option value="가벼운 활동 (주 1~2회 운동)" selected>가벼운 활동 (주 1~2회 운동)</option>
+              <option value="보통 활동 (주 3~4회 운동)">보통 활동 (주 3~4회 운동)</option>
+              <option value="활동적 (주 5회 이상 운동)">활동적 (주 5회 이상 운동)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>하루 식비 예산 (원)</label>
+            <select name="budget">
+              <option value="7,000">7,000원</option>
+              <option value="10,000" selected>10,000원</option>
+              <option value="15,000">15,000원</option>
+              <option value="20,000">20,000원</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>식이 제한</label>
+            <input type="text" name="diet_restriction" placeholder="예: 유제품 알레르기, 채식, 없음" value="없음">
+          </div>
+          <div class="form-group full-width">
+            <label>현재 나쁜 생활습관 (개선하고 싶은 것)</label>
+            <textarea name="bad_habits" rows="2" placeholder="예: 아침 결식, 수면 부족, 불규칙한 식사 시간, 야식 습관 등"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-analyze">🤖 AI 식단·생활습관 가이드 생성</button>
+    </form>
+
+    <div id="resultBox" class="result-box hidden">
+      <div class="result-header">
+        <h3>📋 AI 맞춤 식단·생활습관 가이드</h3>
+        <button onclick="copyResult()" class="btn-copy">📋 복사</button>
+      </div>
+      <div id="resultContent" class="result-content"></div>
+    </div>
+
+    <div class="nav-row">
+      <a href="/stage/2" class="btn-nav">← 2단계: 운동 프로그램</a>
+      <a href="/stage/4" class="btn-nav primary">4단계: AI 리포트 →</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>⚠️ 식단 가이드는 교육적 참고용이며 개인 의료 상태에 따라 전문가 상담이 필요합니다.</p>
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
