@@ -1,0 +1,264 @@
+/* =============================================
+   CSS 변수 & 리셋
+   ============================================= */
+:root {
+  --color-primary:      #1a4a8a;   /* 딥블루 */
+  --color-primary-dark: #0f2f5e;
+  --color-primary-light:#2563c0;
+  --color-mint:         #3ab8a8;
+  --color-mint-light:   #e8f8f6;
+  --color-green:        #4caf7d;
+  --color-green-light:  #eaf7ee;
+  --color-accent:       #f59e0b;
+  --color-danger:       #e53e3e;
+
+  --color-bg:           #f4f7fc;
+  --color-surface:      #ffffff;
+  --color-border:       #dde4ef;
+  --color-text:         #1e2a3a;
+  --color-text-muted:   #64748b;
+  --color-text-light:   #94a3b8;
+
+  --sidebar-w:    240px;
+  --header-h:      60px;
+
+  --radius-sm:  6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+
+  --shadow-sm: 0 1px 4px rgba(26,74,138,.08);
+  --shadow-md: 0 4px 16px rgba(26,74,138,.12);
+  --shadow-lg: 0 8px 32px rgba(26,74,138,.16);
+
+  --transition: .2s ease;
+
+  --font-base: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-base);
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a { color: var(--color-primary-light); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+img { max-width: 100%; display: block; }
+
+ul, ol { list-style: none; }
+
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+/* =============================================
+   레이아웃: 헤더
+   ============================================= */
+.site-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: var(--color-primary);
+  color: #fff;
+  z-index: 200;
+  box-shadow: var(--shadow-md);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon { font-size: 1.5rem; }
+
+.logo-text strong {
+  display: block;
+  font-size: .95rem;
+  font-weight: 700;
+  letter-spacing: -.3px;
+}
+
+.logo-text small {
+  font-size: .68rem;
+  opacity: .78;
+  letter-spacing: -.2px;
+}
+
+.header-badges {
+  display: flex;
+  gap: 8px;
+}
+
+.badge {
+  font-size: .72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(255,255,255,.4);
+  color: #fff;
+  opacity: .55;
+  transition: opacity var(--transition), background var(--transition);
+}
+
+.badge.active { opacity: 1; background: rgba(255,255,255,.18); }
+
+/* =============================================
+   레이아웃: 사이드바
+   ============================================= */
+.sidebar {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  width: var(--sidebar-w);
+  height: calc(100vh - var(--header-h));
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  overflow-y: auto;
+  z-index: 100;
+  transition: transform var(--transition);
+  padding: 16px 0 80px;
+}
+
+.nav-list { display: flex; flex-direction: column; gap: 2px; padding: 0 10px; }
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: .9rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-align: left;
+  transition: background var(--transition), color var(--transition);
+}
+
+.nav-btn:hover {
+  background: var(--color-mint-light);
+  color: var(--color-primary);
+}
+
+.nav-btn.active {
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.nav-icon { font-size: 1.1rem; width: 22px; text-align: center; }
+
+/* 햄버거 (모바일 전용) */
+.nav-toggle {
+  display: none;
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  z-index: 300;
+  font-size: 1.4rem;
+  color: #fff;
+  background: none;
+  border: none;
+}
+
+/* =============================================
+   레이아웃: 메인 콘텐츠
+   ============================================= */
+.main-content {
+  margin-left: var(--sidebar-w);
+  margin-top: var(--header-h);
+  min-height: calc(100vh - var(--header-h));
+  padding: 32px 28px 80px;
+}
+
+/* =============================================
+   섹션 전환
+   ============================================= */
+.section { display: none; }
+.section.active { display: block; animation: fadeIn .25s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =============================================
+   푸터
+   ============================================= */
+.site-footer {
+  margin-left: var(--sidebar-w);
+  background: var(--color-primary-dark);
+  color: rgba(255,255,255,.65);
+  text-align: center;
+  padding: 16px;
+  font-size: .8rem;
+  letter-spacing: .3px;
+}
+
+/* =============================================
+   공통 타이포그래피
+   ============================================= */
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+
+.page-subtitle {
+  font-size: .92rem;
+  color: var(--color-text-muted);
+  margin-bottom: 28px;
+}
+
+.section-heading {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  margin-bottom: 14px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--color-border);
+}
+
+/* =============================================
+   반응형
+   ============================================= */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    z-index: 150;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar.open { transform: translateX(0); }
+
+  .nav-toggle { display: block; }
+
+  .main-content {
+    margin-left: 0;
+    padding: 20px 16px 60px;
+  }
+
+  .site-footer { margin-left: 0; }
+
+  .logo-text small { display: none; }
+}
+
+@media (max-width: 480px) {
+  .page-title { font-size: 1.2rem; }
+  .header-badges { display: none; }
+}
