@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduAI Exercise Health Designer</title>
+  <meta name="description" content="운동건강관리과 AI 기반 16주차 수업설계·실습·평가 통합 플랫폼" />
+  <link rel="stylesheet" href="src/styles/main.css" />
+  <link rel="stylesheet" href="src/styles/components.css" />
+</head>
+<body>
+
+  <!-- 헤더 / 상단 내비게이션 -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⚕️</span>
+        <div class="logo-text">
+          <strong>EduAI Exercise Health Designer</strong>
+          <small>운동건강관리과 AI 기반 16주차 수업설계·실습·평가 통합 플랫폼</small>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="badge badge-professor" id="badge-professor">교수자 모드</span>
+        <span class="badge badge-student" id="badge-student">학생 모드</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 모바일 햄버거 -->
+  <button class="nav-toggle" id="navToggle" aria-label="메뉴 열기">&#9776;</button>
+
+  <!-- 사이드 내비게이션 -->
+  <nav class="sidebar" id="sidebar">
+    <ul class="nav-list">
+      <li>
+        <button class="nav-btn active" data-section="dashboard">
+          <span class="nav-icon">🏠</span> 홈 대시보드
+        </button>
+      </li>
+      <li>
+        <button class="nav-btn" data-section="curriculum">
+          <span class="nav-icon">📅</span> 16주차 수업설계
+        </button>
+      </li>
+      <li>
+        <button class="nav-btn" data-section="ai-tools">
+          <span class="nav-icon">🤖</span> AI 도구 매핑
+        </button>
+      </li>
+      <li>
+        <button class="nav-btn" data-section="prescription">
+          <span class="nav-icon">🏋️</span> 운동처방 실습
+        </button>
+      </li>
+      <li>
+        <button class="nav-btn" data-section="assessment">
+          <span class="nav-icon">📊</span> 건강·체력 평가
+        </button>
+      </li>
+      <li>
+        <button class="nav-btn" data-section="ai-tutor">
+          <span class="nav-icon">💬</span> 학생용 AI 튜터
+        </button>
+      </li>
+      <li>
+        <button class="nav-btn" data-section="tasks">
+          <span class="nav-icon">📝</span> 과제·퀴즈·루브릭
+        </button>
+      </li>
+      <li>
+        <button class="nav-btn" data-section="professor">
+          <span class="nav-icon">🖨️</span> 교수자용 출력자료
+        </button>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="main-content" id="mainContent">
+
+    <!-- [1] 홈 대시보드 -->
+    <section id="dashboard" class="section active"></section>
+
+    <!-- [2] 16주차 수업설계 -->
+    <section id="curriculum" class="section"></section>
+
+    <!-- [3] AI 도구 매핑 -->
+    <section id="ai-tools" class="section"></section>
+
+    <!-- [4] 운동처방 실습 -->
+    <section id="prescription" class="section"></section>
+
+    <!-- [5] 건강·체력 평가 -->
+    <section id="assessment" class="section"></section>
+
+    <!-- [6] 학생용 AI 튜터 -->
+    <section id="ai-tutor" class="section"></section>
+
+    <!-- [7] 과제·퀴즈·루브릭 -->
+    <section id="tasks" class="section"></section>
+
+    <!-- [8] 교수자용 출력자료 -->
+    <section id="professor" class="section"></section>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="site-footer">
+    <p>EduAI Studio 연구소 | 전공 맞춤형 AI 수업설계 플랫폼</p>
+  </footer>
+
+  <!-- JS 모듈 -->
+  <script src="src/data/curriculum.js"></script>
+  <script src="src/data/aiTools.js"></script>
+  <script src="src/data/assessment.js"></script>
+  <script src="src/utils/helpers.js"></script>
+  <script src="src/components/dashboard.js"></script>
+  <script src="src/components/curriculumView.js"></script>
+  <script src="src/components/aiToolsView.js"></script>
+  <script src="src/components/prescriptionView.js"></script>
+  <script src="src/components/assessmentView.js"></script>
+  <script src="src/components/tutorView.js"></script>
+  <script src="src/components/tasksView.js"></script>
+  <script src="src/components/professorView.js"></script>
+  <script src="src/utils/router.js"></script>
+</body>
+</html>

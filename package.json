@@ -1,0 +1,22 @@
+{
+  "name": "eduai-exercise-health-designer",
+  "version": "1.0.0",
+  "description": "운동건강관리과 AI 기반 16주차 수업설계·실습·평가 통합 플랫폼",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx live-server --port=3000 --open=index.html",
+    "dev": "npx live-server --port=3000"
+  },
+  "keywords": [
+    "eduai",
+    "exercise-health",
+    "ai-education",
+    "course-design",
+    "korean"
+  ],
+  "author": "EduAI Studio 연구소",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
