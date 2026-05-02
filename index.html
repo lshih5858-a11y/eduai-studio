@@ -110,11 +110,16 @@
     <p>EduAI Studio 연구소 | 전공 맞춤형 AI 수업설계 플랫폼</p>
   </footer>
 
-  <!-- JS 모듈 -->
+  <!-- 1) 데이터 -->
   <script src="src/data/curriculum.js"></script>
   <script src="src/data/aiTools.js"></script>
   <script src="src/data/assessment.js"></script>
+
+  <!-- 2) 유틸 -->
   <script src="src/utils/helpers.js"></script>
+  <script src="src/utils/router.js"></script>
+
+  <!-- 3) 컴포넌트 (App.register 호출) -->
   <script src="src/components/dashboard.js"></script>
   <script src="src/components/curriculumView.js"></script>
   <script src="src/components/aiToolsView.js"></script>
@@ -123,6 +128,8 @@
   <script src="src/components/tutorView.js"></script>
   <script src="src/components/tasksView.js"></script>
   <script src="src/components/professorView.js"></script>
-  <script src="src/utils/router.js"></script>
+
+  <!-- 4) 앱 진입점 (가장 마지막) -->
+  <script src="src/app.js"></script>
 </body>
 </html>
