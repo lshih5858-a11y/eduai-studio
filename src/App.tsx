@@ -8,6 +8,7 @@ import { StudentTutor } from "./components/StudentTutor";
 import { QuizGenerator } from "./components/QuizGenerator";
 import { RubricBoard } from "./components/RubricBoard";
 import { TeacherExports } from "./components/TeacherExports";
+import { ExternalLinks } from "./components/ExternalLinks";
 import { Menu, Search, X, GraduationCap, BookOpen } from "lucide-react";
 import { weeklyPlan } from "./data/weeklyPlan";
 import { aiTools } from "./data/aiTools";
@@ -23,6 +24,7 @@ const menuLabels: Record<MenuKey, string> = {
   quiz: "퀴즈 생성기",
   rubric: "평가 루브릭",
   exports: "교수자 출력자료",
+  links: "외부 학습 링크",
 };
 
 interface SearchResult {
@@ -63,6 +65,16 @@ function globalSearch(query: string): SearchResult[] {
     }
   });
 
+  const linkKeywords = ["챗봇", "gpt", "lms", "인하대", "인하대학교", "외부 링크", "바로가기"];
+  if (linkKeywords.some((kw) => q.includes(kw) || kw.includes(q))) {
+    results.push({
+      type: "외부 링크",
+      title: "외부 학습 링크",
+      desc: "서비스경영 AI 챗봇 · 인하대학교 LMS 바로가기",
+      key: "links",
+    });
+  }
+
   return results.slice(0, 8);
 }
 
@@ -100,6 +112,7 @@ export default function App() {
       case "quiz": return <QuizGenerator />;
       case "rubric": return <RubricBoard />;
       case "exports": return <TeacherExports />;
+      case "links": return <ExternalLinks />;
       default: return <Dashboard onNavigate={handleNavigate} role={role} />;
     }
   };

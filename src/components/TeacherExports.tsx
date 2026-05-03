@@ -5,7 +5,10 @@ import { missions } from "../data/missions";
 import { rubrics } from "../data/rubrics";
 import { quizzes } from "../data/quizzes";
 import { CopyButton } from "./CopyButton";
-import { ChevronDown, ChevronUp, FileText, Info } from "lucide-react";
+import { ChevronDown, ChevronUp, FileText, Info, ExternalLink } from "lucide-react";
+
+const GPT_URL = "https://chatgpt.com/g/g-6841183512d481918cbe7a215cdfc926";
+const LMS_URL = "https://www.inha.ac.kr/kr/1537/subview.do";
 
 interface ExportSection {
   id: string;
@@ -377,6 +380,105 @@ export function TeacherExports() {
             </div>
           );
         })}
+      </div>
+
+      {/* ── 학생 공유용 링크 안내문 ── */}
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        {/* 헤더 */}
+        <div className="bg-gradient-to-r from-[#0a1a3e] to-[#1e3a8a] px-6 py-4 flex items-center justify-between">
+          <div>
+            <p className="text-sky-300 text-xs font-semibold mb-0.5">학생 배포용</p>
+            <h3 className="text-white font-bold">학생 공유용 링크 안내문</h3>
+          </div>
+          <CopyButton
+            text={`[서비스경영 수업 온라인 학습 도구 안내]
+
+서비스경영 수업에서는 다음 두 가지 온라인 학습 도구를 함께 사용합니다.
+
+1. 서비스경영 AI 챗봇 (Custom GPT)
+   링크: ${GPT_URL}
+   - 주차별 개념 설명
+   - 발표자료 프롬프트 안내
+   - 퀴즈 생성
+   - 과제 작성 방향 피드백
+   - 서비스 사례 분석 지원
+
+2. 인하대학교 LMS
+   링크: ${LMS_URL}
+   - 공식 강의자료 확인
+   - 과제 제출
+   - 공지사항 확인
+   - 평가 기준 확인
+   - 교수자 피드백 확인
+
+⚠️ 주의:
+AI 챗봇은 학습 보조 도구이며, 과제 제출과 공식 평가는 반드시 LMS 공지를 기준으로 합니다.`}
+            label="안내문 복사"
+          />
+        </div>
+
+        <div className="p-6 space-y-5">
+          <p className="text-sm text-slate-600 leading-relaxed">
+            서비스경영 수업에서는 다음 두 가지 온라인 학습 도구를 함께 사용합니다.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* 챗봇 카드 */}
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-6 h-6 bg-emerald-500 text-white text-xs font-bold rounded-full flex items-center justify-center flex-shrink-0">1</span>
+                <span className="font-bold text-emerald-800">서비스경영 AI 챗봇</span>
+              </div>
+              <ul className="space-y-1.5 text-xs text-emerald-700 mb-3">
+                {["주차별 개념 설명", "발표자료 프롬프트 안내", "퀴즈 생성", "과제 작성 방향 피드백", "서비스 사례 분석 지원"].map((f) => (
+                  <li key={f} className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 bg-emerald-500 rounded-full flex-shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href={GPT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-white border border-emerald-300 px-3 py-1.5 rounded-lg hover:bg-emerald-50 transition-colors"
+              >
+                <ExternalLink size={11} />
+                챗봇 열기
+              </a>
+            </div>
+
+            {/* LMS 카드 */}
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-6 h-6 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center flex-shrink-0">2</span>
+                <span className="font-bold text-blue-800">인하대학교 LMS</span>
+              </div>
+              <ul className="space-y-1.5 text-xs text-blue-700 mb-3">
+                {["공식 강의자료 확인", "과제 제출", "공지사항 확인", "평가 기준 확인", "교수자 피드백 확인"].map((f) => (
+                  <li key={f} className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 bg-blue-500 rounded-full flex-shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href={LMS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 bg-white border border-blue-300 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
+              >
+                <ExternalLink size={11} />
+                LMS 열기
+              </a>
+            </div>
+          </div>
+
+          <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-xs text-amber-800 leading-relaxed">
+            <span className="font-bold">⚠️ 주의:</span>{" "}
+            AI 챗봇은 학습 보조 도구이며, 과제 제출과 공식 평가는 반드시 LMS 공지를 기준으로 합니다.
+          </div>
+        </div>
       </div>
 
       {/* 일괄 안내 */}

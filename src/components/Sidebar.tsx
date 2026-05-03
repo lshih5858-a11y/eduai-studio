@@ -7,6 +7,7 @@ import {
   HelpCircle,
   ClipboardList,
   FileOutput,
+  ExternalLink,
 } from "lucide-react";
 import type { UserRole } from "../App";
 
@@ -18,7 +19,8 @@ export type MenuKey =
   | "tutor"
   | "quiz"
   | "rubric"
-  | "exports";
+  | "exports"
+  | "links";
 
 interface MenuItem {
   key: MenuKey;
@@ -37,6 +39,7 @@ const menuItems: MenuItem[] = [
   { key: "quiz", label: "퀴즈 생성기", icon: <HelpCircle size={17} />, audience: "both" },
   { key: "rubric", label: "평가 루브릭", icon: <ClipboardList size={17} />, audience: "instructor", badge: "교수" },
   { key: "exports", label: "교수자 출력자료", icon: <FileOutput size={17} />, audience: "instructor", badge: "교수" },
+  { key: "links", label: "외부 학습 링크", icon: <ExternalLink size={17} />, audience: "both" },
 ];
 
 interface SidebarProps {
@@ -66,10 +69,12 @@ export function Sidebar({ active, onSelect, role, mobileOpen, onClose }: Sidebar
           { label: null, items: [menuItems[0]] },
           { label: "수업 설계", items: [menuItems[1], menuItems[2], menuItems[3]] },
           { label: "평가 & 자료", items: [menuItems[5], menuItems[6], menuItems[7]] },
+          { label: "외부 연결", items: [menuItems[8]] },
         ]
       : [
           { label: null, items: [menuItems[0]] },
           { label: "학습 도구", items: [menuItems[2], menuItems[3], menuItems[4], menuItems[5]] },
+          { label: "외부 연결", items: [menuItems[8]] },
         ];
 
   void instructorItems;

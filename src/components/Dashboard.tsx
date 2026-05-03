@@ -10,9 +10,14 @@ import {
   ArrowRight,
   Sparkles,
   ChevronRight,
+  ExternalLink,
+  Bot,
 } from "lucide-react";
 import type { MenuKey } from "./Sidebar";
 import type { UserRole } from "../App";
+
+const GPT_URL = "https://chatgpt.com/g/g-6841183512d481918cbe7a215cdfc926";
+const LMS_URL = "https://www.inha.ac.kr/kr/1537/subview.do";
 
 interface DashboardProps {
   onNavigate: (key: MenuKey) => void;
@@ -338,6 +343,51 @@ export function Dashboard({ onNavigate, role }: DashboardProps) {
               <p className="text-[10px] opacity-70 mt-0.5">{t.desc}</p>
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* ── 빠른 학습 링크 ── */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-bold text-slate-800">빠른 학습 링크</h3>
+          <button
+            onClick={() => onNavigate("links")}
+            className="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1"
+          >
+            전체 보기 <ArrowRight size={12} />
+          </button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <a
+            href={GPT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-4 p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl hover:shadow-md transition-all group"
+          >
+            <div className="w-11 h-11 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+              <Bot size={22} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-slate-800">서비스경영 AI 챗봇 열기</p>
+              <p className="text-xs text-slate-500 truncate">Custom GPT — 개념·퀴즈·과제 피드백</p>
+            </div>
+            <ExternalLink size={14} className="text-emerald-400 flex-shrink-0" />
+          </a>
+          <a
+            href={LMS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-4 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl hover:shadow-md transition-all group"
+          >
+            <div className="w-11 h-11 bg-gradient-to-br from-[#0a1a3e] to-[#1e3a8a] rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+              <BookOpen size={22} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-slate-800">인하대학교 LMS 열기</p>
+              <p className="text-xs text-slate-500 truncate">강의자료·과제 제출·공지사항</p>
+            </div>
+            <ExternalLink size={14} className="text-blue-400 flex-shrink-0" />
+          </a>
         </div>
       </div>
 
