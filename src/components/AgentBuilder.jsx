@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Bot, ChevronDown, ChevronRight } from 'lucide-react'
 import PromptCard from './PromptCard'
+import UsageGuide from './UsageGuide'
 
 const AGENTS = [
   {
@@ -77,84 +78,87 @@ const AGENTS = [
   },
 ]
 
+const USAGE_STEPS = [
+  { icon: '🤖', text: '6가지 AI 에이전트 중 수업 주제에 맞는 에이전트를 선택합니다.' },
+  { icon: '📋', text: 'Opal 앱 제작 프롬프트 또는 Gemini System Prompt를 복사합니다.' },
+  { icon: '🔵', text: 'Opal(opal.dev)에서 "새 앱 만들기" → 프롬프트 붙여넣기 → 앱을 바로 생성합니다.' },
+  { icon: '🔗', text: '생성된 앱 링크를 학생들과 공유하여 수업 중 실습에 활용합니다.' },
+]
+
 export default function AgentBuilder() {
   const [expanded, setExpanded] = useState('tutor')
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <div className="bg-indigo-100 p-2 rounded-xl"><Bot size={22} className="text-indigo-700" /></div>
+        <div className="bg-indigo-100 p-2.5 rounded-xl shadow-sm"><Bot size={22} className="text-indigo-700" /></div>
         <div>
           <h2 className="text-xl font-bold text-gray-800">AI 튜터·비즈니스 시뮬레이션 에이전트</h2>
-          <p className="text-sm text-gray-500">Opal, Gemini, 노코드 툴을 활용한 AI 에이전트 설계 프롬프트를 제공합니다.</p>
+          <p className="text-sm text-gray-500">Opal·Gemini·노코드 툴을 활용한 수업용 AI 에이전트 설계 프롬프트를 제공합니다.</p>
         </div>
       </div>
 
-      <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-sm text-indigo-800">
-        <p className="font-bold mb-1">🔧 에이전트 제작 도구 안내</p>
-        <div className="grid sm:grid-cols-3 gap-2 text-xs mt-2">
-          <div className="bg-white rounded-lg p-2 border border-indigo-100">
-            <p className="font-semibold">Opal</p>
-            <p className="text-indigo-600">노코드 AI 앱 빌더. 입력 폼 + AI 응답 구조 설계에 최적</p>
+      <UsageGuide
+        steps={USAGE_STEPS}
+        tip="Opal 앱은 코딩 없이 5분 안에 만들 수 있습니다. 수업 전날 미리 만들어 두고 QR코드로 학생들과 공유하세요."
+      />
+
+      {/* 도구 안내 */}
+      <div className="grid sm:grid-cols-3 gap-3">
+        {[
+          { name: 'Opal',              desc: '노코드 AI 앱 빌더. 입력 폼 + AI 응답 구조 설계에 최적.',        color: 'bg-indigo-50 border-indigo-200 text-indigo-800' },
+          { name: 'Gemini (AI Studio)', desc: '역할 기반 AI 에이전트 설계. Google AI Studio에서 무료 테스트.', color: 'bg-blue-50 border-blue-200 text-blue-800' },
+          { name: 'Custom GPT',         desc: 'ChatGPT Plus에서 맞춤 GPT 생성. 수업 전용 챗봇 제작.',         color: 'bg-green-50 border-green-200 text-green-800' },
+        ].map(t => (
+          <div key={t.name} className={`border rounded-xl p-3.5 ${t.color}`}>
+            <p className="font-bold text-sm mb-1">{t.name}</p>
+            <p className="text-xs opacity-80 leading-relaxed">{t.desc}</p>
           </div>
-          <div className="bg-white rounded-lg p-2 border border-indigo-100">
-            <p className="font-semibold">Gemini (System Prompt)</p>
-            <p className="text-indigo-600">역할 기반 AI 에이전트 설계. Google AI Studio에서 테스트</p>
-          </div>
-          <div className="bg-white rounded-lg p-2 border border-indigo-100">
-            <p className="font-semibold">Custom GPT</p>
-            <p className="text-indigo-600">ChatGPT Plus에서 맞춤 GPT 생성. 수업 전용 챗봇 제작</p>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* 에이전트 아코디언 */}
       <div className="space-y-3">
         {AGENTS.map(agent => (
-          <div key={agent.id} className="card overflow-hidden">
+          <div key={agent.id} className="card overflow-hidden !p-0">
             <button
-              className="w-full flex items-center justify-between text-left"
+              className="w-full flex items-center justify-between text-left p-5 hover:bg-gray-50 transition-colors"
               onClick={() => setExpanded(expanded === agent.id ? null : agent.id)}
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{agent.emoji}</span>
                 <div>
                   <p className="font-bold text-gray-800">{agent.label}</p>
-                  <p className="text-xs text-gray-500">{agent.purpose}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{agent.purpose}</p>
                 </div>
               </div>
               {expanded === agent.id
                 ? <ChevronDown size={20} className="text-gray-400 flex-shrink-0" />
-                : <ChevronRight size={20} className="text-gray-400 flex-shrink-0" />
-              }
+                : <ChevronRight size={20} className="text-gray-400 flex-shrink-0" />}
             </button>
 
             {expanded === agent.id && (
-              <div className="mt-4 space-y-4 pt-4 border-t border-gray-100">
-                {/* 에이전트 정보 */}
+              <div className="px-5 pb-5 space-y-4 border-t border-gray-100 pt-4">
                 <div className="grid sm:grid-cols-2 gap-3 text-sm">
-                  <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="bg-gray-50 rounded-xl p-3.5">
                     <p className="text-xs font-semibold text-gray-500 mb-1">사용자 입력값</p>
-                    <p className="text-gray-700">{agent.inputs}</p>
+                    <p className="text-gray-700 text-xs leading-relaxed">{agent.inputs}</p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="bg-gray-50 rounded-xl p-3.5">
                     <p className="text-xs font-semibold text-gray-500 mb-1">에이전트 응답 방식</p>
-                    <p className="text-gray-700">{agent.response}</p>
+                    <p className="text-gray-700 text-xs leading-relaxed">{agent.response}</p>
                   </div>
-                  <div className="bg-blue-50 rounded-lg p-3 sm:col-span-2">
-                    <p className="text-xs font-semibold text-blue-600 mb-1">노코드 워크플로우</p>
-                    <p className="text-blue-800 text-xs font-mono">{agent.workflow}</p>
+                  <div className="bg-indigo-50 rounded-xl p-3.5 sm:col-span-2">
+                    <p className="text-xs font-semibold text-indigo-600 mb-1">노코드 워크플로우</p>
+                    <p className="text-indigo-800 text-xs font-mono">{agent.workflow}</p>
                   </div>
                 </div>
-
                 <PromptCard title="🔵 Opal 앱 제작용 프롬프트" prompt={agent.opal} color="indigo" />
                 <PromptCard title="✨ Gemini System Prompt" prompt={agent.gemini} color="blue" />
-
-                {/* 추천 도구 */}
-                <div className="flex items-center gap-2 text-xs text-gray-600">
+                <div className="flex items-center gap-2 text-xs text-gray-600 flex-wrap">
                   <span className="font-semibold">추천 도구:</span>
                   {agent.tools.split(', ').map(t => (
-                    <span key={t} className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">{t}</span>
+                    <span key={t} className="bg-indigo-100 text-indigo-700 px-2.5 py-0.5 rounded-full font-medium">{t}</span>
                   ))}
                 </div>
               </div>
