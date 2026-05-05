@@ -15,28 +15,28 @@ import LinkManager from './components/LinkManager'
 
 const menuComponents = {
   dashboard: Dashboard,
-  lecture: LectureCase,
-  project: ProjectIdea,
-  data: DataAnalysis,
-  pitch: PitchDeck,
-  coaching: TeamCoaching,
-  agent: AgentBuilder,
-  weekly: WeeklyPlan,
-  rubric: Rubric,
-  links: LinkManager,
+  lecture:   LectureCase,
+  project:   ProjectIdea,
+  data:      DataAnalysis,
+  pitch:     PitchDeck,
+  coaching:  TeamCoaching,
+  agent:     AgentBuilder,
+  weekly:    WeeklyPlan,
+  rubric:    Rubric,
+  links:     LinkManager,
 }
 
-const menuTitles = {
-  dashboard: '홈 대시보드',
-  lecture: '강의안·사례 발굴',
-  project: '프로젝트 아이디어 생성',
-  data: '데이터 분석·코딩 보조',
-  pitch: '피치덱·보고서 자동화',
-  coaching: '팀 프로젝트 코칭 에이전트',
-  agent: 'AI 튜터·시뮬레이션 에이전트',
-  weekly: '16주차 수업 운영표',
-  rubric: '평가 루브릭',
-  links: 'LMS·챗봇 링크 관리',
+const menuMeta = {
+  dashboard: { label: '홈 대시보드',              icon: '🏠' },
+  lecture:   { label: '강의안·사례 발굴',         icon: '📚' },
+  project:   { label: '프로젝트 아이디어 생성',   icon: '💡' },
+  data:      { label: '데이터 분석·코딩 보조',    icon: '📊' },
+  pitch:     { label: '피치덱·보고서 자동화',     icon: '📑' },
+  coaching:  { label: '팀 프로젝트 코칭 에이전트', icon: '🤝' },
+  agent:     { label: 'AI 튜터·시뮬레이션 에이전트', icon: '🤖' },
+  weekly:    { label: '16주차 수업 운영표',        icon: '📅' },
+  rubric:    { label: '평가 루브릭',               icon: '✅' },
+  links:     { label: 'LMS·챗봇 링크 관리',       icon: '🔗' },
 }
 
 export default function App() {
@@ -47,38 +47,57 @@ export default function App() {
   const handleSetActive = (menu) => {
     setActiveMenu(menu)
     storage.set(STORAGE_KEYS.ACTIVE_MENU, menu)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const ActiveComponent = menuComponents[activeMenu] || Dashboard
+  const current = menuMeta[activeMenu]
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-100 flex flex-col">
       <Header mode={mode} setMode={setMode} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-      <div className="flex flex-1 max-w-screen-xl mx-auto w-full">
+      <div className="flex flex-1 max-w-screen-2xl mx-auto w-full">
         <Sidebar active={activeMenu} setActive={handleSetActive} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-        <main className="flex-1 min-w-0 p-4 lg:p-6">
-          {/* 현재 메뉴 경로 표시 */}
+        <main className="flex-1 min-w-0 p-4 lg:p-6 xl:p-8">
+          {/* 브레드크럼 */}
           {activeMenu !== 'dashboard' && (
-            <div className="flex items-center gap-2 text-sm text-slate-400 mb-4">
-              <button onClick={() => handleSetActive('dashboard')} className="hover:text-blue-600 transition-colors">
-                홈
+            <nav className="flex items-center gap-2 text-sm mb-5">
+              <button
+                onClick={() => handleSetActive('dashboard')}
+                className="text-slate-400 hover:text-blue-600 transition-colors flex items-center gap-1"
+              >
+                <span>🏠</span>
+                <span>홈</span>
               </button>
-              <span>›</span>
-              <span className="text-slate-700 font-medium">{menuTitles[activeMenu]}</span>
-            </div>
+              <span className="text-slate-300">›</span>
+              <span className="text-slate-700 font-semibold flex items-center gap-1.5">
+                <span>{current.icon}</span>
+                <span>{current.label}</span>
+              </span>
+            </nav>
           )}
 
+          {/* 메인 콘텐츠 */}
           <ActiveComponent mode={mode} setActive={handleSetActive} />
 
-          {/* 하단 공통 안내 */}
-          <div className="mt-8 pt-6 border-t border-slate-200">
-            <p className="text-xs text-slate-400 text-center leading-relaxed">
-              Business AI Class Studio · 경영학 AI 수업 실습 플랫폼 · 개인정보 미저장 · AI 결과물은 교수자 검토 후 활용<br />
-              저작권·AI 윤리 준수 | 본 플랫폼은 수업 지원 도구이며 실제 API와 연결되지 않습니다
-            </p>
-          </div>
+          {/* 푸터 */}
+          <footer className="mt-10 pt-6 border-t border-slate-200">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-xs">🎓</div>
+                <span className="text-xs font-bold text-slate-500">EduAI Studio · Business AI Class Studio v2.0</span>
+              </div>
+              <div className="flex items-center gap-4 text-xs text-slate-400">
+                <span>🔒 개인정보 미저장</span>
+                <span>·</span>
+                <span>⚠️ AI 결과 교수자 검토 필수</span>
+                <span>·</span>
+                <span>📋 AI 윤리 준수</span>
+              </div>
+            </div>
+          </footer>
         </main>
       </div>
     </div>
