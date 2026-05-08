@@ -183,33 +183,33 @@ textarea{min-height:110px}
     <p>서비스경영 AI 실습 플랫폼</p>
   </div>
   <nav class="sb-nav">
-    <div class="nav-item active" onclick="nav('home')" data-sec="home">
+    <div class="nav-item active" data-sec="home">
       <span class="nav-icon">🏠</span>홈 대시보드
     </div>
-    <div class="nav-item" onclick="nav('today')" data-sec="today">
+    <div class="nav-item" data-sec="today">
       <span class="nav-icon">📅</span>오늘의 AI 실습
     </div>
-    <div class="nav-item" onclick="nav('analysis')" data-sec="analysis">
+    <div class="nav-item" data-sec="analysis">
       <span class="nav-icon">🔍</span>서비스 실패 사례 분석
       <span class="nav-done" id="done-analysis" style="display:none">✓</span>
     </div>
-    <div class="nav-item" onclick="nav('simulation')" data-sec="simulation">
+    <div class="nav-item" data-sec="simulation">
       <span class="nav-icon">💬</span>고객 응대 시뮬레이션
       <span class="nav-done" id="done-simulation" style="display:none">✓</span>
     </div>
-    <div class="nav-item" onclick="nav('prompt')" data-sec="prompt">
+    <div class="nav-item" data-sec="prompt">
       <span class="nav-icon">⚡</span>AI 프롬프트 실습실
       <span class="nav-done" id="done-prompt" style="display:none">✓</span>
     </div>
-    <div class="nav-item" onclick="nav('report')" data-sec="report">
+    <div class="nav-item" data-sec="report">
       <span class="nav-icon">📝</span>보고서 작성 워크벤치
       <span class="nav-done" id="done-report" style="display:none">✓</span>
     </div>
-    <div class="nav-item" onclick="nav('rubric')" data-sec="rubric">
+    <div class="nav-item" data-sec="rubric">
       <span class="nav-icon">📊</span>자기평가 루브릭
       <span class="nav-done" id="done-rubric" style="display:none">✓</span>
     </div>
-    <div class="nav-item" onclick="nav('portfolio')" data-sec="portfolio">
+    <div class="nav-item" data-sec="portfolio">
       <span class="nav-icon">🗂️</span>나의 AI 포트폴리오
     </div>
   </nav>
@@ -217,7 +217,7 @@ textarea{min-height:110px}
     Service AI Lab v1.0<br>서비스경영학과 AI 실습 전용
   </div>
 </aside>
-<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+<div class="overlay" id="overlay"></div>
 
 <!-- ═══ MAIN ═══ -->
 <div class="main">
@@ -225,15 +225,15 @@ textarea{min-height:110px}
   <!-- Top bar -->
   <header class="topbar">
     <div class="topbar-left">
-      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <button class="menu-toggle" id="menu-toggle">☰</button>
       <span class="page-title" id="page-title">🏠 홈 대시보드</span>
     </div>
     <div class="topbar-right">
-      <input type="text" id="tb-name" placeholder="이름 입력" oninput="saveStudent()" style="width:90px">
-      <input type="text" id="tb-id" placeholder="학번" oninput="saveStudent()" style="width:90px">
-      <input type="text" id="tb-class" placeholder="분반" oninput="saveStudent()" style="width:70px">
-      <button class="btn btn-secondary btn-sm" onclick="saveAll()">💾 저장</button>
-      <button class="btn btn-danger btn-sm" onclick="confirmReset()">🗑️ 초기화</button>
+      <input type="text" id="tb-name" placeholder="이름 입력" style="width:90px">
+      <input type="text" id="tb-id" placeholder="학번" style="width:90px">
+      <input type="text" id="tb-class" placeholder="분반" style="width:70px">
+      <button class="btn btn-secondary btn-sm" id="btn-save-all">💾 저장</button>
+      <button class="btn btn-danger btn-sm" id="btn-reset">🗑️ 초기화</button>
     </div>
   </header>
 
@@ -354,7 +354,7 @@ textarea{min-height:110px}
       </div>
 
       <div style="text-align:center;margin-top:10px">
-        <button class="btn btn-primary" onclick="nav('analysis')">🚀 실습 시작하기 →</button>
+        <button class="btn btn-primary" id="btn-start">🚀 실습 시작하기 →</button>
       </div>
     </div>
 
@@ -366,7 +366,7 @@ textarea{min-height:110px}
         <div class="card-hd"><div class="card-icon">🔍</div><h2>서비스 실패 사례 선택</h2></div>
         <div class="form-row">
           <label class="lbl">실습 사례 선택</label>
-          <select id="case-select" onchange="onCaseChange()">
+          <select id="case-select">
             <option value="">— 사례를 선택하세요 —</option>
             <option value="airline">✈️ 항공사 수화물 분실</option>
             <option value="hotel">🏨 호텔 예약 오류</option>
@@ -392,7 +392,7 @@ textarea{min-height:110px}
         </div>
         <div id="case-custom-box" style="display:none;margin-top:12px">
           <label class="lbl">사례 직접 입력</label>
-          <textarea id="custom-case" placeholder="서비스 실패 사례를 직접 작성하세요..." oninput="save()"></textarea>
+          <textarea id="custom-case" placeholder="서비스 실패 사례를 직접 작성하세요..."></textarea>
         </div>
       </div>
 
@@ -401,11 +401,11 @@ textarea{min-height:110px}
         <div class="alert alert-info">💡 이 서비스 실패를 경험한 고객은 어떤 감정을 느꼈을까요? 구체적으로 분석해보세요.</div>
         <div class="form-row">
           <label class="lbl">고객이 느꼈을 주요 감정 (분노, 실망, 배신감 등)</label>
-          <textarea id="emotion-input" placeholder="예: 고객은 장시간 대기 끝에 해결책을 얻지 못하자 강한 배신감과 분노를 느꼈을 것입니다. 특히 사전 예약이라는 신뢰 행위가 무시되었다는 점에서 모욕감도 느꼈을 것입니다..." oninput="save()"></textarea>
+          <textarea id="emotion-input" placeholder="예: 고객은 장시간 대기 끝에 해결책을 얻지 못하자 강한 배신감과 분노를 느꼈을 것입니다. 특히 사전 예약이라는 신뢰 행위가 무시되었다는 점에서 모욕감도 느꼈을 것입니다..."></textarea>
         </div>
         <div class="form-row">
           <label class="lbl">고객 감정 강도</label>
-          <select id="emotion-level" onchange="save()">
+          <select id="emotion-level">
             <option value="">— 선택 —</option>
             <option value="1">① 낮음 — 가벼운 불만</option>
             <option value="2">② 보통 — 불편함</option>
@@ -420,16 +420,16 @@ textarea{min-height:110px}
         <div class="alert alert-info">💡 SERVQUAL 5차원(유형성·신뢰성·반응성·확신성·공감성) 관점에서 원인을 분석하세요.</div>
         <div class="form-row">
           <label class="lbl">실패의 근본 원인</label>
-          <textarea id="cause-input" placeholder="예: 이 실패는 신뢰성(Reliability) 차원에서 예약 시스템의 정확성이 담보되지 않았고, 반응성(Responsiveness) 차원에서 직원이 신속하게 문제를 해결하려는 의지가 부족했습니다..." oninput="save()"></textarea>
+          <textarea id="cause-input" placeholder="예: 이 실패는 신뢰성(Reliability) 차원에서 예약 시스템의 정확성이 담보되지 않았고, 반응성(Responsiveness) 차원에서 직원이 신속하게 문제를 해결하려는 의지가 부족했습니다..."></textarea>
         </div>
         <div class="form-row">
           <label class="lbl">주요 실패 유형 (복수 선택 가능)</label>
           <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
-            <label style="display:flex;align-items:center;gap:5px;font-size:.84rem;text-transform:none;letter-spacing:0;font-weight:normal"><input type="checkbox" id="ft-process" onchange="save()"> 프로세스 오류</label>
-            <label style="display:flex;align-items:center;gap:5px;font-size:.84rem;text-transform:none;letter-spacing:0;font-weight:normal"><input type="checkbox" id="ft-human" onchange="save()"> 인적 오류</label>
-            <label style="display:flex;align-items:center;gap:5px;font-size:.84rem;text-transform:none;letter-spacing:0;font-weight:normal"><input type="checkbox" id="ft-system" onchange="save()"> 시스템 오류</label>
-            <label style="display:flex;align-items:center;gap:5px;font-size:.84rem;text-transform:none;letter-spacing:0;font-weight:normal"><input type="checkbox" id="ft-comm" onchange="save()"> 커뮤니케이션 오류</label>
-            <label style="display:flex;align-items:center;gap:5px;font-size:.84rem;text-transform:none;letter-spacing:0;font-weight:normal"><input type="checkbox" id="ft-policy" onchange="save()"> 정책/규정 문제</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:.84rem;text-transform:none;letter-spacing:0;font-weight:normal"><input type="checkbox" id="ft-process"> 프로세스 오류</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:.84rem;text-transform:none;letter-spacing:0;font-weight:normal"><input type="checkbox" id="ft-human"> 인적 오류</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:.84rem;text-transform:none;letter-spacing:0;font-weight:normal"><input type="checkbox" id="ft-system"> 시스템 오류</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:.84rem;text-transform:none;letter-spacing:0;font-weight:normal"><input type="checkbox" id="ft-comm"> 커뮤니케이션 오류</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:.84rem;text-transform:none;letter-spacing:0;font-weight:normal"><input type="checkbox" id="ft-policy"> 정책/규정 문제</label>
           </div>
         </div>
       </div>
@@ -439,19 +439,19 @@ textarea{min-height:110px}
         <div class="alert alert-info">💡 Justice Theory(공정성 이론) 관점에서 절차적·분배적·상호작용 공정성을 모두 고려하세요.</div>
         <div class="form-row">
           <label class="lbl">제안하는 서비스 회복 전략</label>
-          <textarea id="recovery-input" placeholder="예: ① 즉각적 사과와 공감 표현으로 상호작용 공정성 확보 ② 전액 환불 또는 대체 서비스 제공으로 분배적 공정성 확보 ③ 고객이 선택할 수 있는 해결 옵션 제시로 절차적 공정성 확보..." oninput="save()"></textarea>
+          <textarea id="recovery-input" placeholder="예: ① 즉각적 사과와 공감 표현으로 상호작용 공정성 확보 ② 전액 환불 또는 대체 서비스 제공으로 분배적 공정성 확보 ③ 고객이 선택할 수 있는 해결 옵션 제시로 절차적 공정성 확보..."></textarea>
         </div>
       </div>
 
       <div class="card">
         <div class="card-hd"><div class="card-icon">🤖</div><h2>AI 프롬프트 자동 생성</h2></div>
         <p style="font-size:.84rem;color:var(--muted);margin-bottom:14px">위의 분석 내용을 바탕으로 AI에게 보낼 프롬프트를 자동으로 생성합니다.</p>
-        <button class="btn btn-primary" onclick="genAnalysisPrompt()">⚡ AI 프롬프트 생성하기</button>
+        <button class="btn btn-primary" id="btn-gen-prompt">⚡ AI 프롬프트 생성하기</button>
         <div id="analysis-prompt-result" style="display:none">
           <div class="result-box" id="analysis-prompt-text"></div>
           <div class="btn-actions">
-            <button class="btn btn-secondary btn-sm" onclick="copyEl('analysis-prompt-text')">📋 복사</button>
-            <button class="btn btn-success btn-sm" onclick="markDone('analysis')">✅ 이 단계 완료</button>
+            <button class="btn btn-secondary btn-sm" id="btn-copy-analysis">📋 복사</button>
+            <button class="btn btn-success btn-sm" id="btn-done-analysis">✅ 이 단계 완료</button>
           </div>
         </div>
       </div>
@@ -465,7 +465,7 @@ textarea{min-height:110px}
         <div class="card-hd"><div class="card-icon">💬</div><h2>시나리오 선택</h2></div>
         <div class="form-row">
           <label class="lbl">응대 시나리오</label>
-          <select id="sim-select" onchange="onSimChange()">
+          <select id="sim-select">
             <option value="">— 시나리오를 선택하세요 —</option>
             <option value="complaint">😠 불만 고객 응대 (레스토랑 예약 오류)</option>
             <option value="refund">💰 환불 요청 처리 (온라인 쇼핑몰)</option>
@@ -487,12 +487,12 @@ textarea{min-height:110px}
           <div class="chat-msgs" id="chat-msgs"></div>
           <div class="chat-input-area">
             <textarea id="agent-input" placeholder="직원으로서 고객에게 응대 메시지를 작성하세요..." rows="3"></textarea>
-            <button class="btn btn-primary" onclick="sendAgentMsg()" style="align-self:flex-end">전송 ➤</button>
+            <button class="btn btn-primary" id="btn-send-agent" style="align-self:flex-end">전송 ➤</button>
           </div>
         </div>
         <div class="btn-actions">
-          <button class="btn btn-secondary btn-sm" onclick="resetChat()">🔄 대화 초기화</button>
-          <button class="btn btn-success btn-sm" onclick="markDone('simulation')">✅ 이 단계 완료</button>
+          <button class="btn btn-secondary btn-sm" id="btn-reset-chat">🔄 대화 초기화</button>
+          <button class="btn btn-success btn-sm" id="btn-done-sim">✅ 이 단계 완료</button>
         </div>
       </div>
 
@@ -500,11 +500,11 @@ textarea{min-height:110px}
         <div class="card-hd"><div class="card-icon">📝</div><h2>응대 자기 분석</h2></div>
         <div class="form-row">
           <label class="lbl">나의 응대에서 잘한 점</label>
-          <textarea id="sim-good" placeholder="이번 시뮬레이션에서 잘된 점을 작성하세요..." oninput="save()"></textarea>
+          <textarea id="sim-good" placeholder="이번 시뮬레이션에서 잘된 점을 작성하세요..."></textarea>
         </div>
         <div class="form-row">
           <label class="lbl">개선할 점 및 다음에 다르게 할 것</label>
-          <textarea id="sim-improve" placeholder="개선이 필요한 부분을 작성하세요..." oninput="save()"></textarea>
+          <textarea id="sim-improve" placeholder="개선이 필요한 부분을 작성하세요..."></textarea>
         </div>
       </div>
     </div>
@@ -517,39 +517,39 @@ textarea{min-height:110px}
         <div class="card-hd"><div class="card-icon">📚</div><h2>프롬프트 템플릿 라이브러리</h2></div>
         <p style="font-size:.84rem;color:var(--muted);margin-bottom:12px">아래 템플릿을 클릭하면 프롬프트 빌더에 자동으로 채워집니다.</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="pt-card" onclick="loadTemplate('servqual')" style="margin-bottom:0">
+          <div class="pt-card" data-template="servqual" style="margin-bottom:0">
             <h4>🔬 SERVQUAL 분석 요청</h4>
             <p>서비스 실패 사례를 SERVQUAL 5차원으로 분석하고 개선 방안을 제시하는 프롬프트</p>
           </div>
-          <div class="pt-card" onclick="loadTemplate('script')" style="margin-bottom:0">
+          <div class="pt-card" data-template="script" style="margin-bottom:0">
             <h4>🎭 고객 응대 스크립트 작성</h4>
             <p>구체적인 서비스 실패 상황에 맞는 전문적인 고객 응대 스크립트 작성 요청</p>
           </div>
-          <div class="pt-card" onclick="loadTemplate('recovery')" style="margin-bottom:0">
+          <div class="pt-card" data-template="recovery" style="margin-bottom:0">
             <h4>🛠️ 서비스 회복 전략 수립</h4>
             <p>Justice Theory 기반의 체계적인 서비스 회복 전략을 도출하는 프롬프트</p>
           </div>
-          <div class="pt-card" onclick="loadTemplate('report')" style="margin-bottom:0">
+          <div class="pt-card" data-template="report" style="margin-bottom:0">
             <h4>📊 경영 보고서 작성 지원</h4>
             <p>학술적 보고서 형식으로 서비스 실패 분석 내용을 정리하는 프롬프트</p>
           </div>
-          <div class="pt-card" onclick="loadTemplate('churn')" style="margin-bottom:0">
+          <div class="pt-card" data-template="churn" style="margin-bottom:0">
             <h4>📉 고객 이탈 방지 전략</h4>
             <p>서비스 실패 이후 고객 이탈을 막고 장기 관계를 유지하는 전략 도출</p>
           </div>
-          <div class="pt-card" onclick="loadTemplate('sns')" style="margin-bottom:0">
+          <div class="pt-card" data-template="sns" style="margin-bottom:0">
             <h4>📱 SNS 컴플레인 대응</h4>
             <p>온라인·SNS에 게시된 부정적 후기에 공개적으로 답변하는 응대문 작성</p>
           </div>
-          <div class="pt-card" onclick="loadTemplate('blueprint')" style="margin-bottom:0">
+          <div class="pt-card" data-template="blueprint" style="margin-bottom:0">
             <h4>🗺️ 서비스 청사진 개선</h4>
             <p>서비스 실패 지점을 서비스 청사진에 매핑하고 프로세스 개선안을 제안</p>
           </div>
-          <div class="pt-card" onclick="loadTemplate('journey')" style="margin-bottom:0">
+          <div class="pt-card" data-template="journey" style="margin-bottom:0">
             <h4>🧭 고객 여정 지도 분석</h4>
             <p>서비스 접점별 고객 감정 곡선을 분석하고 개선 우선순위를 도출하는 프롬프트</p>
           </div>
-          <div class="pt-card" onclick="loadTemplate('training')" style="margin-bottom:0;grid-column:span 2">
+          <div class="pt-card" data-template="training" style="margin-bottom:0;grid-column:span 2">
             <h4>🏋️ 직원 교육 프로그램 설계</h4>
             <p>서비스 실패 재발 방지를 위한 현장 직원 대상 교육 커리큘럼 및 롤플레이 시나리오 설계</p>
           </div>
@@ -561,25 +561,25 @@ textarea{min-height:110px}
         <div class="form-grid">
           <div class="form-row">
             <label class="lbl">🎭 AI 역할 설정 (Persona)</label>
-            <input type="text" id="p-persona" placeholder="예: 서비스 회복 전문 컨설턴트" oninput="save()">
+            <input type="text" id="p-persona" placeholder="예: 서비스 회복 전문 컨설턴트">
           </div>
           <div class="form-row">
             <label class="lbl">🎯 목표 (Goal)</label>
-            <input type="text" id="p-goal" placeholder="예: 서비스 회복 전략 3가지 도출" oninput="save()">
+            <input type="text" id="p-goal" placeholder="예: 서비스 회복 전략 3가지 도출">
           </div>
         </div>
         <div class="form-row">
           <label class="lbl">📋 상황 맥락 (Context)</label>
-          <textarea id="p-context" style="min-height:80px" placeholder="예: 고객이 호텔 예약을 했으나 체크인 시 객실이 없다는 안내를 받았습니다..." oninput="save()"></textarea>
+          <textarea id="p-context" style="min-height:80px" placeholder="예: 고객이 호텔 예약을 했으나 체크인 시 객실이 없다는 안내를 받았습니다..."></textarea>
         </div>
         <div class="form-grid">
           <div class="form-row">
             <label class="lbl">🚫 제약 조건 (Constraints)</label>
-            <input type="text" id="p-constraints" placeholder="예: 추가 비용 없이, 당일 해결" oninput="save()">
+            <input type="text" id="p-constraints" placeholder="예: 추가 비용 없이, 당일 해결">
           </div>
           <div class="form-row">
             <label class="lbl">🗣️ 출력 형식 (Format)</label>
-            <select id="p-format" onchange="save()">
+            <select id="p-format">
               <option value="">선택하세요</option>
               <option value="번호 목록 (1, 2, 3...)">번호 목록</option>
               <option value="표 형식">표 형식</option>
@@ -591,7 +591,7 @@ textarea{min-height:110px}
         </div>
         <div class="form-row">
           <label class="lbl">💬 어조 (Tone)</label>
-          <select id="p-tone" onchange="save()">
+          <select id="p-tone">
             <option value="">선택하세요</option>
             <option value="전문적이고 학술적인">전문적·학술적</option>
             <option value="실무적이고 구체적인">실무적·구체적</option>
@@ -599,14 +599,14 @@ textarea{min-height:110px}
             <option value="간결하고 핵심만 담은">간결·핵심적</option>
           </select>
         </div>
-        <button class="btn btn-primary" onclick="buildPrompt()">⚡ 프롬프트 완성하기</button>
+        <button class="btn btn-primary" id="btn-build-prompt">⚡ 프롬프트 완성하기</button>
 
         <div id="prompt-result-box" style="display:none;margin-top:14px">
           <label class="lbl">완성된 프롬프트</label>
           <div class="result-box" id="prompt-result-text"></div>
           <div class="btn-actions">
-            <button class="btn btn-secondary btn-sm" onclick="copyEl('prompt-result-text')">📋 프롬프트 복사</button>
-            <button class="btn btn-success btn-sm" onclick="markDone('prompt')">✅ 이 단계 완료</button>
+            <button class="btn btn-secondary btn-sm" id="btn-copy-prompt">📋 프롬프트 복사</button>
+            <button class="btn btn-success btn-sm" id="btn-done-prompt">✅ 이 단계 완료</button>
           </div>
         </div>
       </div>
@@ -633,11 +633,11 @@ textarea{min-height:110px}
         <div class="form-grid">
           <div class="form-row">
             <label class="lbl">보고서 제목</label>
-            <input type="text" id="r-title" placeholder="예: 항공사 서비스 실패 사례 분석 및 회복 전략" oninput="save()">
+            <input type="text" id="r-title" placeholder="예: 항공사 서비스 실패 사례 분석 및 회복 전략">
           </div>
           <div class="form-row">
             <label class="lbl">과목명</label>
-            <input type="text" id="r-course" placeholder="예: 서비스경영론" oninput="save()">
+            <input type="text" id="r-course" placeholder="예: 서비스경영론">
           </div>
         </div>
       </div>
@@ -646,27 +646,27 @@ textarea{min-height:110px}
         <div class="card-hd"><div class="card-icon">✍️</div><h2>보고서 본문 작성</h2></div>
         <div class="form-row">
           <label class="lbl">1. 서론 — 연구 배경 및 목적</label>
-          <textarea id="r-intro" style="min-height:90px" placeholder="이 사례를 선택한 이유, 연구 목적, 보고서 구성을 간략히 서술하세요..." oninput="save()"></textarea>
+          <textarea id="r-intro" style="min-height:90px" placeholder="이 사례를 선택한 이유, 연구 목적, 보고서 구성을 간략히 서술하세요..."></textarea>
         </div>
         <div class="form-row">
           <label class="lbl">2. 사례 개요 — 서비스 실패 상황 설명</label>
-          <textarea id="r-case" style="min-height:90px" placeholder="어떤 서비스 실패가 발생했는지 5W1H로 설명하세요..." oninput="save()"></textarea>
+          <textarea id="r-case" style="min-height:90px" placeholder="어떤 서비스 실패가 발생했는지 5W1H로 설명하세요..."></textarea>
         </div>
         <div class="form-row">
           <label class="lbl">3. 원인 분석 — SERVQUAL 프레임워크 적용</label>
-          <textarea id="r-analysis" style="min-height:110px" placeholder="SERVQUAL 5차원(유형성·신뢰성·반응성·확신성·공감성)을 적용하여 원인을 분석하세요..." oninput="save()"></textarea>
+          <textarea id="r-analysis" style="min-height:110px" placeholder="SERVQUAL 5차원(유형성·신뢰성·반응성·확신성·공감성)을 적용하여 원인을 분석하세요..."></textarea>
         </div>
         <div class="form-row">
           <label class="lbl">4. 서비스 회복 전략 — Justice Theory 적용</label>
-          <textarea id="r-strategy" style="min-height:110px" placeholder="절차적 공정성, 분배적 공정성, 상호작용 공정성 관점에서 전략을 제시하세요..." oninput="save()"></textarea>
+          <textarea id="r-strategy" style="min-height:110px" placeholder="절차적 공정성, 분배적 공정성, 상호작용 공정성 관점에서 전략을 제시하세요..."></textarea>
         </div>
         <div class="form-row">
           <label class="lbl">5. 결론 및 시사점</label>
-          <textarea id="r-conclusion" style="min-height:90px" placeholder="이 분석을 통해 얻은 학습 내용과 기업에 대한 시사점을 서술하세요..." oninput="save()"></textarea>
+          <textarea id="r-conclusion" style="min-height:90px" placeholder="이 분석을 통해 얻은 학습 내용과 기업에 대한 시사점을 서술하세요..."></textarea>
         </div>
         <div class="form-row">
           <label class="lbl">6. 참고문헌 (선택)</label>
-          <textarea id="r-refs" style="min-height:60px" placeholder="사용한 참고자료를 기재하세요..." oninput="save()"></textarea>
+          <textarea id="r-refs" style="min-height:60px" placeholder="사용한 참고자료를 기재하세요..."></textarea>
         </div>
       </div>
 
@@ -674,15 +674,15 @@ textarea{min-height:110px}
         <div class="card-hd"><div class="card-icon">🔧</div><h2>보고서 자동 조립</h2></div>
         <p style="font-size:.84rem;color:var(--muted);margin-bottom:14px">사례 분석 단계에서 작성한 내용을 바탕으로 보고서 초안을 자동 조립합니다.</p>
         <div class="btn-actions">
-          <button class="btn btn-primary" onclick="autoFillReport()">🔧 분석 내용으로 자동 채우기</button>
-          <button class="btn btn-secondary" onclick="assembleReport()">📄 보고서 미리보기 생성</button>
+          <button class="btn btn-primary" id="btn-autofill">🔧 분석 내용으로 자동 채우기</button>
+          <button class="btn btn-secondary" id="btn-assemble">📄 보고서 미리보기 생성</button>
         </div>
         <div id="report-preview-box" style="display:none;margin-top:16px">
           <label class="lbl">보고서 미리보기</label>
           <div class="result-box" id="report-preview-text" style="min-height:300px"></div>
           <div class="btn-actions">
-            <button class="btn btn-secondary btn-sm" onclick="copyEl('report-preview-text')">📋 전체 복사</button>
-            <button class="btn btn-success btn-sm" onclick="markDone('report')">✅ 이 단계 완료</button>
+            <button class="btn btn-secondary btn-sm" id="btn-copy-report">📋 전체 복사</button>
+            <button class="btn btn-success btn-sm" id="btn-done-report">✅ 이 단계 완료</button>
           </div>
         </div>
       </div>
@@ -727,14 +727,14 @@ textarea{min-height:110px}
         <div class="card-hd"><div class="card-icon">💭</div><h2>자기 성찰 메모</h2></div>
         <div class="form-row">
           <label class="lbl">이번 실습에서 배운 점</label>
-          <textarea id="reflect-learned" placeholder="AI를 활용한 서비스 분석 실습을 통해 새롭게 배운 점을 구체적으로 작성하세요..." oninput="save()"></textarea>
+          <textarea id="reflect-learned" placeholder="AI를 활용한 서비스 분석 실습을 통해 새롭게 배운 점을 구체적으로 작성하세요..."></textarea>
         </div>
         <div class="form-row">
           <label class="lbl">앞으로 개선하고 싶은 점</label>
-          <textarea id="reflect-improve" placeholder="다음번 실습이나 실제 서비스 현장에서 더 잘하고 싶은 부분을 작성하세요..." oninput="save()"></textarea>
+          <textarea id="reflect-improve" placeholder="다음번 실습이나 실제 서비스 현장에서 더 잘하고 싶은 부분을 작성하세요..."></textarea>
         </div>
         <div class="btn-actions">
-          <button class="btn btn-success" onclick="markDone('rubric')">✅ 자기평가 완료</button>
+          <button class="btn btn-success" id="btn-done-rubric">✅ 자기평가 완료</button>
         </div>
       </div>
     </div>
@@ -754,9 +754,9 @@ textarea{min-height:110px}
           <span style="font-size:.84rem;font-weight:600;color:var(--primary)" id="port-pct">0%</span>
         </div>
         <div class="btn-actions" style="margin-top:14px">
-          <button class="btn btn-primary" onclick="buildPortfolio()">🔄 포트폴리오 업데이트</button>
-          <button class="btn btn-secondary" onclick="copyPortfolio()">📋 전체 내용 복사</button>
-          <button class="btn btn-secondary" onclick="window.print()">🖨️ 인쇄하기</button>
+          <button class="btn btn-primary" id="btn-update-portfolio">🔄 포트폴리오 업데이트</button>
+          <button class="btn btn-secondary" id="btn-copy-portfolio">📋 전체 내용 복사</button>
+          <button class="btn btn-secondary" id="btn-print">🖨️ 인쇄하기</button>
         </div>
       </div>
 
@@ -847,11 +847,96 @@ let rubricScores = {};
 //  INIT
 // ════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
-  buildDashGrid();
-  buildRubricTable();
-  loadAll();
-  updateProgress();
-  buildPortfolio();
+  try {
+    buildDashGrid();
+    buildRubricTable();
+    loadAll();
+    updateProgress();
+    buildPortfolio();
+  } catch(e) {
+    console.error('Init error:', e);
+  }
+
+  // 네비게이션
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.addEventListener('click', () => nav(el.dataset.sec));
+  });
+  document.getElementById('overlay').addEventListener('click', closeSidebar);
+  document.getElementById('menu-toggle').addEventListener('click', toggleSidebar);
+
+  // 상단바
+  document.getElementById('tb-name').addEventListener('input', saveStudent);
+  document.getElementById('tb-id').addEventListener('input', saveStudent);
+  document.getElementById('tb-class').addEventListener('input', saveStudent);
+  document.getElementById('btn-save-all').addEventListener('click', saveAll);
+  document.getElementById('btn-reset').addEventListener('click', confirmReset);
+
+  // 오늘의 AI 실습
+  document.getElementById('btn-start').addEventListener('click', () => nav('analysis'));
+
+  // 사례 분석
+  document.getElementById('case-select').addEventListener('change', onCaseChange);
+  document.getElementById('custom-case').addEventListener('input', save);
+  document.getElementById('emotion-input').addEventListener('input', save);
+  document.getElementById('emotion-level').addEventListener('change', save);
+  ['ft-process','ft-human','ft-system','ft-comm','ft-policy'].forEach(id => {
+    document.getElementById(id).addEventListener('change', save);
+  });
+  document.getElementById('cause-input').addEventListener('input', save);
+  document.getElementById('recovery-input').addEventListener('input', save);
+  document.getElementById('btn-gen-prompt').addEventListener('click', genAnalysisPrompt);
+  document.getElementById('btn-copy-analysis').addEventListener('click', () => copyEl('analysis-prompt-text'));
+  document.getElementById('btn-done-analysis').addEventListener('click', () => markDone('analysis'));
+
+  // 시뮬레이션
+  document.getElementById('sim-select').addEventListener('change', onSimChange);
+  document.getElementById('btn-send-agent').addEventListener('click', sendAgentMsg);
+  document.getElementById('btn-reset-chat').addEventListener('click', resetChat);
+  document.getElementById('sim-good').addEventListener('input', save);
+  document.getElementById('sim-improve').addEventListener('input', save);
+  document.getElementById('btn-done-sim').addEventListener('click', () => markDone('simulation'));
+
+  // 프롬프트 템플릿 (이벤트 위임)
+  document.querySelectorAll('.pt-card[data-template]').forEach(el => {
+    el.addEventListener('click', () => loadTemplate(el.dataset.template));
+  });
+
+  // 프롬프트 빌더
+  document.getElementById('p-persona').addEventListener('input', save);
+  document.getElementById('p-goal').addEventListener('input', save);
+  document.getElementById('p-context').addEventListener('input', save);
+  document.getElementById('p-constraints').addEventListener('input', save);
+  document.getElementById('p-format').addEventListener('change', save);
+  document.getElementById('p-tone').addEventListener('change', save);
+  document.getElementById('btn-build-prompt').addEventListener('click', buildPrompt);
+  document.getElementById('btn-copy-prompt').addEventListener('click', () => copyEl('prompt-result-text'));
+  document.getElementById('btn-done-prompt').addEventListener('click', () => markDone('prompt'));
+
+  // 보고서
+  ['r-title','r-course','r-intro','r-case','r-analysis','r-strategy','r-conclusion','r-refs'].forEach(id => {
+    document.getElementById(id).addEventListener('input', save);
+  });
+  document.getElementById('btn-autofill').addEventListener('click', autoFillReport);
+  document.getElementById('btn-assemble').addEventListener('click', assembleReport);
+  document.getElementById('btn-copy-report').addEventListener('click', () => copyEl('report-preview-text'));
+  document.getElementById('btn-done-report').addEventListener('click', () => markDone('report'));
+
+  // 루브릭 (이벤트 위임으로 동적 생성된 select 처리)
+  document.getElementById('rubric-body').addEventListener('change', updateRubric);
+  document.getElementById('reflect-learned').addEventListener('input', save);
+  document.getElementById('reflect-improve').addEventListener('input', save);
+  document.getElementById('btn-done-rubric').addEventListener('click', () => markDone('rubric'));
+
+  // 포트폴리오
+  document.getElementById('btn-update-portfolio').addEventListener('click', buildPortfolio);
+  document.getElementById('btn-copy-portfolio').addEventListener('click', copyPortfolio);
+  document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+  // 대시보드 카드 (이벤트 위임)
+  document.getElementById('dash-grid').addEventListener('click', e => {
+    const card = e.target.closest('.dash-card');
+    if (card) nav(card.id.replace('dc-', ''));
+  });
 });
 
 // ════════════════════════════════════════════
@@ -860,8 +945,10 @@ window.addEventListener('DOMContentLoaded', () => {
 function nav(sec) {
   document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  document.getElementById('sec-' + sec).classList.add('active');
-  document.querySelector('[data-sec=' + sec + ']').classList.add('active');
+  const secEl = document.getElementById('sec-' + sec);
+  if (secEl) secEl.classList.add('active');
+  const navEl = document.querySelector('[data-sec="' + sec + '"]');
+  if (navEl) navEl.classList.add('active');
   document.getElementById('page-title').textContent = PAGE_TITLES[sec] || sec;
   closeSidebar();
   if (sec === 'home') { updateProgress(); refreshHomeStats(); }
@@ -884,7 +971,7 @@ function closeSidebar() {
 function buildDashGrid() {
   const grid = document.getElementById('dash-grid');
   grid.innerHTML = MENU_ITEMS.map(m => `
-    <div class="dash-card" id="dc-${m.sec}" onclick="nav('${m.sec}')">
+    <div class="dash-card" id="dc-${m.sec}">
       <div class="dot"></div>
       <div class="dc-num">STEP ${m.num}</div>
       <div class="dc-emoji">${m.emoji}</div>
@@ -1298,7 +1385,7 @@ function buildRubricTable() {
       <td style="font-size:.78rem">부분적으로 수행함</td>
       <td style="font-size:.78rem">시도했으나 미흡함</td>
       <td>
-        <select id="rb-${item.id}" onchange="updateRubric()">
+        <select id="rb-${item.id}">
           <option value="0">선택</option>
           <option value="4">4 — 우수</option>
           <option value="3">3 — 보통</option>
