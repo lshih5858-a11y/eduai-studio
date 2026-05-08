@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Service AI Lab — 서비스경영 AI 실습 플랫폼</title>
+<style>
+:root {
+  --primary:#1a56db; --primary-dark:#1e3a5f; --primary-light:#e8f0fe;
+  --success:#10b981; --warning:#f59e0b; --danger:#ef4444;
+  --bg:#f0f4f8; --card:#fff; --text:#1a202c; --muted:#64748b;
+  --border:#e2e8f0; --sw:260px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+
+/* ── Sidebar ── */
+.sidebar{width:var(--sw);background:var(--primary-dark);color:#fff;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;transition:transform .3s}
+.sb-logo{padding:20px;border-bottom:1px solid rgba(255,255,255,.12);text-align:center}
+.sb-logo h1{font-size:1.05rem;font-weight:700;color:#93c5fd;line-height:1.3}
+.sb-logo p{font-size:.72rem;color:rgba(255,255,255,.55);margin-top:4px}
+.sb-nav{padding:10px 0}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 18px;cursor:pointer;font-size:.84rem;color:rgba(255,255,255,.68);border-left:3px solid transparent;transition:all .18s}
+.nav-item:hover{background:rgba(255,255,255,.09);color:#fff}
+.nav-item.active{background:rgba(26,86,219,.42);color:#fff;border-left-color:#93c5fd}
+.nav-icon{font-size:1rem;width:22px;text-align:center}
+.nav-done{margin-left:auto;background:var(--success);color:#fff;font-size:.62rem;padding:2px 6px;border-radius:10px}
+.sb-footer{padding:16px 18px;border-top:1px solid rgba(255,255,255,.1);font-size:.72rem;color:rgba(255,255,255,.4)}
+
+/* ── Main ── */
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 22px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:10px}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.menu-toggle{display:none;background:none;border:none;font-size:1.3rem;cursor:pointer;padding:2px}
+.page-title{font-size:.95rem;font-weight:600;color:var(--primary-dark)}
+.topbar-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.topbar-right input{border:1px solid var(--border);border-radius:6px;padding:5px 9px;font-size:.78rem;width:110px;font-family:inherit}
+.topbar-right input:focus{outline:none;border-color:var(--primary)}
+
+/* ── Content ── */
+.content{padding:22px;flex:1}
+.section{display:none}.section.active{display:block}
+
+/* ── Cards ── */
+.card{background:#fff;border-radius:12px;border:1px solid var(--border);padding:22px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.card-hd{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:13px;border-bottom:1px solid var(--border)}
+.card-hd h2{font-size:1rem;font-weight:600;color:var(--primary-dark)}
+.card-icon{width:34px;height:34px;background:var(--primary-light);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+
+/* ── Forms ── */
+.form-row{margin-bottom:14px}
+label.lbl{display:block;font-size:.74rem;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+textarea,select,input[type=text]{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 13px;font-size:.875rem;font-family:inherit;color:var(--text);background:#fff;transition:border-color .2s;resize:vertical}
+textarea:focus,select:focus,input[type=text]:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+textarea{min-height:110px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border:none;border-radius:8px;font-size:.84rem;font-weight:500;cursor:pointer;transition:all .18s;font-family:inherit}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:#1447c0}
+.btn-secondary{background:var(--primary-light);color:var(--primary)}.btn-secondary:hover{background:#c7d9fc}
+.btn-success{background:var(--success);color:#fff}.btn-success:hover{background:#059669}
+.btn-danger{background:#fee2e2;color:var(--danger)}.btn-danger:hover{background:#fecaca}
+.btn-sm{padding:5px 11px;font-size:.78rem}
+.btn-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+
+/* ── Progress ── */
+.prog-bar{background:var(--border);border-radius:100px;height:8px;overflow:hidden}
+.prog-fill{background:var(--primary);height:100%;border-radius:100px;transition:width .4s ease}
+
+/* ── Dashboard grid ── */
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:14px;margin-bottom:22px}
+.dash-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s;position:relative}
+.dash-card:hover{border-color:var(--primary);box-shadow:0 4px 14px rgba(26,86,219,.14);transform:translateY(-2px)}
+.dash-card.done{border-color:var(--success)}
+.dash-card .dot{width:8px;height:8px;border-radius:50%;background:var(--border);position:absolute;top:14px;right:14px}
+.dash-card.done .dot{background:var(--success)}
+.dash-card .dc-num{font-size:.7rem;color:var(--muted);font-weight:600;margin-bottom:6px}
+.dash-card .dc-emoji{font-size:1.5rem;margin-bottom:8px}
+.dash-card .dc-name{font-size:.9rem;font-weight:600;color:var(--text)}
+
+/* ── Result box ── */
+.result-box{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:15px;font-size:.86rem;line-height:1.75;color:var(--text);min-height:90px;white-space:pre-wrap;margin-top:10px;font-family:'Courier New',monospace}
+
+/* ── Chat ── */
+.chat-wrap{background:#f8fafc;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.chat-msgs{padding:14px;min-height:190px;max-height:330px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.chat-msg{display:flex;flex-direction:column;max-width:78%}
+.chat-msg.customer{align-self:flex-start}
+.chat-msg.agent{align-self:flex-end;align-items:flex-end}
+.chat-who{font-size:.68rem;color:var(--muted);margin-bottom:3px}
+.chat-bubble{padding:9px 13px;border-radius:12px;font-size:.84rem;line-height:1.5}
+.customer .chat-bubble{background:#e2e8f0;color:var(--text);border-radius:4px 12px 12px 12px}
+.agent .chat-bubble{background:var(--primary);color:#fff;border-radius:12px 4px 12px 12px}
+.chat-input-area{border-top:1px solid var(--border);padding:11px;display:flex;gap:8px;align-items:flex-end}
+.chat-input-area textarea{min-height:58px;resize:none;flex:1}
+
+/* ── Tips ── */
+.tip-card{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 15px;margin-bottom:10px;font-size:.84rem;color:#1d4ed8}
+.tip-card strong{display:block;margin-bottom:3px}
+.alert{padding:11px 15px;border-radius:8px;font-size:.84rem;margin-bottom:14px}
+.alert-info{background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8}
+.alert-success{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d}
+.alert-warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+
+/* ── Rubric ── */
+.rubric-tbl{width:100%;border-collapse:collapse;font-size:.84rem}
+.rubric-tbl th{background:var(--primary-dark);color:#fff;padding:9px 13px;text-align:left;font-weight:500}
+.rubric-tbl td{padding:9px 13px;border-bottom:1px solid var(--border);vertical-align:middle}
+.rubric-tbl tr:hover td{background:var(--primary-light)}
+.rubric-tbl select{width:auto;min-width:90px;padding:4px 8px;font-size:.78rem}
+.score-badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:.78rem;font-weight:600}
+
+/* ── Portfolio ── */
+.port-section{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:10px}
+.port-hd{background:var(--primary-light);padding:9px 15px;font-size:.84rem;font-weight:600;color:var(--primary-dark);display:flex;justify-content:space-between;align-items:center}
+.port-body{padding:13px 15px;font-size:.84rem;color:var(--text);white-space:pre-wrap;line-height:1.7;min-height:40px}
+.port-empty{color:var(--muted);font-style:italic}
+
+/* ── Prompt templates ── */
+.pt-card{background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:13px;margin-bottom:10px;cursor:pointer;transition:all .18s}
+.pt-card:hover{background:#e0f2fe;border-color:#38bdf8}
+.pt-card h4{font-size:.84rem;font-weight:600;color:#0369a1;margin-bottom:4px}
+.pt-card p{font-size:.78rem;color:var(--muted)}
+
+/* ── Steps bar ── */
+.steps-bar{display:flex;margin-bottom:20px;overflow-x:auto}
+.step-item{flex:1;min-width:100px;padding:10px 14px;text-align:center;font-size:.76rem;background:#fff;border:1px solid var(--border);border-right:none;color:var(--muted)}
+.step-item:first-child{border-radius:8px 0 0 8px}
+.step-item:last-child{border-radius:0 8px 8px 0;border-right:1px solid var(--border)}
+.step-item.done{background:var(--primary);color:#fff;border-color:var(--primary)}
+.step-item span{display:block;font-size:1rem;margin-bottom:3px}
+
+/* ── Tag ── */
+.tag{display:inline-block;padding:2px 9px;border-radius:100px;font-size:.72rem;font-weight:500}
+.tag-blue{background:var(--primary-light);color:var(--primary)}
+.tag-green{background:#d1fae5;color:#065f46}
+.tag-orange{background:#fef3c7;color:#92400e}
+.tag-red{background:#fee2e2;color:#991b1b}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--primary-dark);color:#fff;padding:11px 18px;border-radius:8px;font-size:.84rem;z-index:999;transform:translateY(80px);opacity:0;transition:all .28s;max-width:300px}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── Overlay ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:99}
+.overlay.show{display:block}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .form-grid{grid-template-columns:1fr}
+  .menu-toggle{display:inline-flex}
+  .dash-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .dash-grid{grid-template-columns:1fr}
+  .topbar-right input{width:90px}
+}
+
+/* ── Misc ── */
+.divider{height:1px;background:var(--border);margin:18px 0}
+.stat-row{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.stat-box{flex:1;min-width:120px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:center}
+.stat-num{font-size:1.6rem;font-weight:700;color:var(--primary)}
+.stat-lbl{font-size:.74rem;color:var(--muted);margin-top:2px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px}
+.info-card{background:linear-gradient(135deg,var(--primary) 0%,#1447c0 100%);border-radius:10px;padding:16px;color:#fff}
+.info-card h3{font-size:.78rem;opacity:.8;margin-bottom:6px}
+.info-card p{font-size:1.1rem;font-weight:700}
+@media(max-width:600px){.info-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div style="font-size:1.8rem;margin-bottom:6px">🎓</div>
+    <h1>Service AI Lab</h1>
+    <p>서비스경영 AI 실습 플랫폼</p>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-item active" onclick="nav('home')" data-sec="home">
+      <span class="nav-icon">🏠</span>홈 대시보드
+    </div>
+    <div class="nav-item" onclick="nav('today')" data-sec="today">
+      <span class="nav-icon">📅</span>오늘의 AI 실습
+    </div>
+    <div class="nav-item" onclick="nav('analysis')" data-sec="analysis">
+      <span class="nav-icon">🔍</span>서비스 실패 사례 분석
+      <span class="nav-done" id="done-analysis" style="display:none">✓</span>
+    </div>
+    <div class="nav-item" onclick="nav('simulation')" data-sec="simulation">
+      <span class="nav-icon">💬</span>고객 응대 시뮬레이션
+      <span class="nav-done" id="done-simulation" style="display:none">✓</span>
+    </div>
+    <div class="nav-item" onclick="nav('prompt')" data-sec="prompt">
+      <span class="nav-icon">⚡</span>AI 프롬프트 실습실
+      <span class="nav-done" id="done-prompt" style="display:none">✓</span>
+    </div>
+    <div class="nav-item" onclick="nav('report')" data-sec="report">
+      <span class="nav-icon">📝</span>보고서 작성 워크벤치
+      <span class="nav-done" id="done-report" style="display:none">✓</span>
+    </div>
+    <div class="nav-item" onclick="nav('rubric')" data-sec="rubric">
+      <span class="nav-icon">📊</span>자기평가 루브릭
+      <span class="nav-done" id="done-rubric" style="display:none">✓</span>
+    </div>
+    <div class="nav-item" onclick="nav('portfolio')" data-sec="portfolio">
+      <span class="nav-icon">🗂️</span>나의 AI 포트폴리오
+    </div>
+  </nav>
+  <div class="sb-footer">
+    Service AI Lab v1.0<br>서비스경영학과 AI 실습 전용
+  </div>
+</aside>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <span class="page-title" id="page-title">🏠 홈 대시보드</span>
+    </div>
+    <div class="topbar-right">
+      <input type="text" id="tb-name" placeholder="이름 입력" oninput="saveStudent()" style="width:90px">
+      <input type="text" id="tb-id" placeholder="학번" oninput="saveStudent()" style="width:90px">
+      <input type="text" id="tb-class" placeholder="분반" oninput="saveStudent()" style="width:70px">
+      <button class="btn btn-secondary btn-sm" onclick="saveAll()">💾 저장</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmReset()">🗑️ 초기화</button>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <!-- ══════════════════════════════
+         1. HOME DASHBOARD
+    ══════════════════════════════ -->
+    <div id="sec-home" class="section active">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <h2 style="font-size:1.25rem;color:var(--primary-dark);margin-bottom:6px">
+              안녕하세요, <span id="home-name">학생</span>님! 👋
+            </h2>
+            <p style="color:var(--muted);font-size:.88rem">오늘도 Service AI Lab에 오신 것을 환영합니다. AI로 서비스경영을 배워보세요.</p>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:.78rem;color:var(--muted);margin-bottom:4px">전체 실습 완료율</div>
+            <div style="font-size:1.8rem;font-weight:700;color:var(--primary)" id="home-pct">0%</div>
+          </div>
+        </div>
+        <div style="margin-top:14px">
+          <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:5px">
+            <span>진행률</span><span id="home-done-count">0 / 5 완료</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" id="home-prog" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="stat-num" id="st-done">0</div>
+          <div class="stat-lbl">완료된 실습</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="st-remain">5</div>
+          <div class="stat-lbl">남은 실습</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="st-score">-</div>
+          <div class="stat-lbl">자기평가 점수</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">5</div>
+          <div class="stat-lbl">총 실습 단계</div>
+        </div>
+      </div>
+
+      <h3 style="font-size:.9rem;font-weight:600;color:var(--primary-dark);margin-bottom:12px">📌 실습 메뉴</h3>
+      <div class="dash-grid" id="dash-grid">
+        <!-- generated by JS -->
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">🗺️</div><h2>실습 흐름 안내</h2></div>
+        <div class="steps-bar">
+          <div class="step-item" id="flow-1"><span>🔍</span>사례 분석</div>
+          <div class="step-item" id="flow-2"><span>💬</span>응대 시뮬</div>
+          <div class="step-item" id="flow-3"><span>⚡</span>프롬프트</div>
+          <div class="step-item" id="flow-4"><span>📝</span>보고서</div>
+          <div class="step-item" id="flow-5"><span>📊</span>자기평가</div>
+        </div>
+        <div class="alert alert-info">
+          💡 왼쪽 메뉴에서 각 단계를 순서대로 진행하세요. 작성 내용은 자동 저장됩니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════
+         2. TODAY'S AI LAB
+    ══════════════════════════════ -->
+    <div id="sec-today" class="section">
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">📅</div><h2>오늘의 AI 실습 목표</h2></div>
+        <div class="alert alert-info">
+          📚 이번 실습에서는 실제 서비스 실패 사례를 AI와 함께 분석하고, 고객 응대 전략을 수립합니다.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="tip-card">
+            <strong>🎯 학습 목표 1</strong>서비스 실패의 유형과 원인을 SERVQUAL 프레임워크로 분석할 수 있다.
+          </div>
+          <div class="tip-card">
+            <strong>🎯 학습 목표 2</strong>고객 감정을 파악하고 서비스 회복 전략을 수립할 수 있다.
+          </div>
+          <div class="tip-card">
+            <strong>🎯 학습 목표 3</strong>AI에게 효과적인 프롬프트를 작성하여 분석 결과를 얻을 수 있다.
+          </div>
+          <div class="tip-card">
+            <strong>🎯 학습 목표 4</strong>분석 내용을 구조화된 보고서로 작성할 수 있다.
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">💡</div><h2>AI 활용 핵심 팁</h2></div>
+        <div class="tip-card"><strong>🔑 구체적으로 질문하기</strong>AI에게 질문할 때 상황, 역할, 원하는 결과를 명확히 명시하면 더 좋은 답변을 얻을 수 있습니다.</div>
+        <div class="tip-card"><strong>🔑 역할 설정 (Persona)</strong>"당신은 서비스 회복 전문 컨설턴트입니다"처럼 AI에게 역할을 부여하면 전문적인 답변을 유도할 수 있습니다.</div>
+        <div class="tip-card"><strong>🔑 단계적 질문 (Chain of Thought)</strong>복잡한 문제는 한 번에 묻지 말고, 단계별로 나눠서 질문하면 더 정확한 분석이 가능합니다.</div>
+        <div class="tip-card"><strong>🔑 출력 형식 지정</strong>"표로 정리해줘", "3가지 항목으로", "각 200자 이내로"처럼 원하는 형식을 명시하세요.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">📖</div><h2>주요 개념 정리</h2></div>
+        <table style="width:100%;border-collapse:collapse;font-size:.84rem">
+          <thead><tr style="background:var(--primary-dark);color:#fff">
+            <th style="padding:9px 13px;text-align:left">개념</th>
+            <th style="padding:9px 13px;text-align:left">설명</th>
+          </tr></thead>
+          <tbody>
+            <tr><td style="padding:9px 13px;border-bottom:1px solid var(--border)"><strong>서비스 실패</strong></td><td style="padding:9px 13px;border-bottom:1px solid var(--border)">서비스 제공 과정에서 고객 기대에 미치지 못하는 상황</td></tr>
+            <tr><td style="padding:9px 13px;border-bottom:1px solid var(--border)"><strong>서비스 회복</strong></td><td style="padding:9px 13px;border-bottom:1px solid var(--border)">실패 후 고객 불만을 해소하고 관계를 복구하는 프로세스</td></tr>
+            <tr><td style="padding:9px 13px;border-bottom:1px solid var(--border)"><strong>SERVQUAL</strong></td><td style="padding:9px 13px;border-bottom:1px solid var(--border)">서비스 품질 측정 5차원: 유형성, 신뢰성, 반응성, 확신성, 공감성</td></tr>
+            <tr><td style="padding:9px 13px;border-bottom:1px solid var(--border)"><strong>고객 이탈</strong></td><td style="padding:9px 13px;border-bottom:1px solid var(--border)">서비스 실패로 인해 고객이 경쟁사로 이동하는 현상</td></tr>
+            <tr><td style="padding:9px 13px"><strong>프롬프트 엔지니어링</strong></td><td style="padding:9px 13px">AI가 원하는 결과를 출력하도록 입력문을 설계하는 기술</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="text-align:center;margin-top:10px">
+        <button class="btn btn-primary" onclick="nav('analysis')">🚀 실습 시작하기 →</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════
+         3. SERVICE FAILURE ANALYSIS
+    ══════════════════════════════ -->
+    <div id="sec-analysis" class="section">
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">🔍</div><h2>서비스 실패 사례 선택</h2></div>
+        <div class="form-row">
+          <label class="lbl">실습 사례 선택</label>
+          <select id="case-select" onchange="onCaseChange()">
+            <option value="">— 사례를 선택하세요 —</option>
+            <option value="airline">✈️ 항공사 수화물 분실</option>
+            <option value="hotel">🏨 호텔 예약 오류</option>
+            <option value="restaurant">🍽️ 음식점 주문 오류 및 지연</option>
+            <option value="hospital">🏥 의료기관 과도한 대기</option>
+            <option value="bank">🏦 은행 ATM 오류</option>
+            <option value="delivery">📦 택배 배송 오류</option>
+            <option value="internet">💻 인터넷 서비스 장애</option>
+            <option value="custom">✏️ 직접 입력하기</option>
+          </select>
+        </div>
+        <div id="case-desc-box" style="display:none">
+          <div class="alert alert-warn" id="case-desc"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="tag tag-blue" id="case-industry"></span>
+            <span class="tag tag-red" id="case-severity"></span>
+          </div>
+        </div>
+        <div id="case-custom-box" style="display:none;margin-top:12px">
+          <label class="lbl">사례 직접 입력</label>
+          <textarea id="custom-case" placeholder="서비스 실패 사례를 직접 작성하세요..." oninput="save()"></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">😤</div><h2>고객 감정 분석</h2></div>
+        <div class="alert alert-info">💡 이 서비스 실패를 경험한 고객은 어떤 감정을 느꼈을까요? 구체적으로 분석해보세요.</div>
+        <div class="form-row">
+          <label class="lbl">고객이 느꼈을 주요 감정 (분노, 실망, 배신감 등)</label>
+          <textarea id="emotion-input" placeholder="예: 고객은 장시간 대기 끝에 해결책을 얻지 못하자 강한 배신감과 분노를 느꼈을 것입니다. 특히 사전 예약이라는 신뢰 행위가 무시되었다는 점에서 모욕감도 느꼈을 것입니다..." oninput="save()"></textarea>
+        </div>
+        <div class="form-row">
+          <label class="lbl">고객 감정 강도</label>
+          <select id="emotion-level" onchange="save()">
+            <option value="">— 선택 —</option>
+            <option value="1">① 낮음 — 가벼운 불만</option>
+            <option value="2">② 보통 — 불편함</option>
+            <option value="3">③ 높음 — 강한 불만</option>
+            <option value="4">④ 매우 높음 — 극심한 분노, 이탈 가능성</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">⚠️</div><h2>서비스 실패 원인 분석</h2></div>
+        <div class="alert alert-info">💡 SERVQUAL 5차원(유형성·신뢰성·반응성·확신성·공감성) 관점에서 원인을 분석하세요.</div>
+        <div class="form-row">
+          <label class="lbl">실패의 근본 원인</label>
+          <textarea id="cause-input" placeholder="예: 이 실패는 신뢰성(Reliability) 차원에서 예약 시스템의 정확성이 담보되지 않았고, 반응성(Responsiveness) 차원에서 직원이 신속하게 문제를 해결하려는 의지가 부족했습니다..." oninput="save()"></textarea>
+        </div>
+        <div class="form-row">
+          <label class="lbl">주요 실패 유형 (복수 선택 가능)</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
+            <label style="display:flex;align-items:center;gap:5px;font-size:.84rem;text-transform:none;letter-spacing:0;font-weight:normal"><input type="checkbox" id="ft-process" onchange="save()"> 프로세스 오류</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:.84rem;text-transform:none;letter-spacing:0;font-weight:normal"><input type="checkbox" id="ft-human" onchange="save()"> 인적 오류</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:.84rem;text-transform:none;letter-spacing:0;font-weight:normal"><input type="checkbox" id="ft-system" onchange="save()"> 시스템 오류</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:.84rem;text-transform:none;letter-spacing:0;font-weight:normal"><input type="checkbox" id="ft-comm" onchange="save()"> 커뮤니케이션 오류</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:.84rem;text-transform:none;letter-spacing:0;font-weight:normal"><input type="checkbox" id="ft-policy" onchange="save()"> 정책/규정 문제</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">🛠️</div><h2>서비스 회복 전략</h2></div>
+        <div class="alert alert-info">💡 Justice Theory(공정성 이론) 관점에서 절차적·분배적·상호작용 공정성을 모두 고려하세요.</div>
+        <div class="form-row">
+          <label class="lbl">제안하는 서비스 회복 전략</label>
+          <textarea id="recovery-input" placeholder="예: ① 즉각적 사과와 공감 표현으로 상호작용 공정성 확보 ② 전액 환불 또는 대체 서비스 제공으로 분배적 공정성 확보 ③ 고객이 선택할 수 있는 해결 옵션 제시로 절차적 공정성 확보..." oninput="save()"></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">🤖</div><h2>AI 프롬프트 자동 생성</h2></div>
+        <p style="font-size:.84rem;color:var(--muted);margin-bottom:14px">위의 분석 내용을 바탕으로 AI에게 보낼 프롬프트를 자동으로 생성합니다.</p>
+        <button class="btn btn-primary" onclick="genAnalysisPrompt()">⚡ AI 프롬프트 생성하기</button>
+        <div id="analysis-prompt-result" style="display:none">
+          <div class="result-box" id="analysis-prompt-text"></div>
+          <div class="btn-actions">
+            <button class="btn btn-secondary btn-sm" onclick="copyEl('analysis-prompt-text')">📋 복사</button>
+            <button class="btn btn-success btn-sm" onclick="markDone('analysis')">✅ 이 단계 완료</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════
+         4. CUSTOMER SIMULATION
+    ══════════════════════════════ -->
+    <div id="sec-simulation" class="section">
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">💬</div><h2>시나리오 선택</h2></div>
+        <div class="form-row">
+          <label class="lbl">응대 시나리오</label>
+          <select id="sim-select" onchange="onSimChange()">
+            <option value="">— 시나리오를 선택하세요 —</option>
+            <option value="complaint">😠 불만 고객 응대 (레스토랑 예약 오류)</option>
+            <option value="refund">💰 환불 요청 처리 (온라인 쇼핑몰)</option>
+            <option value="emergency">🚨 긴급 서비스 요청 (산업 장비 고장)</option>
+          </select>
+        </div>
+        <div id="sim-context-box" style="display:none">
+          <div class="alert alert-warn"><strong>📌 상황 설명:</strong> <span id="sim-context"></span></div>
+          <div>
+            <strong style="font-size:.82rem;color:var(--primary-dark)">응대 핵심 포인트:</strong>
+            <ul id="sim-tips" style="font-size:.82rem;color:var(--muted);margin-top:6px;padding-left:18px;line-height:1.8"></ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="sim-chat-card" style="display:none">
+        <div class="card-hd"><div class="card-icon">🎭</div><h2>고객 응대 시뮬레이션</h2></div>
+        <div class="chat-wrap">
+          <div class="chat-msgs" id="chat-msgs"></div>
+          <div class="chat-input-area">
+            <textarea id="agent-input" placeholder="직원으로서 고객에게 응대 메시지를 작성하세요..." rows="3"></textarea>
+            <button class="btn btn-primary" onclick="sendAgentMsg()" style="align-self:flex-end">전송 ➤</button>
+          </div>
+        </div>
+        <div class="btn-actions">
+          <button class="btn btn-secondary btn-sm" onclick="resetChat()">🔄 대화 초기화</button>
+          <button class="btn btn-success btn-sm" onclick="markDone('simulation')">✅ 이 단계 완료</button>
+        </div>
+      </div>
+
+      <div class="card" id="sim-feedback-card" style="display:none">
+        <div class="card-hd"><div class="card-icon">📝</div><h2>응대 자기 분석</h2></div>
+        <div class="form-row">
+          <label class="lbl">나의 응대에서 잘한 점</label>
+          <textarea id="sim-good" placeholder="이번 시뮬레이션에서 잘된 점을 작성하세요..." oninput="save()"></textarea>
+        </div>
+        <div class="form-row">
+          <label class="lbl">개선할 점 및 다음에 다르게 할 것</label>
+          <textarea id="sim-improve" placeholder="개선이 필요한 부분을 작성하세요..." oninput="save()"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════
+         5. PROMPT LAB
+    ══════════════════════════════ -->
+    <div id="sec-prompt" class="section">
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">📚</div><h2>프롬프트 템플릿 라이브러리</h2></div>
+        <p style="font-size:.84rem;color:var(--muted);margin-bottom:12px">아래 템플릿을 클릭하면 프롬프트 빌더에 자동으로 채워집니다.</p>
+        <div class="pt-card" onclick="loadTemplate('servqual')">
+          <h4>🔬 SERVQUAL 분석 요청</h4>
+          <p>서비스 실패 사례를 SERVQUAL 5차원으로 분석하고 개선 방안을 제시하는 프롬프트</p>
+        </div>
+        <div class="pt-card" onclick="loadTemplate('script')">
+          <h4>🎭 고객 응대 스크립트 작성</h4>
+          <p>구체적인 서비스 실패 상황에 맞는 전문적인 고객 응대 스크립트 작성 요청</p>
+        </div>
+        <div class="pt-card" onclick="loadTemplate('recovery')">
+          <h4>🛠️ 서비스 회복 전략 수립</h4>
+          <p>Justice Theory 기반의 체계적인 서비스 회복 전략을 도출하는 프롬프트</p>
+        </div>
+        <div class="pt-card" onclick="loadTemplate('report')">
+          <h4>📊 경영 보고서 작성 지원</h4>
+          <p>학술적 보고서 형식으로 서비스 실패 분석 내용을 정리하는 프롬프트</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">⚡</div><h2>나만의 프롬프트 빌더</h2></div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label class="lbl">🎭 AI 역할 설정 (Persona)</label>
+            <input type="text" id="p-persona" placeholder="예: 서비스 회복 전문 컨설턴트" oninput="save()">
+          </div>
+          <div class="form-row">
+            <label class="lbl">🎯 목표 (Goal)</label>
+            <input type="text" id="p-goal" placeholder="예: 서비스 회복 전략 3가지 도출" oninput="save()">
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="lbl">📋 상황 맥락 (Context)</label>
+          <textarea id="p-context" style="min-height:80px" placeholder="예: 고객이 호텔 예약을 했으나 체크인 시 객실이 없다는 안내를 받았습니다..." oninput="save()"></textarea>
+        </div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label class="lbl">🚫 제약 조건 (Constraints)</label>
+            <input type="text" id="p-constraints" placeholder="예: 추가 비용 없이, 당일 해결" oninput="save()">
+          </div>
+          <div class="form-row">
+            <label class="lbl">🗣️ 출력 형식 (Format)</label>
+            <select id="p-format" onchange="save()">
+              <option value="">선택하세요</option>
+              <option value="번호 목록 (1, 2, 3...)">번호 목록</option>
+              <option value="표 형식">표 형식</option>
+              <option value="단락 형식 (각 200자 이내)">단락 형식</option>
+              <option value="Q&A 형식">Q&A 형식</option>
+              <option value="보고서 형식 (서론-본론-결론)">보고서 형식</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="lbl">💬 어조 (Tone)</label>
+          <select id="p-tone" onchange="save()">
+            <option value="">선택하세요</option>
+            <option value="전문적이고 학술적인">전문적·학술적</option>
+            <option value="실무적이고 구체적인">실무적·구체적</option>
+            <option value="친절하고 공감적인">친절·공감적</option>
+            <option value="간결하고 핵심만 담은">간결·핵심적</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="buildPrompt()">⚡ 프롬프트 완성하기</button>
+
+        <div id="prompt-result-box" style="display:none;margin-top:14px">
+          <label class="lbl">완성된 프롬프트</label>
+          <div class="result-box" id="prompt-result-text"></div>
+          <div class="btn-actions">
+            <button class="btn btn-secondary btn-sm" onclick="copyEl('prompt-result-text')">📋 프롬프트 복사</button>
+            <button class="btn btn-success btn-sm" onclick="markDone('prompt')">✅ 이 단계 완료</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">💡</div><h2>프롬프트 작성 체크리스트</h2></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.84rem">
+          <label style="display:flex;align-items:flex-start;gap:8px;padding:8px;background:#f8fafc;border-radius:6px"><input type="checkbox"> AI 역할을 명확히 지정했는가?</label>
+          <label style="display:flex;align-items:flex-start;gap:8px;padding:8px;background:#f8fafc;border-radius:6px"><input type="checkbox"> 상황 맥락을 충분히 설명했는가?</label>
+          <label style="display:flex;align-items:flex-start;gap:8px;padding:8px;background:#f8fafc;border-radius:6px"><input type="checkbox"> 원하는 결과를 구체적으로 명시했는가?</label>
+          <label style="display:flex;align-items:flex-start;gap:8px;padding:8px;background:#f8fafc;border-radius:6px"><input type="checkbox"> 출력 형식(형태·분량)을 지정했는가?</label>
+          <label style="display:flex;align-items:flex-start;gap:8px;padding:8px;background:#f8fafc;border-radius:6px"><input type="checkbox"> 제약 조건을 명시했는가?</label>
+          <label style="display:flex;align-items:flex-start;gap:8px;padding:8px;background:#f8fafc;border-radius:6px"><input type="checkbox"> 어조/스타일을 지정했는가?</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════
+         6. REPORT WORKBENCH
+    ══════════════════════════════ -->
+    <div id="sec-report" class="section">
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">📝</div><h2>보고서 기본 정보</h2></div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label class="lbl">보고서 제목</label>
+            <input type="text" id="r-title" placeholder="예: 항공사 서비스 실패 사례 분석 및 회복 전략" oninput="save()">
+          </div>
+          <div class="form-row">
+            <label class="lbl">과목명</label>
+            <input type="text" id="r-course" placeholder="예: 서비스경영론" oninput="save()">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">✍️</div><h2>보고서 본문 작성</h2></div>
+        <div class="form-row">
+          <label class="lbl">1. 서론 — 연구 배경 및 목적</label>
+          <textarea id="r-intro" style="min-height:90px" placeholder="이 사례를 선택한 이유, 연구 목적, 보고서 구성을 간략히 서술하세요..." oninput="save()"></textarea>
+        </div>
+        <div class="form-row">
+          <label class="lbl">2. 사례 개요 — 서비스 실패 상황 설명</label>
+          <textarea id="r-case" style="min-height:90px" placeholder="어떤 서비스 실패가 발생했는지 5W1H로 설명하세요..." oninput="save()"></textarea>
+        </div>
+        <div class="form-row">
+          <label class="lbl">3. 원인 분석 — SERVQUAL 프레임워크 적용</label>
+          <textarea id="r-analysis" style="min-height:110px" placeholder="SERVQUAL 5차원(유형성·신뢰성·반응성·확신성·공감성)을 적용하여 원인을 분석하세요..." oninput="save()"></textarea>
+        </div>
+        <div class="form-row">
+          <label class="lbl">4. 서비스 회복 전략 — Justice Theory 적용</label>
+          <textarea id="r-strategy" style="min-height:110px" placeholder="절차적 공정성, 분배적 공정성, 상호작용 공정성 관점에서 전략을 제시하세요..." oninput="save()"></textarea>
+        </div>
+        <div class="form-row">
+          <label class="lbl">5. 결론 및 시사점</label>
+          <textarea id="r-conclusion" style="min-height:90px" placeholder="이 분석을 통해 얻은 학습 내용과 기업에 대한 시사점을 서술하세요..." oninput="save()"></textarea>
+        </div>
+        <div class="form-row">
+          <label class="lbl">6. 참고문헌 (선택)</label>
+          <textarea id="r-refs" style="min-height:60px" placeholder="사용한 참고자료를 기재하세요..." oninput="save()"></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">🔧</div><h2>보고서 자동 조립</h2></div>
+        <p style="font-size:.84rem;color:var(--muted);margin-bottom:14px">사례 분석 단계에서 작성한 내용을 바탕으로 보고서 초안을 자동 조립합니다.</p>
+        <div class="btn-actions">
+          <button class="btn btn-primary" onclick="autoFillReport()">🔧 분석 내용으로 자동 채우기</button>
+          <button class="btn btn-secondary" onclick="assembleReport()">📄 보고서 미리보기 생성</button>
+        </div>
+        <div id="report-preview-box" style="display:none;margin-top:16px">
+          <label class="lbl">보고서 미리보기</label>
+          <div class="result-box" id="report-preview-text" style="min-height:300px"></div>
+          <div class="btn-actions">
+            <button class="btn btn-secondary btn-sm" onclick="copyEl('report-preview-text')">📋 전체 복사</button>
+            <button class="btn btn-success btn-sm" onclick="markDone('report')">✅ 이 단계 완료</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════
+         7. SELF-EVALUATION RUBRIC
+    ══════════════════════════════ -->
+    <div id="sec-rubric" class="section">
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">📊</div><h2>자기평가 루브릭</h2></div>
+        <div class="alert alert-info">💡 각 평가 기준에 대해 자신의 수행 수준을 솔직하게 평가하세요. (4=우수, 3=보통, 2=미흡, 1=불충분)</div>
+        <div style="overflow-x:auto">
+          <table class="rubric-tbl">
+            <thead>
+              <tr>
+                <th style="width:35%">평가 기준</th>
+                <th>4 — 우수</th>
+                <th>3 — 보통</th>
+                <th>2 — 미흡</th>
+                <th style="width:90px">내 점수</th>
+              </tr>
+            </thead>
+            <tbody id="rubric-body">
+              <!-- generated by JS -->
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div>
+            <span style="font-size:.84rem;color:var(--muted)">총점:</span>
+            <span style="font-size:1.5rem;font-weight:700;color:var(--primary);margin-left:8px" id="rubric-total">0</span>
+            <span style="font-size:.84rem;color:var(--muted)"> / 32점</span>
+          </div>
+          <div>
+            <span class="score-badge" id="rubric-grade" style="background:var(--primary-light);color:var(--primary)">아직 평가 전</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">💭</div><h2>자기 성찰 메모</h2></div>
+        <div class="form-row">
+          <label class="lbl">이번 실습에서 배운 점</label>
+          <textarea id="reflect-learned" placeholder="AI를 활용한 서비스 분석 실습을 통해 새롭게 배운 점을 구체적으로 작성하세요..." oninput="save()"></textarea>
+        </div>
+        <div class="form-row">
+          <label class="lbl">앞으로 개선하고 싶은 점</label>
+          <textarea id="reflect-improve" placeholder="다음번 실습이나 실제 서비스 현장에서 더 잘하고 싶은 부분을 작성하세요..." oninput="save()"></textarea>
+        </div>
+        <div class="btn-actions">
+          <button class="btn btn-success" onclick="markDone('rubric')">✅ 자기평가 완료</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════
+         8. PORTFOLIO
+    ══════════════════════════════ -->
+    <div id="sec-portfolio" class="section">
+      <div class="card">
+        <div class="card-hd"><div class="card-icon">🗂️</div><h2>나의 AI 실습 포트폴리오</h2></div>
+        <div id="port-header-info" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+          <!-- filled by JS -->
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+          <span style="font-size:.84rem;color:var(--muted)">전체 완료율</span>
+          <div class="prog-bar" style="flex:1"><div class="prog-fill" id="port-prog"></div></div>
+          <span style="font-size:.84rem;font-weight:600;color:var(--primary)" id="port-pct">0%</span>
+        </div>
+        <div class="btn-actions" style="margin-top:14px">
+          <button class="btn btn-primary" onclick="buildPortfolio()">🔄 포트폴리오 업데이트</button>
+          <button class="btn btn-secondary" onclick="copyPortfolio()">📋 전체 내용 복사</button>
+          <button class="btn btn-secondary" onclick="window.print()">🖨️ 인쇄하기</button>
+        </div>
+      </div>
+
+      <div id="portfolio-content">
+        <!-- filled by buildPortfolio() -->
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════════
+const CASES = {
+  airline:    { title:'✈️ 항공사 수화물 분실', desc:'국제선 탑승 후 도착지에서 수화물이 분실된 상황. 3시간 대기 후 항공사로부터 "추적 중"이라는 답변만 반복해서 받음. 고객은 중요한 비즈니스 미팅 자료가 들어있다고 주장.', industry:'✈️ 항공/운송', severity:'🔴 심각도: 높음' },
+  hotel:      { title:'🏨 호텔 예약 오류', desc:'사전 예약·결제한 스위트룸 대신 일반 객실이 배정. 체크인 시 시스템에 예약 기록이 없다는 안내를 받음. 기념일 여행이었으며 꽃 장식도 사전 요청했으나 미반영.', industry:'🏨 숙박업', severity:'🔴 심각도: 높음' },
+  restaurant: { title:'🍽️ 음식점 주문 오류 및 지연', desc:'생일 기념 단체 예약 식사에서 주문 내역이 잘못 전달되어 음식이 1시간 이상 지연. 알레르기 정보를 사전 전달했으나 해당 식재료가 포함된 메뉴 제공.', industry:'🍽️ 외식업', severity:'🟠 심각도: 중간~높음' },
+  hospital:   { title:'🏥 의료기관 과도한 대기', desc:'예약 진료 시간보다 2시간 이상 대기. 의사로부터 충분한 설명 없이 처방전만 받고 진료 종료. 간호사에게 문의해도 정확한 대기 시간 안내를 받지 못함.', industry:'🏥 의료서비스', severity:'🔴 심각도: 높음' },
+  bank:       { title:'🏦 은행 ATM 오류', desc:'ATM 출금 시 금액이 인출되었으나 현금이 나오지 않음. 고객센터 연결에 1시간 이상 대기 후 "3~5영업일 처리" 안내만 받음. 당장 현금이 필요한 상황.', industry:'🏦 금융업', severity:'🔴 심각도: 높음' },
+  delivery:   { title:'📦 택배 배송 오류', desc:'중요한 계약서가 담긴 택배가 다른 주소로 배달됨. 당일 배송 보장 프리미엄 서비스였으나 이틀째 미도착. 수령인 서명도 다른 사람으로 기재되어 있음.', industry:'📦 물류/유통', severity:'🟠 심각도: 중간' },
+  internet:   { title:'💻 인터넷 서비스 장애', desc:'재택근무 중 인터넷 서비스가 6시간 동안 완전 중단. 고객센터 전화 대기 중 자동 종료 반복. 온라인 채팅 상담도 봇 응답만 반복. 화상회의와 마감 업무에 큰 차질 발생.', industry:'💻 IT/통신', severity:'🔴 심각도: 높음' },
+};
+
+const SIM_SCENARIOS = {
+  complaint: {
+    context: '레스토랑 예약 오류 — VIP 고객이 예약한 룸이 이미 다른 고객에게 배정된 상황. 중요한 비즈니스 파트너와의 만찬.',
+    customerMsg: '아니 이게 말이 됩니까?! 제가 2주 전에 예약하고 선금까지 냈는데 왜 제 자리가 없는 거예요?! 지금 엄청 중요한 파트너분들이랑 미팅인데 어떻게 할 건가요?!',
+    tips: ['먼저 진심 어린 사과를 하세요', '고객의 감정을 인정하고 공감을 표현하세요', '즉각적인 대안 해결책을 2~3가지 제시하세요', '보상 방안을 구체적으로 제안하세요']
+  },
+  refund: {
+    context: '온라인 쇼핑몰 제품 불만족 환불 요청 — 두 번 이상 문의했으나 처리되지 않은 상황.',
+    customerMsg: '구매한 제품이 광고와 완전히 달라요. 즉시 전액 환불 요청합니다. 이미 두 번이나 문의했는데 아무 처리가 없었잖아요. 소비자원에 신고할 수도 있어요.',
+    tips: ['반복 문의에 대한 불편함을 먼저 사과하세요', '환불 프로세스와 기간을 명확히 안내하세요', '추가 보상 (포인트, 쿠폰)을 자발적으로 제안하세요', '재발 방지 약속을 전달하세요']
+  },
+  emergency: {
+    context: '산업용 장비 긴급 고장 — 생산라인 전면 중단, 즉각 대응 필요, 매 시간 수백만원 손실 발생.',
+    customerMsg: '지금 당장 기사 보내주세요! 생산라인이 완전히 멈췄어요. 매 시간 손실이 엄청납니다. 서비스 계약에 24시간 긴급 출동이 포함되어 있잖아요!',
+    tips: ['긴급성을 즉시 인정하고 최우선 처리 선언', '현재 가능한 가장 빠른 출동 시간을 제시', '그 사이 원격 지원 또는 임시 조치 제안', '전담 담당자 이름과 연락처를 제공하세요']
+  }
+};
+
+const RUBRIC_ITEMS = [
+  { id:'r1', criterion:'서비스 실패 이해', desc:'서비스 실패의 유형과 원인을 정확히 파악하였는가', excellent:'SERVQUAL 5차원 모두 적용, 근본 원인까지 규명' },
+  { id:'r2', criterion:'고객 감정 분석', desc:'고객의 감정 상태를 공감적으로 분석하였는가', excellent:'감정 유형·강도·원인을 구체적으로 분석' },
+  { id:'r3', criterion:'서비스 회복 전략', desc:'실현 가능한 서비스 회복 전략을 제시하였는가', excellent:'Justice Theory 3가지 공정성 모두 반영한 전략' },
+  { id:'r4', criterion:'프롬프트 작성 능력', desc:'AI에게 효과적인 프롬프트를 작성하였는가', excellent:'역할·맥락·목표·형식이 모두 포함된 구조화된 프롬프트' },
+  { id:'r5', criterion:'고객 응대 시뮬레이션', desc:'고객 응대 시뮬레이션에서 적절히 대응하였는가', excellent:'공감→사과→해결책→보상의 4단계 완전 수행' },
+  { id:'r6', criterion:'보고서 작성 완성도', desc:'보고서가 구조적으로 완성되었는가', excellent:'서론~결론 모두 학술적으로 충실히 작성' },
+  { id:'r7', criterion:'AI 활용 적합성', desc:'AI를 교육적·윤리적으로 적절히 활용하였는가', excellent:'AI 출력을 비판적으로 검토하고 자신의 언어로 재구성' },
+  { id:'r8', criterion:'자기 성찰', desc:'실습 과정을 돌아보고 학습을 내면화하였는가', excellent:'구체적 학습 성과와 개선 계획을 명확히 기술' },
+];
+
+const MENU_ITEMS = [
+  { sec:'home',       emoji:'🏠', name:'홈 대시보드',          num:'01' },
+  { sec:'today',      emoji:'📅', name:'오늘의 AI 실습',        num:'02' },
+  { sec:'analysis',   emoji:'🔍', name:'서비스 실패 사례 분석', num:'03' },
+  { sec:'simulation', emoji:'💬', name:'고객 응대 시뮬레이션',  num:'04' },
+  { sec:'prompt',     emoji:'⚡', name:'AI 프롬프트 실습실',    num:'05' },
+  { sec:'report',     emoji:'📝', name:'보고서 작성 워크벤치',  num:'06' },
+  { sec:'rubric',     emoji:'📊', name:'자기평가 루브릭',        num:'07' },
+  { sec:'portfolio',  emoji:'🗂️', name:'나의 AI 포트폴리오',    num:'08' },
+];
+
+const PAGE_TITLES = {
+  home:'🏠 홈 대시보드', today:'📅 오늘의 AI 실습', analysis:'🔍 서비스 실패 사례 분석',
+  simulation:'💬 고객 응대 시뮬레이션', prompt:'⚡ AI 프롬프트 실습실',
+  report:'📝 보고서 작성 워크벤치', rubric:'📊 자기평가 루브릭', portfolio:'🗂️ 나의 AI 포트폴리오'
+};
+
+// Graded sections (not home, today, portfolio)
+const GRADED = ['analysis','simulation','prompt','report','rubric'];
+
+let chatHistory = [];
+let currentSimScenario = null;
+let rubricScores = {};
+
+// ════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  buildDashGrid();
+  buildRubricTable();
+  loadAll();
+  updateProgress();
+  buildPortfolio();
+});
+
+// ════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════
+function nav(sec) {
+  document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('sec-' + sec).classList.add('active');
+  document.querySelector('[data-sec=' + sec + ']').classList.add('active');
+  document.getElementById('page-title').textContent = PAGE_TITLES[sec] || sec;
+  closeSidebar();
+  if (sec === 'home') { updateProgress(); refreshHomeStats(); }
+  if (sec === 'portfolio') { buildPortfolio(); }
+  window.scrollTo(0, 0);
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// ════════════════════════════════════════════
+//  DASHBOARD
+// ════════════════════════════════════════════
+function buildDashGrid() {
+  const grid = document.getElementById('dash-grid');
+  grid.innerHTML = MENU_ITEMS.map(m => `
+    <div class="dash-card" id="dc-${m.sec}" onclick="nav('${m.sec}')">
+      <div class="dot"></div>
+      <div class="dc-num">STEP ${m.num}</div>
+      <div class="dc-emoji">${m.emoji}</div>
+      <div class="dc-name">${m.name}</div>
+    </div>`).join('');
+}
+
+function refreshHomeStats() {
+  const done = GRADED.filter(s => isDone(s)).length;
+  const pct = Math.round((done / GRADED.length) * 100);
+  setText('home-pct', pct + '%');
+  setText('home-done-count', done + ' / ' + GRADED.length + ' 완료');
+  setWidth('home-prog', pct + '%');
+  setText('st-done', done);
+  setText('st-remain', GRADED.length - done);
+
+  const name = getVal('tb-name') || '학생';
+  setText('home-name', name);
+
+  // Update dash cards
+  MENU_ITEMS.forEach(m => {
+    const el = document.getElementById('dc-' + m.sec);
+    if (!el) return;
+    if (GRADED.includes(m.sec) && isDone(m.sec)) el.classList.add('done');
+    else el.classList.remove('done');
+  });
+
+  // Flow steps
+  GRADED.forEach((s, i) => {
+    const el = document.getElementById('flow-' + (i+1));
+    if (el) { if (isDone(s)) el.classList.add('done'); else el.classList.remove('done'); }
+  });
+
+  // Rubric score
+  const total = calcRubricTotal();
+  setText('st-score', total > 0 ? total + '/32' : '-');
+}
+
+// ════════════════════════════════════════════
+//  CASE ANALYSIS
+// ════════════════════════════════════════════
+function onCaseChange() {
+  const val = getVal('case-select');
+  const descBox = document.getElementById('case-desc-box');
+  const customBox = document.getElementById('case-custom-box');
+  if (val && val !== 'custom') {
+    const c = CASES[val];
+    document.getElementById('case-desc').textContent = c.desc;
+    document.getElementById('case-industry').textContent = c.industry;
+    document.getElementById('case-severity').textContent = c.severity;
+    descBox.style.display = 'block';
+    customBox.style.display = 'none';
+  } else if (val === 'custom') {
+    descBox.style.display = 'none';
+    customBox.style.display = 'block';
+  } else {
+    descBox.style.display = 'none';
+    customBox.style.display = 'none';
+  }
+  save();
+}
+
+function genAnalysisPrompt() {
+  const caseVal = getVal('case-select');
+  const emotion = getVal('emotion-input');
+  const cause = getVal('cause-input');
+  const recovery = getVal('recovery-input');
+
+  if (!caseVal) { toast('⚠️ 먼저 서비스 실패 사례를 선택하세요.'); return; }
+
+  const caseName = caseVal === 'custom'
+    ? (getVal('custom-case') || '직접 입력한 사례')
+    : (CASES[caseVal] ? CASES[caseVal].title : caseVal);
+
+  const emotionText = emotion || '(고객 감정 분석 미작성)';
+  const causeText = cause || '(실패 원인 분석 미작성)';
+  const recoveryText = recovery || '(회복 전략 미작성)';
+
+  const failTypes = [];
+  ['process','human','system','comm','policy'].forEach(t => {
+    if (document.getElementById('ft-' + t)?.checked) {
+      failTypes.push({ process:'프로세스 오류', human:'인적 오류', system:'시스템 오류', comm:'커뮤니케이션 오류', policy:'정책/규정 문제' }[t]);
+    }
+  });
+
+  const prompt = `## 역할 (Role)
+당신은 15년 경력의 서비스경영 컨설턴트이자 고객경험(CX) 전문가입니다.
+
+## 분석 대상 사례
+${caseName}
+
+## 학생 분석 내용
+[고객 감정 분석]
+${emotionText}
+
+[실패 유형] ${failTypes.length ? failTypes.join(', ') : '미분류'}
+
+[실패 원인 분석 — SERVQUAL 적용]
+${causeText}
+
+[제안 서비스 회복 전략]
+${recoveryText}
+
+## 요청 사항 (Task)
+위 학생의 분석을 검토하고 다음을 수행해주세요:
+
+1. **SERVQUAL 분석 보완**: 학생이 놓친 차원이 있다면 보완하여 5개 차원 전체를 분석해주세요.
+2. **서비스 회복 전략 고도화**: Justice Theory(절차적·분배적·상호작용 공정성) 기반으로 회복 전략을 구체화해주세요.
+3. **즉시 실행 가능한 고객 응대 스크립트**: 사과→공감→해결→보상의 4단계 구조로 작성해주세요.
+4. **재발 방지 방안**: 유사 서비스 실패를 막기 위한 프로세스 개선 3가지를 제시해주세요.
+
+## 출력 형식 (Format)
+- 각 항목에 번호와 소제목 사용
+- 각 항목당 3~5문장으로 구체적으로 서술
+- 전문적이고 학술적인 어조
+- 실무에서 바로 적용 가능한 수준으로 작성`;
+
+  document.getElementById('analysis-prompt-text').textContent = prompt;
+  document.getElementById('analysis-prompt-result').style.display = 'block';
+  save();
+  toast('✅ AI 프롬프트가 생성되었습니다!');
+}
+
+// ════════════════════════════════════════════
+//  SIMULATION
+// ════════════════════════════════════════════
+function onSimChange() {
+  const val = getVal('sim-select');
+  const ctxBox = document.getElementById('sim-context-box');
+  const chatCard = document.getElementById('sim-chat-card');
+  const feedCard = document.getElementById('sim-feedback-card');
+
+  if (!val) {
+    ctxBox.style.display = 'none';
+    chatCard.style.display = 'none';
+    feedCard.style.display = 'none';
+    return;
+  }
+
+  currentSimScenario = SIM_SCENARIOS[val];
+  document.getElementById('sim-context').textContent = currentSimScenario.context;
+  const tipsList = document.getElementById('sim-tips');
+  tipsList.innerHTML = currentSimScenario.tips.map(t => `<li>${t}</li>`).join('');
+  ctxBox.style.display = 'block';
+  chatCard.style.display = 'block';
+  feedCard.style.display = 'block';
+
+  // Init chat if empty
+  if (chatHistory.length === 0) {
+    chatHistory = [{ role:'customer', msg: currentSimScenario.customerMsg }];
+    renderChat();
+  }
+  save();
+}
+
+function renderChat() {
+  const el = document.getElementById('chat-msgs');
+  el.innerHTML = chatHistory.map(m => `
+    <div class="chat-msg ${m.role}">
+      <div class="chat-who">${m.role === 'customer' ? '👤 고객' : '💼 직원 (나)'}</div>
+      <div class="chat-bubble">${escHtml(m.msg)}</div>
+    </div>`).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+function sendAgentMsg() {
+  const input = document.getElementById('agent-input');
+  const msg = input.value.trim();
+  if (!msg) { toast('⚠️ 응대 메시지를 입력하세요.'); return; }
+  chatHistory.push({ role:'agent', msg });
+  input.value = '';
+
+  // Simulate customer follow-up
+  setTimeout(() => {
+    const followUps = [
+      '그래서 지금 당장 어떻게 해주실 건가요? 구체적인 방법을 말씀해주세요.',
+      '알겠습니다. 그런데 제가 기다린 시간과 불편함에 대한 보상은 없나요?',
+      '언제까지 해결이 가능한지 정확한 시간을 알 수 있을까요?',
+      '담당자 이름과 연락처를 알려주실 수 있나요? 나중에 확인하고 싶습니다.'
+    ];
+    const numResponses = chatHistory.filter(h => h.role === 'agent').length;
+    if (numResponses < 4) {
+      chatHistory.push({ role:'customer', msg: followUps[numResponses - 1] });
+      renderChat();
+    } else {
+      chatHistory.push({ role:'customer', msg:'네, 말씀하신 대로 처리해주시면 감사하겠습니다. 이번 한 번만 믿어보겠습니다.' });
+      renderChat();
+      toast('🎉 시뮬레이션 완료! 아래 자기 분석을 작성하세요.');
+    }
+  }, 600);
+
+  renderChat();
+  save();
+}
+
+function resetChat() {
+  if (!currentSimScenario) return;
+  chatHistory = [{ role:'customer', msg: currentSimScenario.customerMsg }];
+  renderChat();
+  toast('🔄 대화가 초기화되었습니다.');
+}
+
+// ════════════════════════════════════════════
+//  PROMPT LAB
+// ════════════════════════════════════════════
+const TEMPLATES = {
+  servqual: {
+    persona:'서비스 품질 전문 연구자',
+    goal:'SERVQUAL 5차원 분석 및 개선안 도출',
+    context:'제공된 서비스 실패 사례를 SERVQUAL 5차원(유형성, 신뢰성, 반응성, 확신성, 공감성) 프레임워크로 분석합니다.',
+    constraints:'이론적 근거 반드시 포함, 실무 적용 가능성 고려',
+    format:'표 형식',
+    tone:'전문적이고 학술적인'
+  },
+  script: {
+    persona:'고객 서비스 트레이닝 전문가',
+    goal:'전문적인 고객 응대 스크립트 작성',
+    context:'서비스 실패 상황에서 고객의 불만을 해소하고 관계를 회복하는 응대 스크립트가 필요합니다.',
+    constraints:'사과→공감→해결→보상의 4단계 구조 준수, 자연스러운 대화체',
+    format:'Q&A 형식',
+    tone:'친절하고 공감적인'
+  },
+  recovery: {
+    persona:'서비스 회복 전략 컨설턴트',
+    goal:'Justice Theory 기반 서비스 회복 전략 3가지 수립',
+    context:'서비스 실패 후 고객 신뢰를 회복하고 재방문 의도를 높이는 전략이 필요합니다.',
+    constraints:'절차적·분배적·상호작용 공정성 모두 반영, 즉시 실행 가능한 방안',
+    format:'번호 목록 (1, 2, 3...)',
+    tone:'실무적이고 구체적인'
+  },
+  report: {
+    persona:'학술 보고서 작성 전문가',
+    goal:'서비스 실패 분석 학술 보고서 초안 작성',
+    context:'서비스경영 수업 과제로 서비스 실패 사례를 분석하고 회복 전략을 제시하는 보고서를 작성해야 합니다.',
+    constraints:'서론-본론-결론 구조, 각 섹션 300자 이내, 참고문헌 형식 포함',
+    format:'보고서 형식 (서론-본론-결론)',
+    tone:'전문적이고 학술적인'
+  }
+};
+
+function loadTemplate(key) {
+  const t = TEMPLATES[key];
+  if (!t) return;
+  setVal('p-persona', t.persona);
+  setVal('p-goal', t.goal);
+  setVal('p-context', t.context);
+  setVal('p-constraints', t.constraints);
+  setVal('p-format', t.format);
+  setVal('p-tone', t.tone);
+  save();
+  toast('📋 템플릿이 로드되었습니다!');
+}
+
+function buildPrompt() {
+  const persona = getVal('p-persona');
+  const goal = getVal('p-goal');
+  const context = getVal('p-context');
+  const constraints = getVal('p-constraints');
+  const format = getVal('p-format');
+  const tone = getVal('p-tone');
+
+  if (!persona && !goal && !context) { toast('⚠️ 최소한 역할, 목표, 맥락을 입력하세요.'); return; }
+
+  let prompt = '';
+  if (persona) prompt += `## 역할 (Role)\n당신은 ${persona}입니다.\n\n`;
+  if (context) prompt += `## 배경 및 상황 (Context)\n${context}\n\n`;
+  if (goal) prompt += `## 요청 사항 (Task)\n${goal}\n\n`;
+  if (constraints) prompt += `## 제약 조건 (Constraints)\n${constraints}\n\n`;
+  if (format) prompt += `## 출력 형식 (Format)\n${format}으로 정리해주세요.\n\n`;
+  if (tone) prompt += `## 어조 (Tone)\n${tone} 어조로 작성해주세요.`;
+
+  document.getElementById('prompt-result-text').textContent = prompt.trim();
+  document.getElementById('prompt-result-box').style.display = 'block';
+  save();
+  toast('✅ 프롬프트가 완성되었습니다!');
+}
+
+// ════════════════════════════════════════════
+//  REPORT
+// ════════════════════════════════════════════
+function autoFillReport() {
+  const caseVal = getVal('case-select');
+  const caseName = caseVal === 'custom'
+    ? (getVal('custom-case') || '사례')
+    : (CASES[caseVal] ? CASES[caseVal].title : '선택된 사례');
+  const caseDesc = caseVal && CASES[caseVal] ? CASES[caseVal].desc : getVal('custom-case') || '';
+  const emotion = getVal('emotion-input');
+  const cause = getVal('cause-input');
+  const recovery = getVal('recovery-input');
+  const studentName = getVal('tb-name') || '학생';
+  const course = getVal('r-course') || '서비스경영론';
+
+  if (!getVal('r-title')) setVal('r-title', `서비스 실패 사례 분석 보고서: ${caseName}`);
+  if (!getVal('r-intro')) setVal('r-intro', `본 보고서는 ${course} 수업의 일환으로, ${caseName} 사례에서 발생한 서비스 실패를 분석하고 효과적인 서비스 회복 전략을 제시하는 것을 목적으로 한다. 서비스 실패는 기업의 브랜드 이미지와 고객 충성도에 직접적인 영향을 미치므로, 이에 대한 체계적인 분석이 요구된다.`);
+  if (!getVal('r-case') && caseDesc) setVal('r-case', caseDesc);
+  if (!getVal('r-analysis') && cause) setVal('r-analysis', cause);
+  if (!getVal('r-strategy') && recovery) setVal('r-strategy', recovery);
+  if (!getVal('r-conclusion')) setVal('r-conclusion', `본 사례 분석을 통해 서비스 실패의 근본 원인은 단순한 실수가 아닌 조직의 시스템과 문화에서 비롯됨을 확인하였다. 효과적인 서비스 회복을 위해서는 즉각적인 대응과 함께 고객의 공정성 인식을 회복하는 것이 핵심임을 학습하였다. 기업은 이를 통해 오히려 고객 충성도를 높이는 서비스 패러독스 효과를 기대할 수 있다.`);
+
+  save();
+  toast('✅ 분석 내용이 자동으로 채워졌습니다!');
+}
+
+function assembleReport() {
+  const title = getVal('r-title') || '제목 없음';
+  const course = getVal('r-course') || '서비스경영론';
+  const name = getVal('tb-name') || '학생';
+  const sid = getVal('tb-id') || '';
+  const cls = getVal('tb-class') || '';
+  const intro = getVal('r-intro') || '(미작성)';
+  const caseText = getVal('r-case') || '(미작성)';
+  const analysis = getVal('r-analysis') || '(미작성)';
+  const strategy = getVal('r-strategy') || '(미작성)';
+  const conclusion = getVal('r-conclusion') || '(미작성)';
+  const refs = getVal('r-refs') || '';
+  const today = new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
+
+  const report = `════════════════════════════════════════
+${title}
+════════════════════════════════════════
+과목: ${course}
+작성자: ${name}${sid ? ' (' + sid + ')' : ''}${cls ? ' | ' + cls + '분반' : ''}
+작성일: ${today}
+────────────────────────────────────────
+
+【 1. 서론 — 연구 배경 및 목적 】
+${intro}
+
+────────────────────────────────────────
+
+【 2. 사례 개요 】
+${caseText}
+
+────────────────────────────────────────
+
+【 3. 서비스 실패 원인 분석 (SERVQUAL) 】
+${analysis}
+
+────────────────────────────────────────
+
+【 4. 서비스 회복 전략 (Justice Theory) 】
+${strategy}
+
+────────────────────────────────────────
+
+【 5. 결론 및 시사점 】
+${conclusion}
+
+${refs ? '────────────────────────────────────────\n\n【 참고문헌 】\n' + refs + '\n\n' : ''}════════════════════════════════════════
+※ 본 보고서는 Service AI Lab에서 작성되었습니다.
+════════════════════════════════════════`;
+
+  document.getElementById('report-preview-text').textContent = report;
+  document.getElementById('report-preview-box').style.display = 'block';
+  save();
+  toast('📄 보고서 미리보기가 생성되었습니다!');
+}
+
+// ════════════════════════════════════════════
+//  RUBRIC
+// ════════════════════════════════════════════
+function buildRubricTable() {
+  const body = document.getElementById('rubric-body');
+  body.innerHTML = RUBRIC_ITEMS.map(item => `
+    <tr>
+      <td>
+        <strong>${item.criterion}</strong>
+        <div style="font-size:.76rem;color:var(--muted);margin-top:2px">${item.desc}</div>
+      </td>
+      <td style="font-size:.78rem">${item.excellent}</td>
+      <td style="font-size:.78rem">부분적으로 수행함</td>
+      <td style="font-size:.78rem">시도했으나 미흡함</td>
+      <td>
+        <select id="rb-${item.id}" onchange="updateRubric()">
+          <option value="0">선택</option>
+          <option value="4">4 — 우수</option>
+          <option value="3">3 — 보통</option>
+          <option value="2">2 — 미흡</option>
+          <option value="1">1 — 불충분</option>
+        </select>
+      </td>
+    </tr>`).join('');
+}
+
+function updateRubric() {
+  RUBRIC_ITEMS.forEach(item => {
+    rubricScores[item.id] = parseInt(document.getElementById('rb-' + item.id)?.value || 0);
+  });
+  const total = calcRubricTotal();
+  setText('rubric-total', total);
+  const badge = document.getElementById('rubric-grade');
+  if (total === 0) { badge.textContent = '아직 평가 전'; badge.style.cssText = 'background:var(--primary-light);color:var(--primary)'; }
+  else if (total >= 29) { badge.textContent = '🏆 A+ 최우수'; badge.style.cssText = 'background:#d1fae5;color:#065f46'; }
+  else if (total >= 25) { badge.textContent = '🥇 A 우수'; badge.style.cssText = 'background:#d1fae5;color:#065f46'; }
+  else if (total >= 21) { badge.textContent = '🥈 B 보통'; badge.style.cssText = 'background:#fef3c7;color:#92400e'; }
+  else if (total >= 16) { badge.textContent = '🥉 C 미흡'; badge.style.cssText = 'background:#fee2e2;color:#991b1b'; }
+  else { badge.textContent = '📚 D 추가 학습 필요'; badge.style.cssText = 'background:#fee2e2;color:#991b1b'; }
+  save();
+}
+
+function calcRubricTotal() {
+  return Object.values(rubricScores).reduce((a, b) => a + (b || 0), 0);
+}
+
+// ════════════════════════════════════════════
+//  PORTFOLIO
+// ════════════════════════════════════════════
+function buildPortfolio() {
+  const name = getVal('tb-name') || '(이름 미입력)';
+  const sid = getVal('tb-id') || '(미입력)';
+  const cls = getVal('tb-class') || '(미입력)';
+  const done = GRADED.filter(s => isDone(s)).length;
+  const pct = Math.round((done / GRADED.length) * 100);
+
+  setWidth('port-prog', pct + '%');
+  setText('port-pct', pct + '%');
+
+  document.getElementById('port-header-info').innerHTML = `
+    <div style="background:var(--primary-light);padding:8px 14px;border-radius:8px;font-size:.84rem">
+      <strong>👤 이름:</strong> ${escHtml(name)}
+    </div>
+    <div style="background:var(--primary-light);padding:8px 14px;border-radius:8px;font-size:.84rem">
+      <strong>🎫 학번:</strong> ${escHtml(sid)}
+    </div>
+    <div style="background:var(--primary-light);padding:8px 14px;border-radius:8px;font-size:.84rem">
+      <strong>📚 분반:</strong> ${escHtml(cls)}
+    </div>
+    <div style="background:${pct>=80?'#d1fae5':'var(--primary-light)'};padding:8px 14px;border-radius:8px;font-size:.84rem;color:${pct>=80?'#065f46':'var(--primary)'}">
+      <strong>✅ 완료:</strong> ${done}/${GRADED.length} (${pct}%)
+    </div>`;
+
+  const caseVal = getVal('case-select');
+  const caseName = caseVal === 'custom'
+    ? (getVal('custom-case') || '직접 입력')
+    : (CASES[caseVal] ? CASES[caseVal].title : '(미선택)');
+
+  const sections = [
+    { title:'🔍 서비스 실패 사례 분석', done: isDone('analysis'), content:
+        `[선택 사례] ${caseName}\n\n[고객 감정 분석]\n${getVal('emotion-input') || '(미작성)'}\n\n[실패 원인 분석]\n${getVal('cause-input') || '(미작성)'}\n\n[서비스 회복 전략]\n${getVal('recovery-input') || '(미작성)'}` },
+    { title:'💬 고객 응대 시뮬레이션', done: isDone('simulation'), content:
+        `[시나리오] ${getVal('sim-select') || '(미선택)'}\n\n[잘한 점]\n${getVal('sim-good') || '(미작성)'}\n\n[개선할 점]\n${getVal('sim-improve') || '(미작성)'}` },
+    { title:'⚡ AI 프롬프트 실습', done: isDone('prompt'), content:
+        document.getElementById('prompt-result-text')?.textContent || '(프롬프트 미생성)' },
+    { title:'📝 보고서 작성', done: isDone('report'), content:
+        `[제목] ${getVal('r-title') || '(미입력)'}\n\n[서론]\n${getVal('r-intro') || '(미작성)'}\n\n[원인 분석]\n${getVal('r-analysis') || '(미작성)'}\n\n[회복 전략]\n${getVal('r-strategy') || '(미작성)'}\n\n[결론]\n${getVal('r-conclusion') || '(미작성)'}` },
+    { title:'📊 자기평가 루브릭', done: isDone('rubric'), content:
+        `[총점] ${calcRubricTotal()} / 32점\n\n[배운 점]\n${getVal('reflect-learned') || '(미작성)'}\n\n[개선할 점]\n${getVal('reflect-improve') || '(미작성)'}` },
+  ];
+
+  document.getElementById('portfolio-content').innerHTML = sections.map(s => `
+    <div class="port-section">
+      <div class="port-hd">
+        ${s.title}
+        <span class="tag ${s.done ? 'tag-green' : 'tag-orange'}">${s.done ? '✅ 완료' : '⏳ 진행중'}</span>
+      </div>
+      <div class="port-body ${s.content.includes('미작성') || s.content.includes('미선택') || s.content.includes('미생성') ? 'port-empty' : ''}">${escHtml(s.content)}</div>
+    </div>`).join('');
+}
+
+function copyPortfolio() {
+  const name = getVal('tb-name') || '학생';
+  const sid = getVal('tb-id') || '';
+  const cls = getVal('tb-class') || '';
+  const today = new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
+  const caseVal = getVal('case-select');
+  const caseName = caseVal === 'custom' ? (getVal('custom-case') || '직접 입력') : (CASES[caseVal] ? CASES[caseVal].title : '(미선택)');
+
+  const text = `
+════════════════════════════════════════
+  Service AI Lab — 나의 AI 실습 포트폴리오
+════════════════════════════════════════
+작성자: ${name}${sid ? ' (' + sid + ')' : ''}${cls ? ' | ' + cls + '분반' : ''}
+날짜: ${today}
+완료율: ${GRADED.filter(s=>isDone(s)).length}/${GRADED.length} (${Math.round((GRADED.filter(s=>isDone(s)).length/GRADED.length)*100)}%)
+
+────────────────────────────────────────
+【 서비스 실패 사례 분석 】
+선택 사례: ${caseName}
+
+[고객 감정 분석]
+${getVal('emotion-input') || '(미작성)'}
+
+[실패 원인 분석]
+${getVal('cause-input') || '(미작성)'}
+
+[서비스 회복 전략]
+${getVal('recovery-input') || '(미작성)'}
+
+────────────────────────────────────────
+【 고객 응대 시뮬레이션 자기 분석 】
+
+[잘한 점]
+${getVal('sim-good') || '(미작성)'}
+
+[개선할 점]
+${getVal('sim-improve') || '(미작성)'}
+
+────────────────────────────────────────
+【 자기평가 루브릭 】
+총점: ${calcRubricTotal()} / 32점
+
+[배운 점]
+${getVal('reflect-learned') || '(미작성)'}
+
+[개선할 점]
+${getVal('reflect-improve') || '(미작성)'}
+
+────────────────────────────────────────
+【 보고서 초안 】
+제목: ${getVal('r-title') || '(미입력)'}
+
+[서론]
+${getVal('r-intro') || '(미작성)'}
+
+[원인 분석]
+${getVal('r-analysis') || '(미작성)'}
+
+[회복 전략]
+${getVal('r-strategy') || '(미작성)'}
+
+[결론]
+${getVal('r-conclusion') || '(미작성)'}
+
+════════════════════════════════════════
+※ Service AI Lab에서 작성 | 서비스경영 AI 실습 플랫폼
+════════════════════════════════════════`.trim();
+
+  navigator.clipboard.writeText(text)
+    .then(() => toast('📋 포트폴리오 전체가 클립보드에 복사되었습니다!'))
+    .catch(() => { fallbackCopy(text); toast('📋 복사 완료!'); });
+}
+
+// ════════════════════════════════════════════
+//  PROGRESS / DONE
+// ════════════════════════════════════════════
+function isDone(sec) {
+  return localStorage.getItem('sai-done-' + sec) === '1';
+}
+
+function markDone(sec) {
+  localStorage.setItem('sai-done-' + sec, '1');
+  const badge = document.getElementById('done-' + sec);
+  if (badge) badge.style.display = 'inline-block';
+  updateProgress();
+  refreshHomeStats();
+  toast('🎉 완료 처리되었습니다!');
+}
+
+function updateProgress() {
+  GRADED.forEach(s => {
+    const badge = document.getElementById('done-' + s);
+    if (badge) badge.style.display = isDone(s) ? 'inline-block' : 'none';
+  });
+  refreshHomeStats();
+}
+
+// ════════════════════════════════════════════
+//  SAVE / LOAD
+// ════════════════════════════════════════════
+function save() {
+  const d = {
+    student: { name: getVal('tb-name'), id: getVal('tb-id'), cls: getVal('tb-class') },
+    caseSelect: getVal('case-select'),
+    customCase: getVal('custom-case'),
+    emotionInput: getVal('emotion-input'),
+    emotionLevel: getVal('emotion-level'),
+    ftProcess: document.getElementById('ft-process')?.checked,
+    ftHuman: document.getElementById('ft-human')?.checked,
+    ftSystem: document.getElementById('ft-system')?.checked,
+    ftComm: document.getElementById('ft-comm')?.checked,
+    ftPolicy: document.getElementById('ft-policy')?.checked,
+    causeInput: getVal('cause-input'),
+    recoveryInput: getVal('recovery-input'),
+    analysisPrompt: document.getElementById('analysis-prompt-text')?.textContent || '',
+    simSelect: getVal('sim-select'),
+    simGood: getVal('sim-good'),
+    simImprove: getVal('sim-improve'),
+    chatHistory: chatHistory,
+    pPersona: getVal('p-persona'),
+    pGoal: getVal('p-goal'),
+    pContext: getVal('p-context'),
+    pConstraints: getVal('p-constraints'),
+    pFormat: getVal('p-format'),
+    pTone: getVal('p-tone'),
+    promptResult: document.getElementById('prompt-result-text')?.textContent || '',
+    rTitle: getVal('r-title'),
+    rCourse: getVal('r-course'),
+    rIntro: getVal('r-intro'),
+    rCase: getVal('r-case'),
+    rAnalysis: getVal('r-analysis'),
+    rStrategy: getVal('r-strategy'),
+    rConclusion: getVal('r-conclusion'),
+    rRefs: getVal('r-refs'),
+    rubricScores: rubricScores,
+    reflectLearned: getVal('reflect-learned'),
+    reflectImprove: getVal('reflect-improve'),
+  };
+  localStorage.setItem('sai-data', JSON.stringify(d));
+}
+
+function saveAll() { save(); toast('💾 저장되었습니다!'); }
+
+function saveStudent() {
+  save();
+  setText('home-name', getVal('tb-name') || '학생');
+}
+
+function loadAll() {
+  const raw = localStorage.getItem('sai-data');
+  if (!raw) return;
+  try {
+    const d = JSON.parse(raw);
+    const s = d.student || {};
+    setVal('tb-name', s.name || '');
+    setVal('tb-id', s.id || '');
+    setVal('tb-class', s.cls || '');
+
+    setVal('case-select', d.caseSelect || '');
+    setVal('custom-case', d.customCase || '');
+    setVal('emotion-input', d.emotionInput || '');
+    setVal('emotion-level', d.emotionLevel || '');
+    if (document.getElementById('ft-process')) document.getElementById('ft-process').checked = d.ftProcess || false;
+    if (document.getElementById('ft-human')) document.getElementById('ft-human').checked = d.ftHuman || false;
+    if (document.getElementById('ft-system')) document.getElementById('ft-system').checked = d.ftSystem || false;
+    if (document.getElementById('ft-comm')) document.getElementById('ft-comm').checked = d.ftComm || false;
+    if (document.getElementById('ft-policy')) document.getElementById('ft-policy').checked = d.ftPolicy || false;
+    setVal('cause-input', d.causeInput || '');
+    setVal('recovery-input', d.recoveryInput || '');
+
+    if (d.analysisPrompt) {
+      document.getElementById('analysis-prompt-text').textContent = d.analysisPrompt;
+      document.getElementById('analysis-prompt-result').style.display = 'block';
+    }
+
+    setVal('sim-select', d.simSelect || '');
+    setVal('sim-good', d.simGood || '');
+    setVal('sim-improve', d.simImprove || '');
+    chatHistory = d.chatHistory || [];
+
+    setVal('p-persona', d.pPersona || '');
+    setVal('p-goal', d.pGoal || '');
+    setVal('p-context', d.pContext || '');
+    setVal('p-constraints', d.pConstraints || '');
+    setVal('p-format', d.pFormat || '');
+    setVal('p-tone', d.pTone || '');
+    if (d.promptResult) {
+      document.getElementById('prompt-result-text').textContent = d.promptResult;
+      document.getElementById('prompt-result-box').style.display = 'block';
+    }
+
+    setVal('r-title', d.rTitle || '');
+    setVal('r-course', d.rCourse || '');
+    setVal('r-intro', d.rIntro || '');
+    setVal('r-case', d.rCase || '');
+    setVal('r-analysis', d.rAnalysis || '');
+    setVal('r-strategy', d.rStrategy || '');
+    setVal('r-conclusion', d.rConclusion || '');
+    setVal('r-refs', d.rRefs || '');
+
+    rubricScores = d.rubricScores || {};
+    RUBRIC_ITEMS.forEach(item => {
+      const el = document.getElementById('rb-' + item.id);
+      if (el && rubricScores[item.id]) el.value = rubricScores[item.id];
+    });
+    updateRubric();
+
+    setVal('reflect-learned', d.reflectLearned || '');
+    setVal('reflect-improve', d.reflectImprove || '');
+
+    // Restore case UI
+    if (d.caseSelect) onCaseChange();
+
+    // Restore sim UI
+    if (d.simSelect) {
+      currentSimScenario = SIM_SCENARIOS[d.simSelect];
+      if (currentSimScenario) {
+        document.getElementById('sim-context').textContent = currentSimScenario.context;
+        const tl = document.getElementById('sim-tips');
+        if (tl) tl.innerHTML = currentSimScenario.tips.map(t => `<li>${t}</li>`).join('');
+        document.getElementById('sim-context-box').style.display = 'block';
+        document.getElementById('sim-chat-card').style.display = 'block';
+        document.getElementById('sim-feedback-card').style.display = 'block';
+        if (chatHistory.length) renderChat();
+      }
+    }
+
+    setText('home-name', s.name || '학생');
+  } catch(e) {
+    console.warn('Load error:', e);
+  }
+}
+
+// ════════════════════════════════════════════
+//  RESET
+// ════════════════════════════════════════════
+function confirmReset() {
+  if (!confirm('⚠️ 모든 작성 내용이 삭제됩니다.\n정말 초기화하시겠습니까?')) return;
+  localStorage.clear();
+  chatHistory = [];
+  rubricScores = {};
+  toast('🗑️ 전체 초기화 완료.');
+  setTimeout(() => location.reload(), 800);
+}
+
+// ════════════════════════════════════════════
+//  UTILITIES
+// ════════════════════════════════════════════
+function copyEl(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const text = el.textContent || el.value || '';
+  navigator.clipboard.writeText(text)
+    .then(() => toast('📋 복사되었습니다!'))
+    .catch(() => { fallbackCopy(text); toast('📋 복사 완료!'); });
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+function getVal(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+}
+
+function setText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+function setWidth(id, w) {
+  const el = document.getElementById(id);
+  if (el) el.style.width = w;
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/\n/g,'<br>');
+}
+
+// Auto-save on any input change (debounced)
+let saveTimer;
+document.addEventListener('input', () => { clearTimeout(saveTimer); saveTimer = setTimeout(save, 600); });
+document.addEventListener('change', () => { clearTimeout(saveTimer); saveTimer = setTimeout(save, 200); });
+
+/*
+  ══════════════════════════════════════════════════════
+  TODO: OpenAI API 연결 (추후 구현)
+  ══════════════════════════════════════════════════════
+
+  async function callOpenAI(prompt) {
+    // 1. API 키를 환경변수 또는 사용자 입력으로 받을 것 (하드코딩 금지)
+    const apiKey = localStorage.getItem('openai-api-key'); // 사용자가 직접 입력
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',           // 또는 'claude-opus-4-7' (Anthropic API 사용 시)
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 1500
+      })
+    });
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+  }
+
+  // Anthropic Claude API 연결 (대안)
+  async function callClaude(prompt) {
+    // Anthropic API 직접 호출은 CORS로 브라우저에서 불가
+    // 프록시 서버 또는 서버사이드 구현 필요
+    // 권장: 백엔드 API 엔드포인트를 통해 호출할 것
+  }
+
+  ══════════════════════════════════════════════════════
+*/
+</script>
+</body>
+</html>
