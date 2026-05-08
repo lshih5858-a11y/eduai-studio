@@ -375,6 +375,11 @@ textarea{min-height:110px}
             <option value="bank">🏦 은행 ATM 오류</option>
             <option value="delivery">📦 택배 배송 오류</option>
             <option value="internet">💻 인터넷 서비스 장애</option>
+            <option value="rental">🚗 렌터카 차량 결함</option>
+            <option value="concert">🎭 공연 티켓 오류 및 좌석 중복 배정</option>
+            <option value="mart">🛒 대형마트 영수증 과다 청구</option>
+            <option value="edu">🏫 온라인 강의 플랫폼 오류</option>
+            <option value="transport">🚌 공항버스 탑승 거부 및 결항</option>
             <option value="custom">✏️ 직접 입력하기</option>
           </select>
         </div>
@@ -511,21 +516,43 @@ textarea{min-height:110px}
       <div class="card">
         <div class="card-hd"><div class="card-icon">📚</div><h2>프롬프트 템플릿 라이브러리</h2></div>
         <p style="font-size:.84rem;color:var(--muted);margin-bottom:12px">아래 템플릿을 클릭하면 프롬프트 빌더에 자동으로 채워집니다.</p>
-        <div class="pt-card" onclick="loadTemplate('servqual')">
-          <h4>🔬 SERVQUAL 분석 요청</h4>
-          <p>서비스 실패 사례를 SERVQUAL 5차원으로 분석하고 개선 방안을 제시하는 프롬프트</p>
-        </div>
-        <div class="pt-card" onclick="loadTemplate('script')">
-          <h4>🎭 고객 응대 스크립트 작성</h4>
-          <p>구체적인 서비스 실패 상황에 맞는 전문적인 고객 응대 스크립트 작성 요청</p>
-        </div>
-        <div class="pt-card" onclick="loadTemplate('recovery')">
-          <h4>🛠️ 서비스 회복 전략 수립</h4>
-          <p>Justice Theory 기반의 체계적인 서비스 회복 전략을 도출하는 프롬프트</p>
-        </div>
-        <div class="pt-card" onclick="loadTemplate('report')">
-          <h4>📊 경영 보고서 작성 지원</h4>
-          <p>학술적 보고서 형식으로 서비스 실패 분석 내용을 정리하는 프롬프트</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="pt-card" onclick="loadTemplate('servqual')" style="margin-bottom:0">
+            <h4>🔬 SERVQUAL 분석 요청</h4>
+            <p>서비스 실패 사례를 SERVQUAL 5차원으로 분석하고 개선 방안을 제시하는 프롬프트</p>
+          </div>
+          <div class="pt-card" onclick="loadTemplate('script')" style="margin-bottom:0">
+            <h4>🎭 고객 응대 스크립트 작성</h4>
+            <p>구체적인 서비스 실패 상황에 맞는 전문적인 고객 응대 스크립트 작성 요청</p>
+          </div>
+          <div class="pt-card" onclick="loadTemplate('recovery')" style="margin-bottom:0">
+            <h4>🛠️ 서비스 회복 전략 수립</h4>
+            <p>Justice Theory 기반의 체계적인 서비스 회복 전략을 도출하는 프롬프트</p>
+          </div>
+          <div class="pt-card" onclick="loadTemplate('report')" style="margin-bottom:0">
+            <h4>📊 경영 보고서 작성 지원</h4>
+            <p>학술적 보고서 형식으로 서비스 실패 분석 내용을 정리하는 프롬프트</p>
+          </div>
+          <div class="pt-card" onclick="loadTemplate('churn')" style="margin-bottom:0">
+            <h4>📉 고객 이탈 방지 전략</h4>
+            <p>서비스 실패 이후 고객 이탈을 막고 장기 관계를 유지하는 전략 도출</p>
+          </div>
+          <div class="pt-card" onclick="loadTemplate('sns')" style="margin-bottom:0">
+            <h4>📱 SNS 컴플레인 대응</h4>
+            <p>온라인·SNS에 게시된 부정적 후기에 공개적으로 답변하는 응대문 작성</p>
+          </div>
+          <div class="pt-card" onclick="loadTemplate('blueprint')" style="margin-bottom:0">
+            <h4>🗺️ 서비스 청사진 개선</h4>
+            <p>서비스 실패 지점을 서비스 청사진에 매핑하고 프로세스 개선안을 제안</p>
+          </div>
+          <div class="pt-card" onclick="loadTemplate('journey')" style="margin-bottom:0">
+            <h4>🧭 고객 여정 지도 분석</h4>
+            <p>서비스 접점별 고객 감정 곡선을 분석하고 개선 우선순위를 도출하는 프롬프트</p>
+          </div>
+          <div class="pt-card" onclick="loadTemplate('training')" style="margin-bottom:0;grid-column:span 2">
+            <h4>🏋️ 직원 교육 프로그램 설계</h4>
+            <p>서비스 실패 재발 방지를 위한 현장 직원 대상 교육 커리큘럼 및 롤플레이 시나리오 설계</p>
+          </div>
         </div>
       </div>
 
@@ -756,6 +783,11 @@ const CASES = {
   bank:       { title:'🏦 은행 ATM 오류', desc:'ATM 출금 시 금액이 인출되었으나 현금이 나오지 않음. 고객센터 연결에 1시간 이상 대기 후 "3~5영업일 처리" 안내만 받음. 당장 현금이 필요한 상황.', industry:'🏦 금융업', severity:'🔴 심각도: 높음' },
   delivery:   { title:'📦 택배 배송 오류', desc:'중요한 계약서가 담긴 택배가 다른 주소로 배달됨. 당일 배송 보장 프리미엄 서비스였으나 이틀째 미도착. 수령인 서명도 다른 사람으로 기재되어 있음.', industry:'📦 물류/유통', severity:'🟠 심각도: 중간' },
   internet:   { title:'💻 인터넷 서비스 장애', desc:'재택근무 중 인터넷 서비스가 6시간 동안 완전 중단. 고객센터 전화 대기 중 자동 종료 반복. 온라인 채팅 상담도 봇 응답만 반복. 화상회의와 마감 업무에 큰 차질 발생.', industry:'💻 IT/통신', severity:'🔴 심각도: 높음' },
+  rental:     { title:'🚗 렌터카 차량 결함', desc:'온라인으로 예약한 풀옵션 SUV 대신 소형차가 배정. 인수 후 에어컨 고장 발견. 고속도로 주행 중 타이어 경고등 점등. 콜센터 연결 시도 40분 만에 연결됐으나 "내일 교체 가능"이라는 답변만 수령. 가족 여행 일정 전체가 망가진 상황.', industry:'🚗 렌터카/모빌리티', severity:'🔴 심각도: 높음' },
+  concert:    { title:'🎭 공연 티켓 오류 및 좌석 중복 배정', desc:'프리미엄 가격을 지불하고 예매한 뮤지컬 1열 좌석에 다른 관객이 이미 착석. 공연장 직원은 "전산 오류"라며 빈 자리(4열)로 안내. 환불 요청 시 "공연 시작 후 환불 불가" 규정 고지. 공연 내내 불쾌감 지속.', industry:'🎭 공연/문화예술', severity:'🟠 심각도: 중간~높음' },
+  mart:       { title:'🛒 대형마트 영수증 과다 청구', desc:'세일 행사 상품을 구매했으나 영수증에 정상가로 청구됨. 서비스센터 방문 시 30분 대기. 담당자가 환불 처리 후 재청구 과정에서 금액 또 오류 발생. 고객이 직접 계산기로 확인하기 전까지 직원이 오류를 인지하지 못함.', industry:'🛒 유통/마트', severity:'🟡 심각도: 중간' },
+  edu:        { title:'🏫 온라인 강의 플랫폼 오류', desc:'수강료 19만원을 결제한 자격증 온라인 강의가 수강 시작 3일 만에 서비스 종료 공지. 환불 요청 시 "이용 약관상 수강 시작 후 환불 불가" 규정 적용. 이메일 문의는 5일째 무응답. 커뮤니티 게시판에는 동일 피해자 수십 명이 글을 올린 상황.', industry:'🏫 교육서비스', severity:'🔴 심각도: 높음' },
+  transport:  { title:'🚌 공항버스 탑승 거부 및 결항', desc:'인천공항 리무진 버스 사전 예약·결제 후 탑승 시 "만석"이라며 거부당함. 다음 버스까지 40분 대기로 비행기 탑승 수속 마감. 환불 요청 시 "승차 거부 확인서" 발급이 안 된다는 안내. 항공권 위약금까지 발생.', industry:'🚌 교통/운송', severity:'🔴 심각도: 높음' },
 };
 
 const SIM_SCENARIOS = {
@@ -1090,6 +1122,46 @@ const TEMPLATES = {
     constraints:'서론-본론-결론 구조, 각 섹션 300자 이내, 참고문헌 형식 포함',
     format:'보고서 형식 (서론-본론-결론)',
     tone:'전문적이고 학술적인'
+  },
+  churn: {
+    persona:'고객 유지(Customer Retention) 전문 마케터',
+    goal:'서비스 실패 이후 고객 이탈을 방지하는 맞춤형 리텐션 전략 5가지 제안',
+    context:'서비스 실패를 경험한 고객은 이탈 가능성이 매우 높습니다. 해당 고객을 재유치하고 장기 충성 고객으로 전환하는 방안이 필요합니다.',
+    constraints:'단기(72시간 이내)·중기(1개월)·장기(6개월) 대응 전략을 구분하여 제시, 비용 효율 고려',
+    format:'번호 목록 (1, 2, 3...)',
+    tone:'실무적이고 구체적인'
+  },
+  sns: {
+    persona:'브랜드 평판 관리(ORM) 전문가',
+    goal:'SNS·온라인 리뷰에 게시된 서비스 불만 후기에 대한 공개 답변문 작성',
+    context:'고객이 소셜미디어(인스타그램, 네이버 리뷰, 카카오맵 등)에 서비스 실패 경험을 공개 게시하여 브랜드 이미지에 타격이 발생했습니다.',
+    constraints:'공개 답변이므로 다른 잠재 고객도 읽는다는 점을 고려, 방어적 태도 금지, 200자 이내',
+    format:'단락 형식 (각 200자 이내)',
+    tone:'친절하고 공감적인'
+  },
+  blueprint: {
+    persona:'서비스 디자인(Service Design) 전문 컨설턴트',
+    goal:'서비스 청사진(Service Blueprint) 관점에서 실패 지점 진단 및 프로세스 개선안 도출',
+    context:'서비스 청사진은 고객 행동, 프론트스테이지, 백스테이지, 지원 프로세스의 4개 계층으로 구성됩니다. 각 계층에서 어떤 실패가 발생했는지 분석이 필요합니다.',
+    constraints:'각 계층별 실패 원인과 개선안을 1:1 대응으로 제시, 담당 부서 명시',
+    format:'표 형식',
+    tone:'전문적이고 학술적인'
+  },
+  journey: {
+    persona:'고객경험(CX) 디자인 전문가',
+    goal:'서비스 접점별 고객 감정 곡선 분석 및 Pain Point 개선 우선순위 도출',
+    context:'고객 여정 지도(Customer Journey Map)를 활용하여 서비스 실패가 발생한 구체적인 접점(Touchpoint)을 파악하고 감정 변화를 추적합니다.',
+    constraints:'인지→탐색→구매→경험→이탈/재방문의 5단계 여정을 모두 다룰 것, 각 단계 감정 점수(-2~+2) 포함',
+    format:'표 형식',
+    tone:'실무적이고 구체적인'
+  },
+  training: {
+    persona:'서비스 교육 전문 트레이너',
+    goal:'서비스 실패 재발 방지를 위한 현장 직원 교육 프로그램 및 롤플레이 시나리오 설계',
+    context:'유사한 서비스 실패가 반복되고 있어 신규 및 기존 직원 대상 체계적인 교육이 필요합니다. 이론 교육보다는 실습 중심의 현장형 교육이 효과적입니다.',
+    constraints:'4시간 이내 진행 가능한 분량, 롤플레이 시나리오 최소 2개 포함, 평가 기준표 포함',
+    format:'보고서 형식 (서론-본론-결론)',
+    tone:'실무적이고 구체적인'
   }
 };
 
