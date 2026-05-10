@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>제미니 카페</title>
+
+    <!-- 모바일 앱 설정 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="제미니카페">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap');
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f3f4f6;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .category-btn.active { background-color: #1f2937; color: white; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+        .modal.open { display: flex; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="antialiased select-none">
+
+    <div class="max-w-6xl mx-auto p-4 md:p-10 pb-32 lg:pb-10">
+        <header class="flex justify-between items-end mb-8">
+            <div>
+                <h1 class="text-2xl font-extrabold text-gray-900">☕ Gemini Premium Cafe</h1>
+                <p class="text-gray-500 text-sm">실제 앱처럼 홈 화면에 추가해 보세요.</p>
+            </div>
+        </header>
+
+        <div class="lg:flex gap-8">
+            <!-- 메뉴 섹션 -->
+            <div class="lg:w-2/3">
+                <div class="flex gap-2 mb-6 overflow-x-auto hide-scrollbar pb-2" id="category-group">
+                    <button onclick="filterMenu('all')" class="category-btn active whitespace-nowrap px-5 py-2 rounded-full border bg-white text-sm font-semibold shadow-sm">전체</button>
+                    <button onclick="filterMenu('coffee')" class="category-btn whitespace-nowrap px-5 py-2 rounded-full border bg-white text-sm font-semibold shadow-sm">커피</button>
+                    <button onclick="filterMenu('drink')" class="category-btn whitespace-nowrap px-5 py-2 rounded-full border bg-white text-sm font-semibold shadow-sm">음료</button>
+                    <button onclick="filterMenu('dessert')" class="category-btn whitespace-nowrap px-5 py-2 rounded-full border bg-white text-sm font-semibold shadow-sm">디저트</button>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4" id="menu-grid"></div>
+            </div>
+
+            <!-- 장바구니 섹션 -->
+            <div class="lg:w-1/3 mt-10 lg:mt-0">
+                <div class="bg-white rounded-3xl shadow-xl p-6 sticky top-6 border border-gray-100">
+                    <h2 class="text-xl font-bold mb-6 flex justify-between">주문 내역 <span id="cart-count" class="bg-blue-100 text-blue-600 text-xs px-3 py-1 rounded-full">0</span></h2>
+                    <div id="cart-list" class="space-y-4 mb-6 min-h-[100px] max-h-[300px] overflow-y-auto pr-2 text-sm text-gray-400">선택된 메뉴가 없습니다.</div>
+                    <div class="border-t pt-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <span class="text-gray-500 font-medium">총 결제 금액</span>
+                            <span id="total-price" class="text-2xl font-black text-gray-900">0원</span>
+                        </div>
+                        <button onclick="showReceipt()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 transition-all active:scale-95 shadow-lg">결제하기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 영수증 모달 -->
+    <div id="receipt-modal" class="modal">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl">
+            <div class="text-center mb-6">
+                <div class="text-4xl mb-2">✅</div>
+                <h3 class="text-xl font-bold">주문이 완료되었습니다!</h3>
+                <p class="text-gray-500 text-sm mt-1" id="order-id"></p>
+            </div>
+            <div id="receipt-content" class="text-sm border-y py-4 my-4 space-y-2"></div>
+            <button onclick="closeModal()" class="w-full bg-gray-100 py-3 rounded-xl font-semibold hover:bg-gray-200">확인</button>
+        </div>
+    </div>
+
+    <script>
+        const menuData = [
+            { id: 1, category: 'coffee', name: "아메리카노", price: 4500, img: "☕" },
+            { id: 2, category: 'coffee', name: "카페라떼", price: 5000, img: "🥛" },
+            { id: 3, category: 'coffee', name: "돌체 라떼", price: 5800, img: "🍯" },
+            { id: 4, category: 'drink', name: "레몬 에이드", price: 6000, img: "🍋" },
+            { id: 5, category: 'drink', name: "딸기 주스", price: 6500, img: "🍓" },
+            { id: 6, category: 'dessert', name: "크로플", price: 4500, img: "🥐" },
+            { id: 7, category: 'dessert', name: "티라미수", price: 7500, img: "🍰" },
+            { id: 8, category: 'drink', name: "말차 라떼", price: 5500, img: "🌿" }
+        ];
+
+        // 로컬 스토리지에서 장바구니 불러오기
+        let cart = JSON.parse(localStorage.getItem('cafeCart')) || [];
+
+        function renderMenu(filter = 'all') {
+            const grid = document.getElementById('menu-grid');
+            grid.innerHTML = '';
+            const filtered = filter === 'all' ? menuData : menuData.filter(m => m.category === filter);
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-3xl border border-transparent hover:border-blue-500 transition-all cursor-pointer shadow-sm active:scale-95 text-center";
+                card.onclick = () => addToCart(item);
+                card.innerHTML = `<div class="text-4xl mb-3">${item.img}</div><div class="font-bold text-gray-800 text-sm">${item.name}</div><div class="text-blue-600 font-semibold text-xs mt-1">${item.price.toLocaleString()}원</div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterMenu(category) {
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderMenu(category);
+        }
+
+        function addToCart(item) {
+            const found = cart.find(c => c.id === item.id);
+            if (found) found.quantity++; else cart.push({ ...item, quantity: 1 });
+            saveAndUpdate();
+        }
+
+        function changeQty(id, delta) {
+            const item = cart.find(c => c.id === id);
+            if (item) { item.quantity += delta; if (item.quantity <= 0) cart = cart.filter(c => c.id !== id); }
+            saveAndUpdate();
+        }
+
+        function saveAndUpdate() {
+            localStorage.setItem('cafeCart', JSON.stringify(cart));
+            updateCart();
+        }
+
+        function updateCart() {
+            const list = document.getElementById('cart-list');
+            const total = document.getElementById('total-price');
+            const count = document.getElementById('cart-count');
+            if (cart.length === 0) { list.innerHTML = '선택된 메뉴가 없습니다.'; total.innerText = '0원'; count.innerText = '0'; return; }
+            list.innerHTML = cart.map(item => `
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-2xl">
+                    <div class="font-semibold text-gray-700 text-xs">${item.name}</div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center border rounded-lg bg-white">
+                            <button onclick="event.stopPropagation(); changeQty(${item.id}, -1)" class="px-2 py-1">-</button>
+                            <span class="w-5 text-center text-xs font-bold">${item.quantity}</span>
+                            <button onclick="event.stopPropagation(); changeQty(${item.id}, 1)" class="px-2 py-1">+</button>
+                        </div>
+                        <div class="font-bold text-gray-900 text-xs">${(item.price * item.quantity).toLocaleString()}원</div>
+                    </div>
+                </div>
+            `).join('');
+            const sum = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+            total.innerText = sum.toLocaleString() + '원';
+            count.innerText = cart.length;
+        }
+
+        function showReceipt() {
+            if(cart.length === 0) return;
+            const modal = document.getElementById('receipt-modal');
+            document.getElementById('order-id').innerText = "Order ID: #" + Math.floor(Math.random()*9000 + 1000);
+            document.getElementById('receipt-content').innerHTML = cart.map(i => `<div class="flex justify-between"><span>${i.name} x ${i.quantity}</span><span>${(i.price * i.quantity).toLocaleString()}원</span></div>`).join('') + `<div class="flex justify-between font-bold text-lg pt-4 border-t mt-2"><span>총액</span><span class="text-blue-600">${document.getElementById('total-price').innerText}</span></div>`;
+            modal.classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('receipt-modal').classList.remove('open');
+            cart = [];
+            saveAndUpdate();
+        }
+
+        renderMenu();
+        updateCart();
+    </script>
+</body>
+</html>
