@@ -245,6 +245,47 @@ class ConsentService:
             for r in records
         ]
 
+    async def get_current_status(
+        self,
+        pseudo_student_id: str,
+    ) -> list[ConsentHistoryRead]:
+        """동의 유형별 최신 동의 현황을 반환합니다.
+
+        각 동의 유형에 대해 가장 최신 레코드 1건씩 반환합니다.
+
+        Args:
+            pseudo_student_id: 조회할 사용자의 가명 식별자
+
+        Returns:
+            동의 유형별 최신 현황 목록
+        """
+        latest_records: list[ConsentHistoryRead] = []
+        for consent_type in ConsentTypeEnum:
+            result = await self.db.execute(
+                select(ConsentRecord)
+                .where(
+                    ConsentRecord.pseudo_student_id == pseudo_student_id,
+                    ConsentRecord.consent_type == consent_type,
+                )
+                .order_by(ConsentRecord.created_at.desc())
+                .limit(1)
+            )
+            record = result.scalar_one_or_none()
+            if record is not None:
+                latest_records.append(
+                    ConsentHistoryRead(
+                        id=record.id,
+                        pseudo_student_id=record.pseudo_student_id,
+                        consent_type=record.consent_type,
+                        granted=record.granted,
+                        granted_at=record.granted_at,
+                        revoked_at=record.revoked_at,
+                        consent_version=record.consent_version,
+                        created_at=record.created_at,
+                    )
+                )
+        return latest_records
+
     async def has_valid_consent(
         self,
         pseudo_student_id: str,

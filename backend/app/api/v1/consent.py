@@ -65,3 +65,17 @@ async def get_consent_history(
     """현재 사용자의 동의 이력을 반환합니다."""
     service = ConsentService(db)
     return await service.get_history(current_user.pseudo_student_id)
+
+
+@router.get("/my", response_model=list[ConsentHistoryRead], summary="내 현재 동의 현황")
+async def get_my_consent_status(
+    current_user: CurrentUser,
+    db: AsyncSession = Depends(get_db),
+) -> list[ConsentHistoryRead]:
+    """현재 사용자의 최신 동의 현황을 반환합니다.
+
+    동의 유형별로 가장 최신 레코드 1건씩 반환합니다.
+    프론트엔드 동의 관리 페이지에서 현재 상태 표시에 사용합니다.
+    """
+    service = ConsentService(db)
+    return await service.get_current_status(current_user.pseudo_student_id)
