@@ -46,7 +46,7 @@ export function ApprovalPanel({ intervention }: ApprovalPanelProps) {
     setShowDialog(true);
   };
 
-  const badge = STATUS_BADGE[intervention.status] ?? STATUS_BADGE.PENDING_APPROVAL;
+  const badge = (STATUS_BADGE[intervention.status as keyof typeof STATUS_BADGE] ?? STATUS_BADGE.PENDING_APPROVAL)!;
 
   return (
     <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4">
@@ -54,7 +54,7 @@ export function ApprovalPanel({ intervention }: ApprovalPanelProps) {
         <div className="flex items-center gap-2">
           <Badge variant={badge.variant}>{badge.label}</Badge>
           <span className="text-xs text-gray-400">{intervention.intervention_type}</span>
-          {intervention.urgency === "HIGH" && (
+          {(intervention.urgency_level === "HIGH" || intervention.urgency_level === "CRITICAL") && (
             <Badge variant="destructive" className="text-xs">긴급</Badge>
           )}
         </div>

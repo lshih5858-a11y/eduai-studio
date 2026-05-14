@@ -326,4 +326,5 @@ export const interventionApi = {
   },
 };
 
+export { apiClient };
 export default apiClient;

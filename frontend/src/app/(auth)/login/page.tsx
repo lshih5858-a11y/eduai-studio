@@ -24,7 +24,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      await login({ pseudo_student_id: email, password });
       router.replace("/dashboard");
     } catch {
       setError("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");

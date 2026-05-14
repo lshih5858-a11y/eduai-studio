@@ -341,7 +341,7 @@ def upgrade() -> None:
             sa.Enum("LOW", "MEDIUM", "HIGH", name="risklevel"),
             nullable=False,
         ),
-        sa.Column("reason_codes", postgresql.JSONB(), nullable=False, server_default="'[]'::jsonb"),
+        sa.Column("reason_codes", postgresql.JSONB(), nullable=False, server_default=sa.text("'[]'::jsonb")),
         sa.Column("calibration_note", sa.String(500), nullable=True),
         sa.Column("model_version", sa.String(20), nullable=False, server_default="v1.0.0"),
         sa.Column(
@@ -378,7 +378,7 @@ def upgrade() -> None:
         sa.Column("course_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("recommendation_type", sa.String(50), nullable=False),
         sa.Column("content", sa.Text(), nullable=False),
-        sa.Column("shap_reason_codes", postgresql.JSONB(), nullable=False, server_default="'[]'::jsonb"),
+        sa.Column("shap_reason_codes", postgresql.JSONB(), nullable=False, server_default=sa.text("'[]'::jsonb")),
         sa.Column("is_delivered", sa.Boolean(), nullable=False, server_default="false"),
         sa.Column(
             "created_at",

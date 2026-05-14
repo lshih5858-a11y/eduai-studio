@@ -92,6 +92,7 @@ class AuditLogger:
         extra_json = json.dumps(extra_data) if extra_data else None
 
         # INSERT INTO 직접 실행 (ORM 모델 순환 임포트 방지)
+        # asyncpg named param + ::jsonb 혼용 불가 → CAST() 사용
         await self.db.execute(
             text("""
                 INSERT INTO audit_logs (
@@ -99,7 +100,7 @@ class AuditLogger:
                     ip_hash, user_agent_hash, extra_data, occurred_at
                 ) VALUES (
                     :id, :actor_pseudo_id, :action, :resource_type, :resource_id,
-                    :ip_hash, :user_agent_hash, :extra_data::jsonb, :occurred_at
+                    :ip_hash, :user_agent_hash, CAST(:extra_data AS jsonb), :occurred_at
                 )
             """),
             {

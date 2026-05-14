@@ -1,6 +1,6 @@
-import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
+
+const nextConfig = {
   // 프로덕션 빌드에서 타입 오류 차단
   typescript: {
     ignoreBuildErrors: false,
