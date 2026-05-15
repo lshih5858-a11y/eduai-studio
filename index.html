@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U-AI Compass — 학습분석 플랫폼</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --navy:#1a3a5c;--navy-d:#122840;--navy-l:#2a4d73;
+  --teal:#0891b2;--teal-l:#06b6d4;--teal-bg:#e0f7fa;
+  --w:#fff;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;
+  --g500:#64748b;--g700:#334155;--g900:#0f172a;
+  --ok:#10b981;--warn:#f59e0b;--err:#ef4444;--info:#3b82f6;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--g50);color:var(--g900);line-height:1.5;}
+
+/* ── LOGIN ── */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--navy) 0%,var(--teal) 100%);}
+.lbox{background:#fff;border-radius:16px;padding:48px 40px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.22);}
+.llogo{text-align:center;margin-bottom:32px;}
+.licon{width:64px;height:64px;background:linear-gradient(135deg,var(--navy),var(--teal));border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:28px;font-weight:900;color:#fff;}
+.llogo h1{font-size:22px;font-weight:700;color:var(--navy);}
+.llogo p{font-size:13px;color:var(--g500);margin-top:4px;}
+.fg{margin-bottom:16px;}
+.fg label{display:block;font-size:13px;font-weight:600;color:var(--g700);margin-bottom:6px;}
+.fg input{width:100%;padding:10px 14px;border:1.5px solid var(--g200);border-radius:8px;font-size:14px;outline:none;transition:border-color .2s;}
+.fg input:focus{border-color:var(--teal);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .18s;font-family:inherit;}
+.btn-p{background:linear-gradient(135deg,var(--navy),var(--teal));color:#fff;width:100%;padding:12px;font-size:15px;margin-top:8px;}
+.btn-p:hover{opacity:.92;transform:translateY(-1px);}
+.btn-t{background:var(--teal);color:#fff;}
+.btn-t:hover{background:#0773a0;}
+.btn-ok{background:var(--ok);color:#fff;}
+.btn-err{background:var(--err);color:#fff;}
+.btn-o{background:#fff;border:1.5px solid var(--g200);color:var(--g700);}
+.btn-o:hover{background:var(--g50);}
+.hint{margin-top:20px;padding:12px;background:var(--teal-bg);border-radius:8px;font-size:12px;color:var(--navy);}
+.hint strong{display:block;margin-bottom:4px;}
+.errmsg{background:#fef2f2;border:1px solid #fecaca;color:var(--err);padding:10px 12px;border-radius:8px;font-size:13px;margin-top:12px;display:none;}
+
+/* ── APP SHELL ── */
+#app{display:none;min-height:100vh;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:var(--navy);color:#fff;z-index:100;display:flex;flex-direction:column;}
+.slogo{padding:22px 20px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px;}
+.slogo-icon{width:32px;height:32px;background:linear-gradient(135deg,#2a4d73,var(--teal));border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#fff;flex-shrink:0;}
+.slogo-name{font-size:16px;font-weight:700;color:#fff;}
+.slogo-sub{font-size:11px;color:rgba(255,255,255,.45);}
+.snav{flex:1;padding:10px 0;overflow-y:auto;}
+.snav-section{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.38);padding:12px 20px 4px;}
+.nitem{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;transition:background .15s;font-size:14px;color:rgba(255,255,255,.72);border-left:3px solid transparent;}
+.nitem:hover{background:rgba(255,255,255,.07);color:#fff;}
+.nitem.active{background:rgba(8,145,178,.26);color:#fff;border-left-color:var(--teal-l);}
+.nitem .ni{font-size:16px;width:20px;text-align:center;}
+.sfooter{padding:16px 20px;border-top:1px solid rgba(255,255,255,.1);}
+.uinfo{display:flex;align-items:center;gap:10px;}
+.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;}
+.av-n{background:rgba(255,255,255,.15);color:#fff;}
+.av-t{background:var(--teal);color:#fff;}
+.uname{font-size:13px;font-weight:600;color:#fff;}
+.urole{font-size:11px;color:rgba(255,255,255,.48);}
+.header{position:fixed;top:0;left:240px;right:0;height:60px;background:#fff;border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:99;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.htitle{font-size:16px;font-weight:600;color:var(--g900);}
+.hright{display:flex;align-items:center;gap:12px;}
+.pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.pill-t{background:var(--teal-bg);color:var(--teal);}
+.pill-n{background:#e8edf3;color:var(--navy);}
+.lout{padding:6px 14px;border-radius:6px;background:var(--g100);border:none;font-size:13px;color:var(--g700);cursor:pointer;transition:background .15s;font-family:inherit;}
+.lout:hover{background:var(--g200);}
+.main{margin-left:240px;padding-top:60px;min-height:100vh;}
+.ca{padding:28px;}
+
+/* ── PAGE ── */
+.ph{margin-bottom:24px;}
+.ph h2{font-size:22px;font-weight:700;color:var(--navy);}
+.ph p{font-size:13px;color:var(--g500);margin-top:4px;}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.sgrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+.sc{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);border:1px solid var(--g100);}
+.sc .sl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--g500);margin-bottom:8px;}
+.sc .sv{font-size:32px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:6px;}
+.sc .ss{font-size:12px;color:var(--g500);}
+.sc .sic{font-size:28px;margin-bottom:8px;}
+.sc.bd-err{border-left:4px solid var(--err);}
+.sc.bd-warn{border-left:4px solid var(--warn);}
+.sc.bd-ok{border-left:4px solid var(--ok);}
+.sc.bd-info{border-left:4px solid var(--info);}
+.card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);border:1px solid var(--g100);overflow:hidden;margin-bottom:16px;}
+.ch{padding:16px 20px;border-bottom:1px solid var(--g100);display:flex;align-items:center;justify-content:space-between;}
+.ch h3{font-size:15px;font-weight:600;color:var(--g900);}
+.cb{padding:20px;}
+.g2{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;}
+
+/* ── TABLE ── */
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--g500);background:var(--g50);border-bottom:1px solid var(--g200);}
+td{padding:12px 14px;font-size:13.5px;border-bottom:1px solid var(--g100);color:var(--g700);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--g50);}
+
+/* ── BADGES ── */
+.rb{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;}
+.rc{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
+.rh{background:#fff7ed;color:#ea580c;border:1px solid #fed7aa;}
+.rm{background:#fffbeb;color:#d97706;border:1px solid #fde68a;}
+.rl{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
+.sb{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.sp{background:#fff7ed;color:#ea580c;}
+.sa{background:#f0fdf4;color:#16a34a;}
+.sr{background:#fef2f2;color:#dc2626;}
+.se{background:#f0f9ff;color:#0284c7;}
+
+/* ── PROGRESS ── */
+.pb{height:6px;background:var(--g100);border-radius:4px;overflow:hidden;}
+.pf{height:100%;border-radius:4px;}
+
+/* ── INTERVENTION ── */
+.iitem{border:1px solid var(--g200);border-radius:10px;padding:16px;margin-bottom:10px;transition:box-shadow .15s;}
+.iitem:hover{box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.ihdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;}
+
+/* ── MODAL ── */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.mo.show{opacity:1;pointer-events:all;}
+.mb{background:#fff;border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.25);transform:translateY(-10px);transition:transform .2s;}
+.mo.show .mb{transform:translateY(0);}
+.mt{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:16px;}
+.mta{width:100%;padding:10px 12px;border:1.5px solid var(--g200);border-radius:8px;font-size:14px;resize:vertical;min-height:80px;outline:none;font-family:inherit;transition:border-color .2s;}
+.mta:focus{border-color:var(--teal);}
+.mac{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;}
+
+/* ── TOAST ── */
+.tc{position:fixed;bottom:24px;right:24px;z-index:300;display:flex;flex-direction:column;gap:8px;}
+.toast{padding:12px 16px;border-radius:8px;font-size:13px;font-weight:500;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;min-width:260px;animation:tslide .3s ease;}
+@keyframes tslide{from{transform:translateX(80px);opacity:0}to{transform:translateX(0);opacity:1}}
+.t-ok{background:var(--ok);}
+.t-err{background:var(--err);}
+.t-info{background:var(--info);}
+
+/* ── AI CARDS ── */
+.afc{border-radius:10px;padding:16px;margin-bottom:10px;border-left:4px solid;}
+.afc1{background:#eff6ff;border-color:var(--info);}
+.afc2{background:#f0fdf4;border-color:var(--ok);}
+.afc3{background:#fff7ed;border-color:var(--warn);}
+.aft{font-size:13px;font-weight:700;margin-bottom:6px;}
+.afb{font-size:13px;color:var(--g700);}
+
+/* ── SHAP ── */
+.shap-sec{background:var(--g50);border-radius:8px;padding:14px;margin-top:12px;}
+.shap-sec h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--g500);margin-bottom:10px;}
+.shap-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px;}
+.sl2{width:130px;color:var(--g500);flex-shrink:0;}
+.st{flex:1;height:8px;background:var(--g100);border-radius:4px;overflow:hidden;}
+.sf{height:100%;border-radius:4px;}
+.sv2{width:36px;text-align:right;color:var(--g700);font-weight:600;}
+
+/* ── ASSIGN ── */
+.ai{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--g100);}
+.ai:last-child{border-bottom:none;}
+.aic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.ai-s{background:#f0fdf4;}
+.ai-p{background:#fff7ed;}
+
+/* ── DETAIL ── */
+.dcard{background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:16px;margin-bottom:16px;}
+.warn-banner{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#92400e;}
+
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-thumb{background:var(--g200);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="lbox">
+    <div class="llogo">
+      <div class="licon">U</div>
+      <h1>U-AI Compass</h1>
+      <p>학습분석 플랫폼 — 교육 AI 지원시스템</p>
+    </div>
+    <div class="fg">
+      <label for="lid">아이디</label>
+      <input type="text" id="lid" placeholder="prof_abc123" />
+    </div>
+    <div class="fg">
+      <label for="lpw">비밀번호</label>
+      <input type="password" id="lpw" placeholder="••••••••" />
+    </div>
+    <div class="errmsg" id="lerr">아이디 또는 비밀번호가 올바르지 않습니다.</div>
+    <button class="btn btn-p" onclick="doLogin()">로그인</button>
+    <div class="hint">
+      <strong>🔑 데모 계정</strong>
+      교수자: prof_abc123 / testpass1<br>
+      학생: student_xyz / testpass1
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <nav class="sidebar">
+    <div class="slogo">
+      <div class="slogo-icon">U</div>
+      <div>
+        <div class="slogo-name">U-AI Compass</div>
+        <div class="slogo-sub">학습분석 플랫폼</div>
+      </div>
+    </div>
+    <div class="snav" id="snav"></div>
+    <div class="sfooter">
+      <div class="uinfo">
+        <div class="av av-t" id="sav">P</div>
+        <div>
+          <div class="uname" id="suname">교수자</div>
+          <div class="urole" id="surole">PROFESSOR</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <header class="header">
+    <div class="htitle" id="htitle">대시보드</div>
+    <div class="hright">
+      <span class="pill pill-n" id="hrole">교수자</span>
+      <span style="font-size:12px;color:var(--g500);">2026-05-15</span>
+      <button class="lout" onclick="doLogout()">로그아웃</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="ca" id="ca"></div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="mo" id="mo"><div class="mb" id="mb"></div></div>
+
+<!-- TOAST -->
+<div class="tc" id="tc"></div>
+
+<script>
+// ════════════════════════════════
+// DATA
+// ════════════════════════════════
+const ACCS = {
+  'prof_abc123': {pw:'testpass1', role:'PROFESSOR', name:'김민준 교수', init:'김'},
+  'student_xyz': {pw:'testpass1', role:'STUDENT',    name:'이서연',      init:'이'},
+};
+
+const STUDENTS = [
+  {id:'S1',name:'김도현',pid:'...a1b2c3',risk:'CRITICAL',rs:.94,score:58,eng:23,sub:3,tot:12,last:'3주 전'},
+  {id:'S2',name:'박지수',pid:'...d4e5f6',risk:'HIGH',    rs:.82,score:72,eng:45,sub:6,tot:12,last:'1주 전'},
+  {id:'S3',name:'이수빈',pid:'...g7h8i9',risk:'MEDIUM',  rs:.54,score:81,eng:68,sub:9,tot:12,last:'4일 전'},
+  {id:'S4',name:'최현준',pid:'...j1k2l3',risk:'MEDIUM',  rs:.61,score:76,eng:61,sub:8,tot:12,last:'2일 전'},
+  {id:'S5',name:'정예원',pid:'...m4n5o6',risk:'LOW',     rs:.21,score:88,eng:82,sub:11,tot:12,last:'어제'},
+  {id:'S6',name:'강민서',pid:'...p7q8r9',risk:'LOW',     rs:.18,score:91,eng:89,sub:12,tot:12,last:'오늘'},
+];
+
+let IVNS = [
+  {id:'I1',sname:'김도현',type:'긴급 면담 요청',    urg:'CRITICAL',status:'PENDING_APPROVAL',msg:'과제 미제출 5회 이상, 학습 참여도 급감. 즉시 개별 면담을 권장합니다.',         dt:'2026-05-14 09:15',conf:.94},
+  {id:'I2',sname:'박지수',type:'학습 독려 메시지',  urg:'HIGH',    status:'PENDING_APPROVAL',msg:'최근 3주간 학습 참여도가 현저히 감소했습니다. 교수자 메시지 발송이 필요합니다.',dt:'2026-05-14 11:30',conf:.87},
+  {id:'I3',sname:'이수빈',type:'보충 학습 자료 제공',urg:'MEDIUM', status:'APPROVED',        msg:'통계 단원 퀴즈 점수가 낮아 보완 학습 자료를 제공했습니다.',                     dt:'2026-05-13 14:20',conf:.73},
+  {id:'I4',sname:'최현준',type:'학습 리마인더',     urg:'LOW',    status:'EXECUTED',        msg:'주간 학습 목표 달성을 위한 자동 리마인더가 발송되었습니다.',                   dt:'2026-05-12 10:00',conf:.68},
+  {id:'I5',sname:'박지수',type:'AI 튜터 연결',      urg:'HIGH',   status:'REJECTED',        msg:'AI 튜터링 세션 연결을 통한 1:1 학습 지원이 권장됩니다.',                      dt:'2026-05-11 15:45',conf:.81},
+];
+
+const CURVE = [
+  {w:'1주',s:62,c:70},{w:'2주',s:65,c:72},{w:'3주',s:71,c:71},{w:'4주',s:69,c:74},
+  {w:'5주',s:75,c:73},{w:'6주',s:78,c:76},{w:'7주',s:76,c:77},{w:'8주',s:82,c:79},
+];
+
+const MY_CURVE = [
+  {w:'1주',s:65,c:70},{w:'2주',s:68,c:72},{w:'3주',s:74,c:71},{w:'4주',s:71,c:74},
+  {w:'5주',s:78,c:73},{w:'6주',s:82,c:76},{w:'7주',s:79,c:77},{w:'8주',s:85,c:79},
+];
+
+const ASSIGNS = [
+  {name:'Chapter 1 퀴즈',        type:'퀴즈',    due:'2026-04-10',st:'ok', score:85},
+  {name:'데이터 분석 실습 #1',   type:'실습',    due:'2026-04-17',st:'ok', score:78},
+  {name:'Chapter 2-3 퀴즈',      type:'퀴즈',    due:'2026-04-24',st:'ok', score:91},
+  {name:'중간 프로젝트',         type:'프로젝트',due:'2026-05-01',st:'ok', score:83},
+  {name:'Chapter 4 퀴즈',        type:'퀴즈',    due:'2026-05-08',st:'ok', score:72},
+  {name:'데이터 분석 실습 #2',   type:'실습',    due:'2026-05-15',st:'pend',score:null},
+  {name:'Chapter 5-6 퀴즈',      type:'퀴즈',    due:'2026-05-22',st:'pend',score:null},
+  {name:'기말 프로젝트',         type:'프로젝트',due:'2026-06-12',st:'pend',score:null},
+];
+
+// ════════════════════════════════
+// STATE
+// ════════════════════════════════
+let CU = null; // current user
+let CV = null; // current view
+let mAction = null, mTarget = null;
+
+// ════════════════════════════════
+// AUTH
+// ════════════════════════════════
+function doLogin(){
+  const id = document.getElementById('lid').value.trim();
+  const pw = document.getElementById('lpw').value;
+  const acc = ACCS[id];
+  if(!acc || acc.pw !== pw){
+    document.getElementById('lerr').style.display='block'; return;
+  }
+  document.getElementById('lerr').style.display='none';
+  CU = {id, ...acc};
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='block';
+  initApp();
+}
+function doLogout(){
+  CU=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login').style.display='flex';
+  document.getElementById('lid').value='';
+  document.getElementById('lpw').value='';
+}
+['lid','lpw'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();}));
+
+// ════════════════════════════════
+// INIT
+// ════════════════════════════════
+const PMENU=[
+  {id:'dashboard', label:'대시보드',     icon:'📊'},
+  {id:'risk',      label:'학생 위험도',  icon:'⚠️'},
+  {id:'ivns',      label:'AI 개입 관리', icon:'🤖'},
+  {id:'approval',  label:'승인 패널',    icon:'✅'},
+];
+const SMENU=[
+  {id:'mylearn',   label:'나의 학습현황',   icon:'📈'},
+  {id:'aifeed',    label:'AI 학습 피드백',  icon:'🧠'},
+  {id:'assigns',   label:'과제 진행률',     icon:'📋'},
+];
+
+function initApp(){
+  document.getElementById('sav').textContent  = CU.init;
+  document.getElementById('suname').textContent = CU.name;
+  document.getElementById('surole').textContent = CU.role==='PROFESSOR'?'교수자':'학생';
+  document.getElementById('hrole').textContent  = CU.role==='PROFESSOR'?'👨‍🏫 교수자':'🎓 학생';
+  buildSidebar();
+  nav(CU.role==='PROFESSOR'?'dashboard':'mylearn');
+}
+
+function buildSidebar(){
+  const menus = CU.role==='PROFESSOR'?PMENU:SMENU;
+  const label = CU.role==='PROFESSOR'?'교수자 메뉴':'학생 메뉴';
+  document.getElementById('snav').innerHTML =
+    `<div class="snav-section">${label}</div>`+
+    menus.map(m=>`<div class="nitem" id="n-${m.id}" onclick="nav('${m.id}')"><span class="ni">${m.icon}</span><span>${m.label}</span></div>`).join('');
+}
+
+function nav(view){
+  CV=view;
+  document.querySelectorAll('.nitem').forEach(el=>el.classList.remove('active'));
+  const el=document.getElementById('n-'+view);
+  if(el)el.classList.add('active');
+  const allM=[...PMENU,...SMENU];
+  const m=allM.find(x=>x.id===view);
+  if(m)document.getElementById('htitle').textContent=m.label;
+  const ca=document.getElementById('ca');
+  const views={
+    dashboard:vDashboard, risk:vRisk, ivns:vIvns, approval:vApproval,
+    mylearn:vMyLearn, aifeed:vAiFeed, assigns:vAssigns
+  };
+  ca.innerHTML = (views[view]||vDashboard)();
+  requestAnimationFrame(()=>{
+    if(view==='dashboard')chartDash();
+    if(view==='mylearn')chartMy();
+  });
+}
+
+// ════════════════════════════════
+// HELPERS
+// ════════════════════════════════
+function rb(risk){
+  return {CRITICAL:`<span class="rb rc">🔴 위험</span>`,HIGH:`<span class="rb rh">🟠 고위험</span>`,
+    MEDIUM:`<span class="rb rm">🟡 중간</span>`,LOW:`<span class="rb rl">🟢 양호</span>`}[risk]||'';
+}
+function sb(status){
+  return {PENDING_APPROVAL:`<span class="sb sp">⏳ 승인 대기</span>`,
+    APPROVED:`<span class="sb sa">✅ 승인됨</span>`,
+    REJECTED:`<span class="sb sr">❌ 거부됨</span>`,
+    EXECUTED:`<span class="sb se">🚀 실행됨</span>`}[status]||'';
+}
+function uc(u){return {CRITICAL:'#dc2626',HIGH:'#ea580c',MEDIUM:'#d97706',LOW:'#16a34a'}[u]||'#64748b';}
+
+// ════════════════════════════════
+// PROFESSOR VIEWS
+// ════════════════════════════════
+function vDashboard(){
+  const pend=IVNS.filter(i=>i.status==='PENDING_APPROVAL').length;
+  const hr=STUDENTS.filter(s=>s.risk==='HIGH'||s.risk==='CRITICAL').length;
+  const avg=Math.round(STUDENTS.reduce((a,s)=>a+s.sub/s.tot*100,0)/STUDENTS.length);
+  return `
+<div class="ph"><h2>📊 학습분석 대시보드</h2><p>AI 기반 학습 현황 종합 모니터링 — 2026학년도 1학기 AI 기초교육과정</p></div>
+<div class="sgrid">
+  <div class="sc bd-info"><div class="sic">👥</div><div class="sl">전체 학습자</div><div class="sv">${STUDENTS.length}</div><div class="ss">AI 기초교육과정</div></div>
+  <div class="sc bd-err"><div class="sic">⚠️</div><div class="sl">고위험군</div><div class="sv">${hr}</div><div class="ss">즉각 주의 필요</div></div>
+  <div class="sc bd-warn"><div class="sic">🔔</div><div class="sl">대기 중 승인</div><div class="sv">${pend}</div><div class="ss">교수자 확인 필요</div></div>
+  <div class="sc bd-ok"><div class="sic">✅</div><div class="sl">평균 완료율</div><div class="sv">${avg}%</div><div class="ss">과제 제출 기준</div></div>
+</div>
+<div class="g2">
+  <div class="card" style="margin:0">
+    <div class="ch"><h3>주차별 학습 성취도 추이</h3><span class="pill pill-t">8주 데이터</span></div>
+    <div class="cb">
+      <canvas id="cDash" width="480" height="210"></canvas>
+      <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;color:var(--g500);">
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#0891b2;margin-right:4px;"></span>코호트 평균</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;margin-right:4px;"></span>고위험군 평균</span>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin:0">
+    <div class="ch"><h3>위험도 분포</h3></div>
+    <div class="cb">
+      <canvas id="cDonut" width="220" height="200"></canvas>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:12px;color:var(--g500);">
+        <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#dc2626;margin-right:4px;"></span>위험 1명</span>
+        <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ea580c;margin-right:4px;"></span>고위험 1명</span>
+        <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d97706;margin-right:4px;"></span>중간 2명</span>
+        <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#16a34a;margin-right:4px;"></span>양호 2명</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="ch"><h3>최근 AI 개입 현황</h3><button class="btn btn-t" style="padding:6px 14px;font-size:13px;" onclick="nav('ivns')">전체 보기 →</button></div>
+  <div class="cb">
+    ${IVNS.slice(0,3).map(i=>`
+    <div class="iitem">
+      <div class="ihdr">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">${sb(i.status)}<strong style="font-size:13px;">${i.type}</strong><span style="font-size:12px;padding:2px 10px;border-radius:12px;background:#f1f5f9;color:#334155;">${i.sname}</span></div>
+        <span style="font-size:12px;color:var(--g500);">${i.dt}</span>
+      </div>
+      <p style="font-size:13px;color:var(--g700);">${i.msg}</p>
+    </div>`).join('')}
+  </div>
+</div>`;
+}
+
+function vRisk(){
+  return `
+<div class="ph"><h2>⚠️ 학생 위험도 분석</h2><p>AI 예측 학습 위험도 — SHAP 기반 설명 가능한 AI</p></div>
+<div class="card">
+  <div class="ch"><h3>전체 학습자 위험도 현황</h3><span style="font-size:12px;color:var(--g500);">최종 판단은 교수자에게 있습니다</span></div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>학습자</th><th>위험도</th><th>AI 점수</th><th>학습 점수</th><th>참여도</th><th>과제 제출</th><th>최근 접속</th><th>상세</th></tr></thead>
+      <tbody>
+        ${STUDENTS.map(s=>`
+        <tr>
+          <td><div style="font-weight:600;font-size:13px;">${s.name}</div><div style="font-size:11px;color:var(--g500);font-family:monospace;">${s.pid}</div></td>
+          <td>${rb(s.risk)}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="pb" style="width:72px;"><div class="pf" style="width:${s.rs*100}%;background:${uc(s.risk)};"></div></div>
+              <span style="font-size:12px;font-weight:600;">${(s.rs*100).toFixed(0)}%</span>
+            </div>
+          </td>
+          <td><span style="font-weight:600;">${s.score}</span><span style="font-size:11px;color:var(--g500);">/100</span></td>
+          <td>
+            <div class="pb" style="width:64px;display:inline-block;vertical-align:middle;"><div class="pf" style="width:${s.eng}%;background:${s.eng>70?'#10b981':s.eng>40?'#f59e0b':'#ef4444'};"></div></div>
+            <span style="font-size:12px;margin-left:6px;">${s.eng}%</span>
+          </td>
+          <td>${s.sub}/${s.tot}</td>
+          <td style="font-size:12px;color:var(--g500);">${s.last}</td>
+          <td><button class="btn btn-o" style="padding:5px 12px;font-size:12px;" onclick="showStudDet('${s.id}')">상세 보기</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+</div>`;
+}
+
+function showStudDet(sid){
+  const s=STUDENTS.find(x=>x.id===sid);
+  if(!s)return;
+  const shap=[
+    {l:'과제 미제출 횟수',v:.82,c:'#dc2626'},{l:'학습 참여도 감소',v:.67,c:'#ea580c'},
+    {l:'퀴즈 평균 점수', v:.54,c:'#d97706'},{l:'로그인 빈도',    v:.41,c:'#f59e0b'},
+    {l:'영상 시청 완료율',v:.28,c:'#10b981'},
+  ];
+  document.getElementById('mb').innerHTML=`
+<div class="mt">학습자 상세 분석 — ${s.name}</div>
+<div class="dcard">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div><div style="font-size:11px;color:#64748b;margin-bottom:2px;">학습 점수</div><div style="font-size:26px;font-weight:800;color:var(--navy);">${s.score}</div></div>
+    <div><div style="font-size:11px;color:#64748b;margin-bottom:2px;">AI 위험 점수</div><div style="font-size:26px;font-weight:800;color:${uc(s.risk)};">${(s.rs*100).toFixed(0)}%</div></div>
+    <div><div style="font-size:11px;color:#64748b;margin-bottom:2px;">참여도</div><div style="font-size:20px;font-weight:700;color:var(--navy);">${s.eng}%</div></div>
+    <div><div style="font-size:11px;color:#64748b;margin-bottom:2px;">과제 제출</div><div style="font-size:20px;font-weight:700;color:var(--navy);">${s.sub}/${s.tot}</div></div>
+  </div>
+</div>
+<div class="shap-sec">
+  <h4>🔍 SHAP 위험 요인 분석</h4>
+  ${shap.map(r=>`<div class="shap-row"><div class="sl2">${r.l}</div><div class="st"><div class="sf" style="width:${r.v*100}%;background:${r.c};"></div></div><div class="sv2">${(r.v*100).toFixed(0)}%</div></div>`).join('')}
+  <div style="font-size:11px;color:#64748b;margin-top:8px;">⚠️ AI 예측은 참고 자료입니다. 최종 판단은 교수자에게 있습니다.</div>
+</div>
+<div class="mac">
+  <button class="btn btn-o" onclick="closeModal()">닫기</button>
+  <button class="btn btn-t" onclick="closeModal();nav('approval')">개입 승인 →</button>
+</div>`;
+  showMo();
+}
+
+function vIvns(){
+  return `
+<div class="ph"><h2>🤖 AI 개입 관리</h2><p>AI 제안 학습 개입 목록 — Human-in-the-loop 원칙 적용</p></div>
+${IVNS.map(i=>`
+<div class="iitem">
+  <div class="ihdr">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      ${sb(i.status)}<strong style="font-size:14px;">${i.type}</strong>
+      <span style="font-size:12px;padding:2px 10px;border-radius:12px;background:#f1f5f9;color:#334155;">👤 ${i.sname}</span>
+      <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:${uc(i.urg)}22;color:${uc(i.urg)};font-weight:700;">${i.urg}</span>
+    </div>
+    <span style="font-size:12px;color:var(--g500);flex-shrink:0;">${i.dt}</span>
+  </div>
+  <p style="font-size:13px;color:var(--g700);margin:8px 0;">${i.msg}</p>
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-size:12px;color:var(--g500);">🤖 AI 신뢰도: <strong style="color:var(--navy);">${(i.conf*100).toFixed(0)}%</strong></div>
+    ${i.status==='PENDING_APPROVAL'?`
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-o" style="padding:6px 14px;font-size:12px;color:var(--err);border-color:#fecaca;" onclick="openMo('${i.id}','reject')">거부</button>
+      <button class="btn btn-t" style="padding:6px 14px;font-size:12px;" onclick="openMo('${i.id}','approve')">승인</button>
+    </div>`:''}
+  </div>
+</div>`).join('')}`;
+}
+
+function vApproval(){
+  const pend=IVNS.filter(i=>i.status==='PENDING_APPROVAL');
+  if(!pend.length)return`
+<div class="ph"><h2>✅ 승인 패널</h2><p>승인 대기 중인 AI 개입</p></div>
+<div class="card"><div class="cb" style="text-align:center;padding:60px;color:var(--g500);">
+  <div style="font-size:48px;margin-bottom:16px;">✅</div>
+  <h3 style="font-size:18px;color:var(--g700);margin-bottom:8px;">대기 중인 승인이 없습니다</h3>
+  <p style="font-size:13px;">모든 AI 개입이 처리되었습니다.</p>
+</div></div>`;
+  return `
+<div class="ph"><h2>✅ 승인 패널</h2><p>승인 대기 중인 AI 개입 — 교수자 확인 후 실행됩니다</p></div>
+<div class="warn-banner">⚠️ <strong>${pend.length}개</strong>의 AI 개입이 교수자 승인을 기다리고 있습니다. 각 개입을 검토 후 처리해 주세요.</div>
+${pend.map(i=>`
+<div class="card">
+  <div class="cb">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;">
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+          <span style="font-size:15px;font-weight:700;color:var(--navy);">${i.type}</span>
+          <span style="font-size:12px;padding:2px 10px;border-radius:12px;background:#f1f5f9;color:#334155;">👤 ${i.sname}</span>
+          <span style="padding:3px 10px;border-radius:12px;background:${uc(i.urg)}22;color:${uc(i.urg)};font-size:12px;font-weight:700;">${{CRITICAL:'🔴 긴급',HIGH:'🟠 높음',MEDIUM:'🟡 보통',LOW:'🟢 낮음'}[i.urg]}</span>
+        </div>
+        <p style="font-size:13.5px;color:var(--g700);line-height:1.6;">${i.msg}</p>
+        <div style="margin-top:10px;font-size:12px;color:var(--g500);">📅 ${i.dt} &nbsp;·&nbsp; 🤖 AI 신뢰도: <strong>${(i.conf*100).toFixed(0)}%</strong></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
+        <button class="btn btn-t" style="padding:8px 20px;" onclick="openMo('${i.id}','approve')">✅ 승인</button>
+        <button class="btn btn-o" style="padding:8px 20px;color:var(--err);border-color:#fecaca;" onclick="openMo('${i.id}','reject')">❌ 거부</button>
+      </div>
+    </div>
+  </div>
+</div>`).join('')}`;
+}
+
+// ════════════════════════════════
+// STUDENT VIEWS
+// ════════════════════════════════
+function vMyLearn(){
+  const done=ASSIGNS.filter(a=>a.st==='ok');
+  const avg=Math.round(done.reduce((s,a)=>s+a.score,0)/done.length);
+  const cr=Math.round(done.length/ASSIGNS.length*100);
+  return `
+<div class="ph"><h2>📈 나의 학습현황</h2><p>AI 기초교육과정 — 2026학년도 1학기 개인 학습 분석</p></div>
+<div class="sgrid">
+  <div class="sc bd-ok"><div class="sic">🎯</div><div class="sl">현재 평균 점수</div><div class="sv">${avg}</div><div class="ss">코호트 평균 75점</div></div>
+  <div class="sc bd-info"><div class="sic">⚡</div><div class="sl">학습 참여도</div><div class="sv">72%</div><div class="ss">지난 주 대비 +5%</div></div>
+  <div class="sc bd-warn"><div class="sic">📋</div><div class="sl">과제 완료율</div><div class="sv">${cr}%</div><div class="ss">${done.length}/${ASSIGNS.length} 제출</div></div>
+  <div class="sc"><div class="sic">🏆</div><div class="sl">현재 등급</div><div class="sv" style="font-size:26px;">B+</div><div class="ss">상위 35%</div></div>
+</div>
+<div class="card">
+  <div class="ch"><h3>주차별 학습 성취도</h3><span class="pill pill-t">8주 추이</span></div>
+  <div class="cb">
+    <canvas id="cMy" width="660" height="200"></canvas>
+    <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;color:var(--g500);">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#0891b2;margin-right:4px;"></span>나의 점수</span>
+      <span><span style="display:inline-block;width:10px;height:2px;background:#94a3b8;margin-right:4px;display:inline-block;vertical-align:middle;"></span>코호트 평균</span>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="ch"><h3>주요 학습 현황</h3></div>
+  <div class="cb">
+    <div class="sgrid3">
+      ${[{l:'총 수강 시간',v:'42.5h',ic:'⏱️',c:'#3b82f6'},{l:'영상 완료율',v:'78%',ic:'🎬',c:'#8b5cf6'},{l:'퀴즈 평균',v:'81점',ic:'📝',c:'#10b981'}].map(x=>`
+      <div style="text-align:center;padding:20px;background:var(--g50);border-radius:10px;">
+        <div style="font-size:32px;margin-bottom:8px;">${x.ic}</div>
+        <div style="font-size:24px;font-weight:800;color:${x.c};">${x.v}</div>
+        <div style="font-size:12px;color:var(--g500);margin-top:4px;">${x.l}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+</div>`;
+}
+
+function vAiFeed(){
+  return `
+<div class="ph"><h2>🧠 AI 학습 피드백</h2><p>개인화된 AI 학습 분석 및 권장 사항</p></div>
+<div class="card">
+  <div class="ch"><h3>나의 AI 위험도 분석</h3><span class="pill pill-t">SHAP 기반</span></div>
+  <div class="cb">
+    <div style="display:flex;align-items:center;gap:20px;margin-bottom:16px;">
+      <div style="text-align:center;min-width:100px;">
+        <div style="font-size:42px;font-weight:900;color:#d97706;">54%</div>
+        <div style="font-size:12px;color:var(--g500);">AI 위험 점수</div>
+        <div style="margin-top:6px;"><span class="rb rm">🟡 중간</span></div>
+      </div>
+      <div style="flex:1;">
+        <p style="font-size:13px;color:var(--g700);line-height:1.7;">현재 학습 패턴을 분석한 결과 <strong>중간 수준의 위험도</strong>가 감지되었습니다. 퀴즈 점수는 양호하나 최근 2주간 참여도가 소폭 감소했습니다. 아래 권장 사항을 따르시면 학습 성과를 향상시킬 수 있습니다.</p>
+      </div>
+    </div>
+    <div class="shap-sec">
+      <h4>위험 요인 분석 (SHAP)</h4>
+      ${[{l:'과제 미제출 패턴',v:.54,c:'#d97706'},{l:'학습 참여도',v:.41,c:'#f59e0b'},{l:'영상 시청률',v:.32,c:'#10b981'},{l:'퀴즈 점수 추이',v:.21,c:'#10b981'}].map(r=>`
+      <div class="shap-row"><div class="sl2">${r.l}</div><div class="st"><div class="sf" style="width:${r.v*100}%;background:${r.c};"></div></div><div class="sv2">${(r.v*100).toFixed(0)}%</div></div>`).join('')}
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="ch"><h3>🎯 AI 개인화 권장 사항</h3></div>
+  <div class="cb">
+    ${[
+      {t:1,ic:'📚',title:'통계 단원 보충 학습 권장',body:'Chapter 4 통계 퀴즈에서 낮은 점수가 감지되었습니다. AI 튜터의 보충 설명 자료(15분)를 수강하면 이해도를 높일 수 있습니다.',btn:'보충 자료 보기'},
+      {t:2,ic:'⏰',title:'학습 리듬 개선',body:'월/수/금 정기적인 학습 세션을 유지하면 기억 강화에 효과적입니다. 하루 40분 이상 학습을 권장합니다.',btn:'학습 일정 설정'},
+      {t:3,ic:'🎯',title:'오늘 마감 과제 안내',body:'"데이터 분석 실습 #2" 과제 마감이 오늘(2026-05-15)입니다. 제출 전 마지막 점검을 권장합니다.',btn:'과제 확인하기'},
+    ].map(x=>`
+    <div class="afc afc${x.t}">
+      <div class="aft">${x.ic} ${x.title}</div>
+      <div class="afb">${x.body}</div>
+      <button class="btn btn-o" style="margin-top:10px;padding:5px 14px;font-size:12px;" onclick="toast('${x.btn} 기능은 데모 버전에서 지원되지 않습니다.','info')">${x.btn} →</button>
+    </div>`).join('')}
+  </div>
+</div>`;
+}
+
+function vAssigns(){
+  const done=ASSIGNS.filter(a=>a.st==='ok');
+  const avg=Math.round(done.reduce((s,a)=>s+a.score,0)/done.length);
+  return `
+<div class="ph"><h2>📋 과제 진행률</h2><p>전체 과제 현황 및 제출 관리</p></div>
+<div class="sgrid3">
+  <div class="sc bd-ok"><div class="sl">제출 완료</div><div class="sv">${done.length}</div><div class="ss">/ ${ASSIGNS.length}개 전체</div></div>
+  <div class="sc bd-info"><div class="sl">제출 평균 점수</div><div class="sv">${avg}</div><div class="ss">최고점: 91</div></div>
+  <div class="sc bd-warn"><div class="sl">남은 과제</div><div class="sv">${ASSIGNS.length-done.length}</div><div class="ss">미제출</div></div>
+</div>
+<div class="card">
+  <div class="ch"><h3>전체 과제 목록</h3></div>
+  <div>
+    ${ASSIGNS.map(a=>`
+    <div class="ai">
+      <div class="aic ${a.st==='ok'?'ai-s':'ai-p'}">${a.st==='ok'?'✅':a.type==='프로젝트'?'🗂️':a.type==='퀴즈'?'📝':'💻'}</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;color:var(--navy);">${a.name}</div>
+        <div style="font-size:12px;color:var(--g500);margin-top:2px;">
+          <span style="padding:2px 8px;border-radius:10px;background:var(--g100);margin-right:6px;">${a.type}</span>마감: ${a.due}
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        ${a.st==='ok'
+          ?`<div style="font-size:20px;font-weight:800;color:${a.score>=80?'#16a34a':a.score>=70?'#d97706':'#dc2626'};">${a.score}점</div><div style="font-size:11px;color:var(--g500);">제출 완료</div>`
+          :`<button class="btn btn-t" style="padding:6px 16px;font-size:12px;" onclick="toast('과제 제출 기능은 데모 버전에서 지원되지 않습니다.','info')">제출하기</button>`
+        }
+      </div>
+    </div>`).join('')}
+  </div>
+</div>`;
+}
+
+// ════════════════════════════════
+// CHARTS
+// ════════════════════════════════
+function drawLineChart(canvasId, data, keys, colors, dashes){
+  const c=document.getElementById(canvasId);
+  if(!c)return;
+  const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;
+  const pad={t:18,r:16,b:28,l:34};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+  ctx.clearRect(0,0,W,H);
+  // grid
+  ctx.strokeStyle='#e2e8f0';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=pad.t+(ch/4)*i;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();}
+  // y labels
+  ctx.fillStyle='#94a3b8';ctx.font='11px sans-serif';ctx.textAlign='right';
+  for(let i=0;i<=4;i++){ctx.fillText(100-i*20,pad.l-5,pad.t+(ch/4)*i+4);}
+  // x labels
+  ctx.textAlign='center';
+  data.forEach((d,i)=>{ctx.fillText(d.w,pad.l+(cw/(data.length-1))*i,H-6);});
+  // lines
+  keys.forEach((k,ki)=>{
+    ctx.beginPath();ctx.strokeStyle=colors[ki];ctx.lineWidth=2.5;ctx.lineJoin='round';
+    if(dashes&&dashes[ki])ctx.setLineDash(dashes[ki]);else ctx.setLineDash([]);
+    data.forEach((d,i)=>{
+      const x=pad.l+(cw/(data.length-1))*i;
+      const y=pad.t+ch-((d[k]-50)/50)*ch;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();ctx.setLineDash([]);
+    // dots (only solid lines)
+    if(!dashes||!dashes[ki]){
+      data.forEach((d,i)=>{
+        const x=pad.l+(cw/(data.length-1))*i;
+        const y=pad.t+ch-((d[k]-50)/50)*ch;
+        ctx.beginPath();ctx.arc(x,y,3.5,0,Math.PI*2);
+        ctx.fillStyle=colors[ki];ctx.fill();
+        ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+      });
+    }
+  });
+}
+
+function chartDash(){
+  // Line chart with cohort + high-risk approx
+  const data=CURVE.map(d=>({...d,hr:Math.round(d.s*.76)}));
+  drawLineChart('cDash',[...data].map(d=>({w:d.w,c:d.c,hr:d.hr})),['c','hr'],['#0891b2','#f59e0b'],[null,[5,3]]);
+  // Donut
+  const dc=document.getElementById('cDonut');
+  if(!dc)return;
+  const ctx=dc.getContext('2d');
+  const W=dc.width,H=dc.height;
+  const cx=W/2,cy=H/2-8,R=72;
+  const slices=[{v:1,c:'#dc2626'},{v:1,c:'#ea580c'},{v:2,c:'#d97706'},{v:2,c:'#16a34a'}];
+  const tot=slices.reduce((s,x)=>s+x.v,0);
+  let a=-Math.PI/2;
+  slices.forEach(sl=>{
+    const angle=(sl.v/tot)*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,a,a+angle);ctx.closePath();
+    ctx.fillStyle=sl.c;ctx.fill();a+=angle;
+  });
+  ctx.beginPath();ctx.arc(cx,cy,44,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+  ctx.fillStyle='#1a3a5c';ctx.font='bold 20px sans-serif';ctx.textAlign='center';ctx.fillText('6명',cx,cy+5);
+  ctx.font='11px sans-serif';ctx.fillStyle='#64748b';ctx.fillText('전체',cx,cy+20);
+}
+
+function chartMy(){
+  drawLineChart('cMy',MY_CURVE,['s','c'],['#0891b2','#94a3b8'],[null,[5,3]]);
+}
+
+// ════════════════════════════════
+// MODAL
+// ════════════════════════════════
+function openMo(id,action){
+  mAction=action;mTarget=id;
+  const ivn=IVNS.find(i=>i.id===id);
+  document.getElementById('mb').innerHTML=`
+<div class="mt">${action==='approve'?'✅ 개입 승인 확인':'❌ 개입 거부'}</div>
+<div style="background:var(--g50);border-radius:8px;padding:12px;margin-bottom:16px;">
+  <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:4px;">${ivn.type}</div>
+  <div style="font-size:12px;color:var(--g500);">대상: ${ivn.sname}</div>
+</div>
+<p style="font-size:13px;color:var(--g700);margin-bottom:12px;">${action==='approve'?'이 개입을 승인하면 즉시 실행됩니다. 계속하시겠습니까?':'이 개입을 거부하는 이유를 입력해주세요.'}</p>
+<textarea id="mreason" class="mta" placeholder="${action==='approve'?'승인 메모 (선택사항)':'거부 사유를 입력해주세요 (필수)'}" rows="3"></textarea>
+<div class="mac">
+  <button class="btn btn-o" onclick="closeModal()">취소</button>
+  <button class="btn ${action==='approve'?'btn-t':'btn-err'}" onclick="confirmMo()">${action==='approve'?'✅ 승인 확정':'❌ 거부 확정'}</button>
+</div>`;
+  showMo();
+}
+function confirmMo(){
+  const r=(document.getElementById('mreason')||{}).value||'';
+  if(mAction==='reject'&&!r.trim()){
+    document.getElementById('mreason').style.borderColor='#ef4444';return;
+  }
+  const idx=IVNS.findIndex(i=>i.id===mTarget);
+  if(idx!==-1)IVNS[idx].status=mAction==='approve'?'APPROVED':'REJECTED';
+  closeModal();
+  toast(mAction==='approve'?'개입이 승인되어 실행 중입니다.':'개입이 거부되었습니다.',mAction==='approve'?'ok':'err');
+  nav(CV);
+}
+function showMo(){document.getElementById('mo').classList.add('show');}
+function closeModal(){document.getElementById('mo').classList.remove('show');}
+document.getElementById('mo').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// ════════════════════════════════
+// TOAST
+// ════════════════════════════════
+function toast(msg,type='info'){
+  const div=document.createElement('div');
+  const icon={ok:'✅',err:'❌',info:'ℹ️'}[type]||'ℹ️';
+  div.className=`toast t-${type}`;
+  div.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
+  document.getElementById('tc').appendChild(div);
+  setTimeout(()=>{div.style.cssText='opacity:0;transform:translateX(80px);transition:all .3s';setTimeout(()=>div.remove(),320);},3000);
+}
+</script>
+</body>
+</html>
