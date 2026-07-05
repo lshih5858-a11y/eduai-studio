@@ -1,0 +1,1187 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI 주식 투자 학습 코치</title>
+<style>
+  :root {
+    --navy-900:#0d1226; --navy-800:#161d3b; --navy-700:#1f2a52; --navy-600:#2b386c;
+    --navy-500:#3d4c8c; --navy-300:#8494c9; --navy-200:#b0bcdf; --navy-100:#d7ddef; --navy-50:#eef1f8;
+    --mint-800:#0c5443; --mint-700:#106f58; --mint-600:#158e70; --mint-500:#1fb28c;
+    --mint-300:#6adcbe; --mint-200:#9dead4; --mint-100:#c8f4e7; --mint-50:#e9fbf6;
+    --orange-700:#9a3412; --orange-600:#ea580c; --orange-500:#f97316; --orange-50:#fff7ed;
+    --slate-50:#f8fafc; --slate-100:#f1f5f9; --slate-200:#e2e8f0; --slate-400:#94a3b8;
+    --slate-500:#64748b; --slate-600:#475569; --slate-700:#334155; --slate-800:#1e293b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; }
+  body {
+    background:var(--slate-50); color:var(--navy-900);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", Roboto, sans-serif;
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  button, input { font-family: inherit; }
+  a { color: inherit; }
+  .container { max-width:1200px; margin:0 auto; padding:0 20px; }
+
+  /* header */
+  header.app-header { position:sticky; top:0; z-index:30; background:rgba(255,255,255,0.97); border-bottom:1px solid var(--slate-200); backdrop-filter:blur(6px); }
+  .header-top { display:flex; align-items:center; gap:10px; padding:12px 0 0; }
+  .logo-box { width:36px; height:36px; border-radius:10px; background:var(--navy-700); display:flex; align-items:center; justify-content:center; color:var(--mint-300); flex-shrink:0; }
+  .brand-title { font-size:17px; font-weight:800; color:var(--navy-900); line-height:1.2; margin:0; }
+  .brand-sub { font-size:11px; color:var(--slate-400); margin:0; }
+  nav.app-nav { display:flex; gap:6px; overflow-x:auto; padding:10px 0 8px; }
+  nav.app-nav button {
+    white-space:nowrap; border:none; border-radius:8px; padding:7px 12px; font-size:13.5px; font-weight:600;
+    background:transparent; color:var(--slate-500); cursor:pointer; transition:background .15s,color .15s;
+  }
+  nav.app-nav button:hover { background:var(--slate-100); color:var(--navy-700); }
+  nav.app-nav button.active { background:var(--navy-700); color:#fff; }
+  .disclaimer-bar { background:var(--mint-50); color:var(--mint-800); text-align:center; font-size:12px; font-weight:600; padding:6px 12px; }
+
+  main#main-content { max-width:1200px; margin:0 auto; padding:28px 20px; }
+  footer.app-footer { max-width:1200px; margin:0 auto; padding:0 20px 40px; }
+
+  h2.section-title { font-size:22px; font-weight:800; color:var(--navy-900); margin:0 0 4px; }
+  p.section-desc { margin:0 0 20px; font-size:14px; color:var(--slate-500); }
+
+  .card { background:#fff; border-radius:16px; border:1px solid var(--slate-100); box-shadow:0 4px 24px rgba(13,18,38,.08); }
+  .card-pad { padding:24px; }
+
+  .btn-primary {
+    display:inline-flex; align-items:center; justify-content:center; border:none; border-radius:10px;
+    background:var(--navy-700); color:#fff; padding:10px 18px; font-size:14px; font-weight:700; cursor:pointer;
+    transition:background .15s;
+  }
+  .btn-primary:hover { background:var(--navy-600); }
+  .btn-primary:disabled { opacity:.4; cursor:not-allowed; }
+  .btn-secondary {
+    display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--navy-200); border-radius:10px;
+    background:#fff; color:var(--navy-700); padding:9px 16px; font-size:13.5px; font-weight:700; cursor:pointer;
+    transition:background .15s;
+  }
+  .btn-secondary:hover { background:var(--navy-50); }
+
+  .disclaimer { border:1px solid var(--mint-200); background:var(--mint-50); color:var(--mint-800); border-radius:10px; padding:11px 16px; font-size:13.5px; }
+  .risk-badge { border:1px solid var(--orange-500); background:var(--orange-50); color:var(--orange-700); border-radius:10px; padding:11px 16px; font-size:13.5px; font-weight:600; }
+
+  /* grids */
+  .grid { display:grid; gap:16px; }
+  .grid-2 { grid-template-columns:repeat(2,1fr); }
+  .grid-3 { grid-template-columns:repeat(3,1fr); }
+  .grid-5 { grid-template-columns:repeat(5,1fr); }
+  @media (max-width:1000px){ .grid-5{ grid-template-columns:repeat(3,1fr);} .grid-3{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:640px){ .grid-2,.grid-3,.grid-5{ grid-template-columns:1fr; } }
+
+  /* hero */
+  .hero { border-radius:16px; overflow:hidden; }
+  .hero-inner { background:linear-gradient(135deg,var(--navy-800),var(--navy-700) 55%,var(--navy-600)); color:#fff; padding:52px 40px; }
+  .hero-eyebrow { color:var(--mint-300); font-weight:700; font-size:13px; letter-spacing:.04em; text-transform:uppercase; margin:0 0 12px; }
+  .hero-title { font-size:30px; font-weight:800; margin:0 0 16px; line-height:1.35; }
+  .hero-sub { color:var(--navy-100); font-size:15px; max-width:620px; margin:0 0 24px; }
+  .hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
+  .btn-hero-primary { background:var(--mint-500); color:#fff; border:none; border-radius:10px; padding:11px 20px; font-weight:700; font-size:14px; cursor:pointer; }
+  .btn-hero-primary:hover { background:var(--mint-600); }
+  .btn-hero-secondary { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.3); color:#fff; border-radius:10px; padding:11px 20px; font-weight:700; font-size:14px; cursor:pointer; }
+  .btn-hero-secondary:hover { background:rgba(255,255,255,.2); }
+
+  @media (max-width:640px){ .hero-inner{ padding:32px 22px; } .hero-title{ font-size:22px; } }
+
+  /* dashboard goal + summary cards */
+  .goal-card { display:flex; gap:12px; align-items:flex-start; padding:18px; }
+  .goal-num { flex-shrink:0; width:28px; height:28px; border-radius:50%; background:var(--navy-700); color:#fff; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .goal-text { font-size:14px; font-weight:600; color:var(--navy-800); margin:0; }
+
+  .summary-card { padding:18px; }
+  .summary-label { font-size:12px; color:var(--slate-400); font-weight:600; margin:0; }
+  .summary-value { font-size:21px; font-weight:800; margin:8px 0 0; color:var(--navy-700); }
+  .summary-value.mint { color:var(--mint-700); }
+  .summary-sub { font-size:11.5px; color:var(--slate-400); margin:4px 0 0; }
+
+  /* investor profile */
+  .q-block + .q-block { border-top:1px solid var(--slate-100); margin-top:22px; padding-top:22px; }
+  .q-title { font-size:14.5px; font-weight:700; color:var(--navy-800); margin:0 0 12px; }
+  .opt-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+  @media (max-width:640px){ .opt-grid{ grid-template-columns:1fr; } }
+  .opt-btn {
+    text-align:left; border:1px solid var(--slate-200); background:#fff; color:var(--slate-600);
+    border-radius:10px; padding:10px 14px; font-size:13.5px; cursor:pointer; transition:.15s;
+  }
+  .opt-btn:hover:not(.selected):not(:disabled) { border-color:var(--navy-300); }
+  .opt-btn.selected { border-color:var(--navy-700); background:var(--navy-700); color:#fff; }
+  .opt-btn.correct { border-color:var(--mint-500); background:var(--mint-50); color:var(--mint-800); }
+  .opt-btn.correct-muted { border-color:var(--mint-200); background:rgba(233,251,246,.6); color:var(--mint-700); }
+  .opt-btn.wrong { border-color:var(--orange-500); background:var(--orange-50); color:var(--orange-700); }
+  .opt-btn:disabled { cursor:default; }
+  .progress-note { font-size:12px; color:var(--slate-400); margin-top:14px; }
+
+  .result-eyebrow { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--mint-600); margin:0; }
+  .result-type { font-size:26px; font-weight:800; margin:4px 0 8px; color:var(--navy-900); }
+  .result-summary { font-size:14px; color:var(--slate-600); margin:0; }
+  ul.plain-list { list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:6px; }
+  ul.plain-list li { display:flex; gap:8px; font-size:13.5px; color:var(--slate-600); }
+  .tick { color:var(--mint-500); }
+  .warn { color:var(--orange-500); }
+  .dot { color:var(--navy-500); }
+  .subhead { font-size:13.5px; font-weight:700; color:var(--navy-800); margin:0 0 4px; }
+
+  /* lesson cards */
+  .lesson-card { padding:20px; display:flex; flex-direction:column; }
+  .lesson-term { font-size:18px; font-weight:800; color:var(--navy-900); margin:0; }
+  .lesson-summary { font-size:13.5px; color:var(--slate-600); margin:10px 0 0; }
+  .lesson-analogy { margin:12px 0 0; background:var(--slate-50); border-radius:10px; padding:10px 12px; font-size:12.5px; color:var(--slate-500); }
+  .lesson-caution { margin:12px 0 0; font-size:12px; font-weight:700; color:var(--orange-600); }
+  .lesson-detail { margin-top:14px; border-top:1px solid var(--slate-100); padding-top:14px; font-size:13.5px; line-height:1.7; color:var(--slate-600); }
+  .lesson-toggle { margin-top:14px; align-self:flex-start; }
+
+  /* market */
+  .stock-pick-card { padding:16px; text-align:left; cursor:pointer; background:#fff; border:1px solid var(--slate-100); border-radius:16px; transition:.15s; }
+  .stock-pick-card:hover { box-shadow:0 8px 32px rgba(13,18,38,.14); }
+  .stock-pick-card.active { border:2px solid var(--navy-700); box-shadow:0 8px 32px rgba(13,18,38,.14); }
+  .stock-pick-name { font-size:14px; font-weight:800; color:var(--navy-900); margin:0; }
+  .stock-pick-type { font-size:11.5px; color:var(--slate-400); margin:2px 0 0; }
+  .stock-pick-price { font-size:17px; font-weight:800; color:var(--navy-700); margin:8px 0 0; }
+  .stock-pick-vol { font-size:11.5px; color:var(--slate-500); margin:4px 0 0; }
+
+  .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start; margin-top:20px; }
+  @media (max-width:900px){ .detail-grid{ grid-template-columns:1fr; } }
+  .stat-row { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; text-align:center; margin:16px 0; }
+  @media (max-width:640px){ .stat-row{ grid-template-columns:repeat(3,1fr); } }
+  .stat-box { background:var(--slate-50); border-radius:10px; padding:10px 6px; }
+  .stat-label { font-size:10.5px; color:var(--slate-400); margin:0; }
+  .stat-value { font-size:13.5px; font-weight:800; color:var(--navy-800); margin:4px 0 0; }
+  .badge-type { border-radius:999px; background:var(--navy-50); color:var(--navy-700); font-size:11.5px; font-weight:700; padding:4px 12px; }
+  .interp-box { background:var(--slate-50); border-radius:10px; padding:12px; font-size:13.5px; color:var(--slate-600); }
+
+  .chart-head { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .fake-data-badge { background:var(--orange-50); color:var(--orange-600); border-radius:999px; padding:4px 12px; font-size:11.5px; font-weight:700; }
+  .stock-chart-svg { width:100%; height:260px; display:block; }
+  .chart-question-box { margin-top:16px; background:var(--slate-50); border-radius:10px; padding:16px; }
+  .chart-feedback { margin-top:12px; font-size:13.5px; color:var(--slate-600); }
+
+  /* portfolio */
+  .alloc-row + .alloc-row { margin-top:20px; }
+  .alloc-head { display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:6px; }
+  .alloc-name { font-weight:700; color:var(--navy-800); }
+  .alloc-value { color:var(--navy-700); }
+  .alloc-won { font-size:11.5px; color:var(--slate-400); }
+  .alloc-controls { display:flex; align-items:center; gap:12px; }
+  .alloc-controls input[type=range] { flex:1; height:6px; border-radius:999px; accent-color:var(--navy-700); cursor:pointer; }
+  .alloc-controls input[type=number] { width:64px; border:1px solid var(--slate-200); border-radius:8px; padding:6px 8px; font-size:13.5px; }
+  .valid-banner { border-radius:10px; padding:11px 16px; font-size:13.5px; font-weight:700; margin-top:22px; }
+  .valid-banner.ok { background:var(--mint-50); color:var(--mint-800); }
+  .valid-banner.bad { background:var(--orange-50); color:var(--orange-700); }
+
+  .metric-card { padding:18px; }
+  .metric-label { font-size:12px; color:var(--slate-400); font-weight:600; margin:0; }
+  .metric-value { font-size:24px; font-weight:800; color:var(--navy-800); margin:8px 0 0; }
+  .metric-value span { font-size:13px; font-weight:400; color:var(--slate-400); }
+  .metric-extra { font-size:12px; font-weight:700; color:var(--orange-600); margin:4px 0 0; }
+  .metric-bar-track { height:6px; width:100%; background:var(--slate-100); border-radius:999px; margin-top:12px; }
+  .metric-bar-fill { height:6px; background:var(--navy-600); border-radius:999px; }
+  .feedback-line { font-size:13.5px; color:var(--slate-600); margin:6px 0; }
+
+  /* checklist */
+  .check-item { display:flex; gap:10px; align-items:flex-start; padding:8px; border-radius:10px; cursor:pointer; }
+  .check-item:hover { background:var(--slate-50); }
+  .check-item input { margin-top:3px; width:16px; height:16px; accent-color:var(--navy-700); }
+  .check-item span { font-size:13.5px; color:var(--slate-700); }
+  .score-row { display:flex; justify-content:space-between; align-items:center; }
+  .score-row .label { font-size:13.5px; font-weight:700; color:var(--navy-800); }
+  .score-row .value { font-size:24px; font-weight:800; color:var(--navy-800); }
+  .score-bar-track { height:8px; background:var(--slate-100); border-radius:999px; margin-top:12px; }
+  .score-bar-fill { height:8px; background:var(--mint-500); border-radius:999px; }
+  .tier-feedback { margin-top:16px; font-size:13.5px; font-weight:700; color:var(--navy-700); }
+
+  /* quiz */
+  .quiz-card { padding:22px; margin-bottom:16px; }
+  .quiz-topic { font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--mint-600); margin:0; }
+  .quiz-question { font-size:14px; font-weight:700; color:var(--navy-900); margin:4px 0 0; }
+  .quiz-explain { margin-top:12px; background:var(--slate-50); border-radius:10px; padding:12px; font-size:13.5px; color:var(--slate-600); }
+  .quiz-summary-score { font-size:30px; font-weight:800; color:var(--navy-900); margin:6px 0 0; }
+
+  /* coach */
+  .coach-form { display:flex; gap:8px; }
+  .coach-form input { flex:1; border:1px solid var(--slate-200); border-radius:10px; padding:10px 14px; font-size:13.5px; }
+  .coach-form input:focus { outline:2px solid var(--navy-300); border-color:var(--navy-300); }
+  .example-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .example-chip { border:1px solid var(--slate-200); background:#fff; border-radius:999px; padding:5px 12px; font-size:12px; color:var(--slate-500); cursor:pointer; }
+  .example-chip:hover { border-color:var(--navy-300); color:var(--navy-700); }
+  .coach-entry { padding:18px; margin-top:14px; }
+  .coach-q { font-size:13.5px; font-weight:700; color:var(--navy-800); margin:0; }
+  .coach-a { margin:10px 0 0; font-size:13.5px; line-height:1.7; color:var(--slate-600); white-space:pre-line; }
+  .empty-hint { font-size:13.5px; color:var(--slate-400); }
+
+  /* report */
+  .report-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .report-title { font-size:13.5px; font-weight:700; color:var(--navy-800); margin:0; }
+  textarea#report-textarea {
+    width:100%; height:420px; resize:none; border:1px solid var(--slate-200); border-radius:10px;
+    background:var(--slate-50); padding:16px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12px; line-height:1.7; color:var(--slate-700);
+  }
+
+  /* teacher points */
+  .teacher-box { border-radius:16px; border:1px solid var(--navy-800); background:var(--navy-900); color:#fff; padding:24px; }
+  .teacher-eyebrow { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--mint-300); margin:0; }
+  .teacher-box ul { list-style:none; margin:12px 0 0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .teacher-box li { display:flex; gap:8px; font-size:13.5px; color:var(--navy-100); }
+  .teacher-arrow { color:var(--mint-400); }
+
+  section.view { display:flex; flex-direction:column; gap:24px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+"use strict";
+
+/* ===================== 1. DATA ===================== */
+
+var MONTHS = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
+function toHistory(prices){ return prices.map(function(p,i){ return { month: MONTHS[i], price: p }; }); }
+
+var VIRTUAL_STOCKS = [
+  {
+    id:"alpha-electronics", name:"Alpha전자", type:"대형 안정주", price:72000, per:12.5, pbr:1.3, roe:10.4,
+    dividendYield:2.1, volatility:"낮음", chartPattern:"상승형",
+    description:"Alpha전자는 오랜 기간 안정적인 실적을 유지해온 대형 제조업 가상 기업입니다. 시가총액이 크고 사업 구조가 다각화되어 있어 주가 흐름이 비교적 완만한 편입니다.",
+    pros:["실적 변동성이 낮아 예측 가능성이 상대적으로 높습니다.","ROE가 10% 내외로 꾸준한 수익성을 유지하고 있습니다.","배당수익률이 있어 장기 보유 시 현금흐름을 기대할 수 있습니다."],
+    risks:["이미 시장에서 크게 성장한 기업이라 폭발적인 주가 상승은 기대하기 어렵습니다.","산업 전체가 둔화되면 대형주도 영향을 받을 수 있습니다."],
+    studyPoints:["PER 12.5는 업종 평균과 비교했을 때 어떤 수준인지 살펴보는 연습을 해보세요.","낮은 변동성 자산이 포트폴리오에서 어떤 역할을 하는지 생각해보세요."],
+    indicatorInterpretation:"PER 12.5, PBR 1.3은 이익과 자산 대비 주가가 과도하게 비싸지 않다는 것을 학습할 수 있는 예시입니다. ROE 10.4%는 자기자본을 효율적으로 활용하고 있음을 보여주는 가상 지표입니다.",
+    misconceptions:["\"대형주라서 무조건 안전하다\"는 생각은 위험합니다. 대형주도 하락할 수 있습니다.","낮은 변동성이 손실 가능성이 전혀 없다는 뜻은 아닙니다."],
+    priceHistory: toHistory([61000,62500,63200,64800,65100,66700,67900,68200,69500,70100,71000,72000])
+  },
+  {
+    id:"bionext", name:"BioNext", type:"성장주", price:38000, per:48.2, pbr:5.1, roe:4.2,
+    dividendYield:0, volatility:"높음", chartPattern:"변동형",
+    description:"BioNext는 신약 개발을 테마로 하는 가상 바이오 성장주입니다. 아직 뚜렷한 이익을 내지 못하고 있지만 미래 성장 기대감으로 주가가 크게 움직이는 특징을 보여줍니다.",
+    pros:["성공적으로 성장할 경우 높은 주가 상승 가능성을 학습할 수 있는 사례입니다.","혁신 산업의 밸류에이션 방식을 공부하기에 적합합니다."],
+    risks:["PER이 48.2로 매우 높아 현재 이익 대비 기대감이 많이 반영되어 있습니다.","ROE가 4.2%로 낮아 아직 자본 효율성이 검증되지 않았습니다.","변동성이 높아 단기간에 큰 폭의 등락이 발생할 수 있습니다."],
+    studyPoints:["이익이 적은데 PER이 높은 이유가 무엇인지 스스로 설명해보세요.","성장주 투자에서 \"기대감\"과 \"실적\"의 차이를 구분하는 연습을 해보세요."],
+    indicatorInterpretation:"높은 PER과 PBR은 시장이 미래 성장 가능성에 높은 가격을 매기고 있다는 의미로 해석하는 연습을 할 수 있습니다. 다만 이는 실제 실적으로 증명되기 전까지는 불확실성이 큰 지표입니다.",
+    misconceptions:["\"성장주는 항상 오른다\"는 생각은 위험합니다. 기대가 꺾이면 급락할 수도 있습니다.","\"변동성이 높다 = 무조건 나쁘다\"가 아니라, 리스크 허용도에 맞는지가 중요합니다."],
+    priceHistory: toHistory([30000,35500,28800,41000,33500,45200,31000,42800,29500,40100,34700,38000])
+  },
+  {
+    id:"green-energy", name:"GreenEnergy", type:"친환경 테마주", price:24500, per:31.6, pbr:3.8, roe:7.5,
+    dividendYield:0.5, volatility:"높음", chartPattern:"하락형",
+    description:"GreenEnergy는 친환경 에너지 테마를 가진 가상 종목입니다. 테마가 부각될 때 단기간에 급등했다가, 기대감이 식으면서 조정을 받는 흐름을 학습 목적으로 담고 있습니다.",
+    pros:["산업 트렌드와 정책 기대감이 주가에 미치는 영향을 학습하기에 좋은 사례입니다.","ROE 7.5%로 성장주 대비 상대적인 수익성은 확보하고 있습니다."],
+    risks:["테마주 특성상 기대감이 꺾이면 주가가 빠르게 하락할 수 있습니다.","단기 급등 이후 고점에서 진입하면 큰 손실로 이어질 수 있습니다."],
+    studyPoints:["차트에서 급등 이후 하락하는 구간을 찾아보고, 그 이유를 추론해보세요.","테마주 투자에서 \"타이밍\"이 왜 중요한 리스크 요인인지 생각해보세요."],
+    indicatorInterpretation:"PER 31.6은 테마 기대감이 반영된 수준으로, 실적이 이를 뒷받침하지 못하면 밸류에이션 부담으로 작용할 수 있음을 보여주는 예시입니다.",
+    misconceptions:["\"요즘 뜨는 테마니까 사도 된다\"는 판단은 근거가 부족한 접근입니다.","차트가 이미 많이 오른 뒤에는 추가 상승보다 조정 가능성도 함께 고려해야 합니다."],
+    priceHistory: toHistory([38000,42500,45800,41200,36700,33100,29800,27500,26100,25400,24900,24500])
+  },
+  {
+    id:"daily-dividend", name:"DailyDividend", type:"배당주", price:51000, per:15.1, pbr:1.1, roe:8.8,
+    dividendYield:4.3, volatility:"중간", chartPattern:"횡보형",
+    description:"DailyDividend는 꾸준한 배당 지급을 특징으로 하는 가상 배당주입니다. 주가는 큰 등락 없이 일정 범위에서 움직이지만, 배당수익률이 상대적으로 높은 것이 특징입니다.",
+    pros:["배당수익률 4.3%로 꾸준한 현금흐름을 학습할 수 있는 사례입니다.","변동성이 중간 수준으로 상대적으로 예측 가능한 흐름을 보입니다."],
+    risks:["주가 상승 여력이 크지 않아 자본 차익은 제한적일 수 있습니다.","기업 실적이 악화되면 배당이 줄어들 수도 있다는 점을 학습해야 합니다."],
+    studyPoints:["배당수익률만 보고 투자하면 안 되는 이유를 스스로 설명해보세요.","배당주가 포트폴리오에서 어떤 역할을 하는지 살펴보세요."],
+    indicatorInterpretation:"PBR 1.1은 순자산 대비 주가가 크게 비싸지 않다는 의미로 해석 연습을 할 수 있으며, ROE 8.8%는 안정적인 수익 창출 능력을 보여주는 예시입니다.",
+    misconceptions:["\"배당수익률이 높다 = 무조건 안전하다\"는 오해입니다. 배당은 기업 상황에 따라 줄어들 수 있습니다.","배당주도 주가 하락 리스크가 없는 것은 아닙니다."],
+    priceHistory: toHistory([49500,50200,49800,50600,50100,50900,49700,50400,50800,50300,50700,51000])
+  },
+  {
+    id:"korea-etf-50", name:"KoreaETF50", type:"지수형 ETF", price:14800, per:14.0, pbr:1.2, roe:9.2,
+    dividendYield:1.8, volatility:"중간", chartPattern:"상승형",
+    description:"KoreaETF50은 여러 종목을 묶어 지수처럼 움직이는 가상 ETF 상품입니다. 개별 종목의 급격한 변동 대신 시장 전체의 흐름을 따라가는 특징을 학습할 수 있습니다.",
+    pros:["여러 종목에 분산되어 있어 개별 기업 리스크가 상대적으로 낮습니다.","완만한 상승 흐름을 통해 장기투자 개념을 학습하기에 좋습니다."],
+    risks:["분산투자 효과가 있는 대신, 특정 종목처럼 급격한 수익을 기대하기는 어렵습니다.","시장 전체가 하락하면 ETF도 함께 하락합니다."],
+    studyPoints:["ETF와 개별 종목 투자의 차이를 비교해보세요.","분산투자가 왜 리스크 관리에 도움이 되는지 설명해보세요."],
+    indicatorInterpretation:"ETF는 개별 재무지표보다 지수 전체의 흐름과 구성 종목의 분산 효과를 이해하는 것이 더 중요하다는 점을 학습할 수 있는 예시입니다.",
+    misconceptions:["\"ETF는 절대 손실이 없다\"는 생각은 잘못된 정보입니다.","\"분산투자 = 무조건 큰 수익\"이 아니라, 리스크를 낮추는 방법이라는 점을 기억해야 합니다."],
+    priceHistory: toHistory([12800,13000,13100,13350,13500,13700,13900,14050,14200,14400,14600,14800])
+  }
+];
+
+var LESSON_CARDS = [
+  { id:"stock", term:"주식", summary:"기업의 소유권 일부를 나타내는 증서로, 주식을 사면 그 기업의 지분을 갖게 됩니다.",
+    analogy:"피자 한 판을 여러 조각으로 나눈 것처럼, 회사라는 큰 피자를 조각(주식) 단위로 나눠 갖는 것과 비슷합니다.",
+    caution:"주식을 산다는 것은 기업의 성과와 위험을 함께 나눠 갖는 것임을 이해해야 합니다.",
+    detail:"주식회사는 사업 자금을 마련하기 위해 회사를 여러 지분으로 나누어 투자자에게 판매합니다. 주식을 보유한 사람은 주주로서 기업의 이익 일부(배당)를 받을 권리와 주주총회에서 의결권을 행사할 권리를 갖습니다. 반대로 기업이 손실을 보거나 파산하면 투자한 금액을 잃을 수도 있습니다. 따라서 주식 투자는 \"기업과 함께 성장하거나 함께 위험을 나누는 행위\"로 이해하는 것이 중요합니다." },
+  { id:"market-cap", term:"시가총액", summary:"현재 주가에 발행 주식 수를 곱한 값으로, 시장이 평가하는 기업의 전체 가치입니다.",
+    analogy:"아파트 한 채 가격에 전체 세대 수를 곱하면 아파트 단지 전체 가치가 나오는 것과 비슷한 개념입니다.",
+    caution:"시가총액이 크다고 반드시 안전하거나 좋은 기업인 것은 아닙니다.",
+    detail:"시가총액 = 주가 × 발행주식수 로 계산됩니다. 시가총액은 기업의 규모를 가늠하는 대표적인 지표이며, 대형주·중형주·소형주를 구분하는 기준이 되기도 합니다. 다만 시가총액은 시장의 기대감이 반영된 숫자이기 때문에, 실제 자산 가치나 이익 수준과는 다를 수 있습니다. 시가총액만으로 투자 결정을 내리기보다 PER, PBR, ROE 같은 다른 지표와 함께 살펴보는 습관이 필요합니다." },
+  { id:"per", term:"PER", summary:"주가수익비율(Price Earnings Ratio). 기업의 이익 대비 주가가 얼마나 비싼지를 보여주는 지표입니다.",
+    analogy:"연봉이 같은 두 사람 중, 더 비싼 값을 치르고 스카우트되는 사람은 그만큼 미래 기대치가 높다는 뜻과 비슷합니다.",
+    caution:"PER이 낮다고 무조건 저평가, 높다고 무조건 고평가라고 단정할 수 없습니다.",
+    detail:"PER = 주가 ÷ 주당순이익(EPS) 으로 계산합니다. 예를 들어 PER이 10이라면, 현재 이익 수준이 유지된다는 가정 하에 투자금을 회수하는 데 이론상 10년이 걸린다고 해석할 수 있습니다. 성장주는 미래 이익 기대감 때문에 PER이 높게 형성되는 경우가 많고, 성숙한 안정주는 PER이 낮은 경우가 많습니다. 업종마다 평균 PER 수준이 다르기 때문에, 같은 업종 내 다른 기업과 비교하는 것이 훨씬 의미 있는 분석 방법입니다." },
+  { id:"pbr", term:"PBR", summary:"주가순자산비율(Price Book-value Ratio). 기업의 순자산 대비 주가 수준을 보여주는 지표입니다.",
+    analogy:"집을 팔 때 감정가(순자산)보다 얼마나 더 비싸게 팔리는지를 보는 것과 비슷합니다.",
+    caution:"PBR이 1보다 낮다고 무조건 저평가된 것은 아니며, 자산의 질도 함께 살펴봐야 합니다.",
+    detail:"PBR = 주가 ÷ 주당순자산(BPS) 으로 계산합니다. PBR이 1이라면 주가가 기업의 장부상 순자산과 같은 수준이라는 뜻이고, 1보다 낮으면 장부가치보다 싸게 거래되고 있다는 의미로 해석할 수 있습니다. 다만 장부상 자산이 실제로 현금화하기 어려운 자산일 수도 있고, 성장성이 높은 기업은 PBR이 높게 형성되는 경우도 많습니다. PBR은 특히 자산이 많은 산업(제조업, 금융업 등)을 분석할 때 유용하게 쓰이는 지표입니다." },
+  { id:"roe", term:"ROE", summary:"자기자본이익률(Return On Equity). 자기자본으로 얼마나 효율적으로 이익을 내는지를 보여주는 지표입니다.",
+    analogy:"같은 금액을 투자했을 때, 누가 더 효율적으로 돈을 굴려 이익을 만들어내는지를 비교하는 것과 비슷합니다.",
+    caution:"ROE가 높아도 부채가 과도하게 많아서 생긴 결과일 수 있으니 함께 확인해야 합니다.",
+    detail:"ROE = 당기순이익 ÷ 자기자본 × 100(%) 으로 계산합니다. ROE가 높을수록 자기자본을 효율적으로 활용해 이익을 창출하고 있다는 뜻입니다. 다만 부채를 늘려 자기자본 비중을 줄이는 방식으로도 ROE가 높아질 수 있기 때문에, 부채비율과 함께 살펴보는 것이 안전한 해석 방법입니다. 꾸준히 안정적인 ROE를 유지하는 기업인지, 일시적으로 높아진 것인지 여러 해에 걸쳐 확인하는 습관이 중요합니다." },
+  { id:"eps", term:"EPS", summary:"주당순이익(Earnings Per Share). 한 주(株)당 기업이 벌어들인 순이익을 보여주는 지표입니다.",
+    analogy:"회사가 번 전체 이익을 직원 수만큼 나눠 \"1인당 성과급\"을 계산하는 것과 비슷한 개념입니다.",
+    caution:"EPS가 늘었다고 무조건 좋은 것은 아니며, 주식 수 변화(증자, 자사주 매입 등)의 영향도 확인해야 합니다.",
+    detail:"EPS = 당기순이익 ÷ 발행주식수 로 계산합니다. EPS는 PER을 계산하는 기초 지표로도 사용되며, 기업의 수익성이 개선되고 있는지 확인하는 핵심 지표 중 하나입니다. 다만 신주 발행으로 주식 수가 늘어나면 이익이 같아도 EPS가 낮아질 수 있고, 반대로 자사주 매입으로 주식 수가 줄면 이익이 그대로여도 EPS가 높아질 수 있습니다. 따라서 EPS의 변화가 실제 이익 성장 때문인지, 주식 수 변화 때문인지 구분해서 보는 연습이 필요합니다." },
+  { id:"dividend-yield", term:"배당수익률", summary:"주가 대비 연간 배당금의 비율로, 투자금 대비 배당으로 얻는 수익의 비율을 보여줍니다.",
+    analogy:"예금에 돈을 넣었을 때 받는 이자율과 비슷한 개념으로 이해할 수 있습니다.",
+    caution:"배당수익률이 높다고 안전한 것은 아니며, 주가가 급락해서 배당수익률이 높아 보일 수도 있습니다.",
+    detail:"배당수익률 = 주당 배당금 ÷ 주가 × 100(%) 으로 계산합니다. 배당은 기업이 벌어들인 이익의 일부를 주주에게 나누어주는 것으로, 안정적인 현금흐름을 원하는 투자자들이 중요하게 살펴보는 지표입니다. 다만 주가가 크게 하락하면 배당금이 그대로여도 배당수익률은 오히려 높아 보일 수 있습니다. 따라서 배당수익률만 볼 것이 아니라, 기업이 꾸준히 이익을 내고 있는지, 배당을 지속할 여력이 있는지 함께 확인해야 합니다." },
+  { id:"volatility", term:"변동성", summary:"주가가 일정 기간 동안 얼마나 크게 오르내리는지를 나타내는 정도입니다.",
+    analogy:"잔잔한 호수와 파도가 큰 바다의 차이와 비슷합니다. 변동성이 크면 오르내림의 폭이 큽니다.",
+    caution:"변동성이 크다고 무조건 나쁜 것은 아니지만, 본인의 리스크 허용 범위를 넘는지는 반드시 점검해야 합니다.",
+    detail:"변동성은 주가 수익률이 평균에서 얼마나 벗어나는지를 통계적으로 측정한 값으로, 일반적으로 변동성이 클수록 단기간에 큰 폭의 수익 또는 손실이 발생할 가능성이 높습니다. 성장주나 테마주는 기대감과 실망감이 교차하며 변동성이 커지는 경향이 있고, 대형 안정주나 배당주는 상대적으로 변동성이 낮은 편입니다. 투자자는 자신의 투자 기간과 손실 감내 능력을 고려하여 적절한 변동성 수준의 자산을 선택하는 연습이 필요합니다." },
+  { id:"diversification", term:"분산투자", summary:"투자금을 여러 자산에 나누어 담아 위험을 낮추는 투자 방법입니다.",
+    analogy:"\"계란을 한 바구니에 담지 말라\"는 격언처럼, 바구니 하나가 떨어져도 나머지는 안전하게 지키는 것과 같습니다.",
+    caution:"분산투자는 리스크를 낮추는 방법이지, 수익을 보장하거나 극대화하는 방법은 아닙니다.",
+    detail:"분산투자는 서로 다른 산업, 자산군, 지역에 나누어 투자함으로써 하나의 자산에서 발생한 손실이 전체 포트폴리오에 미치는 영향을 줄이는 전략입니다. 예를 들어 성장주, 배당주, ETF, 현금 등을 적절히 섞으면 특정 자산이 하락하더라도 포트폴리오 전체가 크게 흔들리지 않을 수 있습니다. 다만 분산투자를 한다고 해서 손실 가능성이 완전히 사라지는 것은 아니며, 시장 전체가 하락하는 상황에서는 분산투자를 해도 전반적인 손실을 겪을 수 있습니다." },
+  { id:"long-term-investing", term:"장기투자", summary:"짧은 시세 차익보다 긴 시간에 걸친 기업의 성장에 초점을 맞추는 투자 방식입니다.",
+    analogy:"나무를 심고 오랜 시간 물을 주며 키우는 것처럼, 단기간의 날씨 변화보다 전체적인 성장 과정을 지켜보는 것과 비슷합니다.",
+    caution:"장기투자라고 해서 무조건 손실을 만회하거나 수익을 보장하는 것은 아닙니다.",
+    detail:"장기투자는 기업의 펀더멘털(사업 모델, 실적, 산업 전망 등)을 바탕으로 긴 시간에 걸쳐 투자하는 방식입니다. 단기적인 주가 변동에 일희일비하지 않고, 기업의 성장 스토리를 꾸준히 지켜보는 태도가 필요합니다. 다만 장기투자를 한다고 해서 기업이 반드시 성장하거나 주가가 오른다는 보장은 없으며, 투자 기간 동안에도 지속적으로 기업의 상황을 점검하는 자세가 중요합니다." },
+  { id:"stop-loss", term:"손절", summary:"손실이 더 커지는 것을 막기 위해 손실 상태에서 미리 정한 기준에 따라 매도하는 것입니다.",
+    analogy:"상처가 커지기 전에 미리 치료를 받는 것처럼, 손실이 걷잡을 수 없이 커지기 전에 대응하는 방법입니다.",
+    caution:"감정적으로 손절 기준을 계속 바꾸면 손절의 의미가 사라집니다.",
+    detail:"손절(Stop-loss)은 투자 전에 \"이 정도 손실이 발생하면 매도한다\"는 기준을 미리 정해두고, 그 기준에 도달했을 때 감정에 흔들리지 않고 실행하는 리스크 관리 방법입니다. 손절 기준이 없으면 손실이 커지는 상황에서도 \"곧 오르겠지\"라는 기대감으로 매도를 미루다가 더 큰 손실을 볼 수 있습니다. 반대로 기준 없이 작은 하락에도 성급하게 매도하면 장기적으로 얻을 수 있는 수익 기회를 놓칠 수도 있으므로, 투자 전에 원칙을 세우는 것이 핵심입니다." },
+  { id:"rebalancing", term:"리밸런싱", summary:"시간이 지나며 변한 자산 비중을 원래 계획한 비율로 다시 조정하는 것입니다.",
+    analogy:"저울의 양쪽 무게가 달라지면 다시 균형을 맞추는 것처럼, 포트폴리오의 균형을 주기적으로 맞추는 작업입니다.",
+    caution:"너무 잦은 리밸런싱은 거래 비용과 세금 부담을 늘릴 수 있습니다.",
+    detail:"리밸런싱은 처음 계획했던 자산 배분 비율(예: 성장주 30%, 배당주 20%, ETF 30%, 현금 20%)이 시장 변동으로 인해 달라졌을 때, 원래 비율에 맞게 자산을 조정하는 과정입니다. 예를 들어 성장주가 크게 올라 비중이 50%로 늘어났다면 일부를 매도해 다른 자산으로 재배분함으로써 위험이 한쪽으로 쏠리는 것을 방지할 수 있습니다. 리밸런싱은 정기적으로(예: 분기별, 반기별) 점검하는 습관을 들이는 것이 좋으며, 시장 상황에 일희일비해 너무 자주 조정하는 것은 오히려 비효율적일 수 있습니다." }
+];
+
+var QUIZ_QUESTIONS = [
+  { id:"q1", topic:"PER", question:"PER(주가수익비율)에 대한 설명으로 가장 알맞은 것은?",
+    options:["기업의 이익 대비 주가 수준을 보여주는 지표이다","기업의 순자산 대비 주가 수준을 보여주는 지표이다","기업의 배당금 지급 비율을 보여주는 지표이다","기업의 부채 비율을 보여주는 지표이다"],
+    answerIndex:0, explanation:"PER은 주가를 주당순이익(EPS)으로 나눈 값으로, 이익 대비 주가가 얼마나 비싼지를 보여주는 지표입니다." },
+  { id:"q2", topic:"PBR", question:"PBR이 1보다 낮다는 것은 어떤 의미로 해석할 수 있을까요?",
+    options:["기업이 적자를 내고 있다는 뜻이다","배당을 지급하지 않는다는 뜻이다","주가가 장부상 순자산보다 낮게 거래되고 있다는 뜻이다","주식 수가 매우 많다는 뜻이다"],
+    answerIndex:2, explanation:"PBR은 주가를 주당순자산(BPS)으로 나눈 값으로, 1보다 낮으면 주가가 장부가치보다 낮게 거래된다는 의미로 해석할 수 있습니다." },
+  { id:"q3", topic:"ROE", question:"ROE(자기자본이익률)가 높다는 것이 항상 좋은 신호는 아닐 수 있는 이유는?",
+    options:["ROE는 배당수익률과 같은 개념이기 때문이다","부채를 늘려 자기자본 비중을 줄이는 방식으로도 ROE가 높아질 수 있기 때문이다","ROE는 주가와 아무 관련이 없기 때문이다","ROE는 항상 마이너스 값을 갖기 때문이다"],
+    answerIndex:1, explanation:"부채비율이 높아져 자기자본이 줄어들면 이익이 그대로여도 ROE가 높아질 수 있으므로, 부채 수준을 함께 확인해야 합니다." },
+  { id:"q4", topic:"분산투자", question:"분산투자에 대한 설명으로 가장 알맞은 것은?",
+    options:["한 종목에 집중해 수익을 극대화하는 전략이다","여러 자산에 나누어 투자해 위험을 낮추는 전략이다","무조건 손실을 방지해주는 전략이다","단기 시세차익을 노리는 전략이다"],
+    answerIndex:1, explanation:"분산투자는 여러 자산에 나누어 투자함으로써 특정 자산의 손실이 전체 포트폴리오에 미치는 영향을 줄이는 리스크 관리 방법입니다." },
+  { id:"q5", topic:"배당수익률", question:"배당수익률이 높은 종목에 대해 주의해야 할 점은?",
+    options:["배당수익률이 높으면 주가는 절대 하락하지 않는다","주가 급락으로 인해 배당수익률이 일시적으로 높아 보일 수 있다","배당수익률이 높으면 PER은 항상 낮다","배당수익률은 매년 반드시 동일하게 유지된다"],
+    answerIndex:1, explanation:"배당금이 그대로여도 주가가 하락하면 배당수익률은 계산상 높아질 수 있으므로, 기업의 실적과 배당 지속 가능성을 함께 살펴봐야 합니다." },
+  { id:"q6", topic:"변동성", question:"변동성이 높은 자산의 특징으로 가장 알맞은 것은?",
+    options:["주가 등락 폭이 상대적으로 작다","단기간에 큰 폭의 상승과 하락이 발생할 가능성이 있다","항상 손실만 발생한다","배당수익률이 항상 가장 높다"],
+    answerIndex:1, explanation:"변동성이 높다는 것은 주가가 평균에서 크게 벗어나는 정도가 크다는 뜻으로, 단기간에 큰 폭의 등락이 발생할 수 있습니다." },
+  { id:"q7", topic:"장기투자", question:"장기투자에 대한 설명으로 가장 알맞은 것은?",
+    options:["기업의 펀더멘털을 바탕으로 긴 시간에 걸쳐 투자하는 방식이다","단기 시세 차익을 노리고 하루에도 여러 번 매매하는 방식이다","손실이 발생해도 절대 확인하지 않는 방식이다","항상 수익을 보장하는 투자 방식이다"],
+    answerIndex:0, explanation:"장기투자는 단기적인 주가 변동보다 기업의 사업 모델과 성장성을 바탕으로 긴 호흡에서 투자하는 방식이며, 수익을 보장하지는 않습니다." }
+];
+
+var PROFILE_QUESTIONS = [
+  { question:"투자금이 10% 하락하면 어떻게 반응하겠습니까?",
+    options:[{text:"불안해서 바로 매도한다",score:1},{text:"불안하지만 일단 지켜본다",score:2},{text:"이유를 점검하고 상황에 대응한다",score:3},{text:"저가 매수 기회로 보고 추가 매수를 고려한다",score:4}] },
+  { question:"투자 기간은 어느 정도를 생각합니까?",
+    options:[{text:"6개월 이내 단기",score:1},{text:"1년 내외",score:2},{text:"3년 정도 중장기",score:3},{text:"5년 이상 장기",score:4}] },
+  { question:"안정적인 배당주와 성장주 중 무엇을 선호합니까?",
+    options:[{text:"배당주를 훨씬 선호한다",score:1},{text:"배당주를 조금 더 선호한다",score:2},{text:"성장주를 조금 더 선호한다",score:3},{text:"성장주를 훨씬 선호한다",score:4}] },
+  { question:"주가 변동을 얼마나 자주 확인합니까?",
+    options:[{text:"거의 확인하지 않는다",score:1},{text:"일주일에 한두 번 확인한다",score:2},{text:"하루에 한 번 정도 확인한다",score:3},{text:"하루에도 여러 번 확인한다",score:4}] },
+  { question:"투자에서 더 중요한 것은 안정성입니까, 수익 가능성입니까?",
+    options:[{text:"안정성이 훨씬 중요하다",score:1},{text:"안정성이 조금 더 중요하다",score:2},{text:"수익 가능성이 조금 더 중요하다",score:3},{text:"수익 가능성이 훨씬 중요하다",score:4}] }
+];
+
+var CHECKLIST_ITEMS = [
+  "이 기업이 무엇으로 돈을 버는지 설명할 수 있다.",
+  "최근 실적 흐름을 확인했다.",
+  "PER, PBR, ROE를 확인했다.",
+  "부채와 현금흐름을 확인했다.",
+  "산업 전망을 살펴봤다.",
+  "손실 가능성을 감당할 수 있다.",
+  "투자 기간을 정했다.",
+  "한 종목에 과도하게 집중하지 않았다.",
+  "뉴스나 소문이 아니라 근거를 가지고 판단했다.",
+  "매도 기준을 미리 생각했다."
+];
+
+var EDU_DISCLAIMER = "본 프로그램은 투자 권유가 아니라 주식 공부를 위한 교육용 시뮬레이션입니다.";
+var AI_ANSWER_DISCLAIMER = "이 내용은 투자 권유가 아니라 학습용 설명입니다. 실제 투자 판단은 본인의 책임으로 충분히 검토해야 합니다.";
+
+var AI_COACH_RULES = [
+  { keywords:["per"], answer:"PER은 기업의 이익 대비 주가가 얼마나 비싼지를 보는 지표입니다. 주가를 주당순이익(EPS)으로 나누어 계산하며, 같은 업종 내 다른 기업과 비교할 때 더 의미 있게 해석할 수 있습니다." },
+  { keywords:["pbr"], answer:"PBR은 기업의 순자산 대비 주가 수준을 보는 지표입니다. 주가를 주당순자산(BPS)으로 나누어 계산하며, 1보다 낮으면 장부가치보다 싸게 거래되고 있다는 의미로 해석할 수 있습니다." },
+  { keywords:["roe"], answer:"ROE는 자기자본으로 얼마나 효율적으로 이익을 내는지를 보는 지표입니다. 다만 부채가 많아져도 ROE가 높아질 수 있으니 부채 수준을 함께 확인하는 것이 좋습니다." },
+  { keywords:["분산투자","분산"], answer:"분산투자는 한 종목에 모든 돈을 넣지 않고 여러 자산에 나누어 담아 위험을 나누는 방법입니다. 특정 자산이 하락해도 포트폴리오 전체가 크게 흔들리지 않도록 도와줍니다." },
+  { keywords:["배당"], answer:"배당은 기업이 이익 일부를 주주에게 나누어주는 것입니다. 배당주는 꾸준한 현금흐름을 기대할 수 있지만, 배당수익률이 높다고 무조건 안전한 것은 아니며 기업의 실적과 배당 지속 가능성을 함께 확인해야 합니다." },
+  { keywords:["성장주"], answer:"성장주는 미래 이익 성장에 대한 기대감이 주가에 많이 반영되어 있는 경우가 많습니다. 실적이 기대에 못 미치면 주가가 크게 조정될 수 있어 변동성이 큰 편입니다." },
+  { keywords:["etf"], answer:"ETF는 여러 종목을 묶어 하나의 상품처럼 거래할 수 있는 투자수단입니다. 개별 종목보다 분산 효과가 크지만, 시장 전체가 하락하면 ETF도 함께 하락할 수 있습니다." },
+  { keywords:["주가가 떨어지면","하락","손실","떨어지면"], answer:"주가가 떨어졌을 때는 감정적으로 대응하지 말고, 애초에 투자한 이유와 자신의 리스크 허용 범위를 다시 점검하는 것이 중요합니다. 미리 정한 손절 기준이 있다면 원칙에 따라 대응하는 연습을 해보세요." },
+  { keywords:["초보자","무엇부터","처음"], answer:"초보자라면 먼저 주식, 시가총액 같은 기본 개념과 PER, PBR, ROE 같은 재무지표를 이해하는 것부터 시작하는 것이 좋습니다. 이후 분산투자와 리스크 관리 개념을 함께 학습해보세요." },
+  { keywords:["변동성"], answer:"변동성은 주가가 일정 기간 동안 얼마나 크게 오르내리는지를 나타내는 정도입니다. 변동성이 큰 자산은 단기간에 큰 폭의 수익 또는 손실이 발생할 수 있어 본인의 리스크 허용 범위를 고려해야 합니다." },
+  { keywords:["장기투자","장기"], answer:"장기투자는 단기적인 주가 변동보다 기업의 사업 모델과 성장성을 바탕으로 긴 시간에 걸쳐 투자하는 방식입니다. 다만 장기투자라고 해서 수익을 보장하지는 않습니다." },
+  { keywords:["손절"], answer:"손절은 손실이 더 커지는 것을 막기 위해 미리 정한 기준에 따라 매도하는 것입니다. 감정에 흔들리지 않도록 투자 전에 손절 기준을 미리 세워두는 것이 중요합니다." },
+  { keywords:["리밸런싱"], answer:"리밸런싱은 시간이 지나며 변한 자산 비중을 원래 계획한 비율로 다시 조정하는 것입니다. 특정 자산이 과도하게 커졌다면 일부를 다른 자산으로 재배분해 리스크 쏠림을 줄일 수 있습니다." }
+];
+var AI_COACH_DEFAULT = "아직 이 질문에 대한 학습 콘텐츠가 준비되어 있지 않습니다. PER, PBR, ROE, 분산투자, 배당, 변동성, 장기투자, ETF, 손절, 리밸런싱 같은 키워드로 다시 질문해보세요.";
+
+var EXAMPLE_QUESTIONS = ["PER이 뭐예요?","분산투자가 왜 중요해요?","배당주는 안전한가요?","성장주는 왜 위험한가요?","ETF는 무엇인가요?","주가가 떨어지면 어떻게 해야 하나요?","초보자는 무엇부터 공부해야 하나요?"];
+
+/* ===================== 2. UTILS (calculations) ===================== */
+
+function getInvestorType(total){
+  if (total <= 9) return "안정형";
+  if (total <= 15) return "균형형";
+  return "적극형";
+}
+
+var RISK_WEIGHT = { largeCap:2, growth:5, dividend:1.5, etf:2.2, cash:0 };
+var STABILITY_WEIGHT = { largeCap:3.5, growth:0.5, dividend:4, etf:3, cash:5 };
+var GROWTH_WEIGHT = { largeCap:2.5, growth:5, dividend:1.5, etf:3, cash:0 };
+var ASSET_KEYS = ["largeCap","growth","dividend","etf","cash"];
+var ASSET_LABELS = { largeCap:"대형 안정주", growth:"성장주", dividend:"배당주", etf:"ETF", cash:"현금" };
+
+function weightedScore(allocation, weights){
+  var total = ASSET_KEYS.reduce(function(s,k){ return s+allocation[k]; }, 0);
+  if (total === 0) return 0;
+  var weightedSum = ASSET_KEYS.reduce(function(s,k){ return s+allocation[k]*weights[k]; }, 0);
+  return Math.round((weightedSum/(total*5))*100);
+}
+
+function calculatePortfolioMetrics(allocation){
+  var totalPercent = ASSET_KEYS.reduce(function(s,k){ return s+allocation[k]; }, 0);
+  var isValid = totalPercent === 100;
+  var riskScore = weightedScore(allocation, RISK_WEIGHT);
+  var stability = weightedScore(allocation, STABILITY_WEIGHT);
+  var growthPotential = weightedScore(allocation, GROWTH_WEIGHT);
+  var dividendExpectation = weightedScore(allocation, { largeCap:2, growth:0, dividend:5, etf:1.5, cash:0 });
+  var cashResilience = Math.min(100, Math.round(allocation.cash*1.4 + allocation.dividend*0.3));
+  var maxAllocation = Math.max.apply(null, ASSET_KEYS.map(function(k){ return allocation[k]; }));
+  var nonZeroCount = ASSET_KEYS.filter(function(k){ return allocation[k] > 0; }).length;
+  var diversificationScore = Math.max(0, Math.round(100 - maxAllocation*0.8 + (nonZeroCount-1)*5));
+  var concentratedAsset = null;
+  for (var i=0;i<ASSET_KEYS.length;i++){ if (allocation[ASSET_KEYS[i]] >= 60){ concentratedAsset = ASSET_KEYS[i]; break; } }
+  var riskLevel = "중간";
+  if (riskScore < 35) riskLevel = "낮음"; else if (riskScore > 65) riskLevel = "높음";
+  return { totalPercent:totalPercent, isValid:isValid, riskScore:riskScore, riskLevel:riskLevel, stability:stability,
+    growthPotential:growthPotential, cashResilience:cashResilience, dividendExpectation:dividendExpectation,
+    diversificationScore:Math.min(100,diversificationScore), concentratedAsset:concentratedAsset };
+}
+
+function getChecklistTier(count){
+  if (count <= 3) return "학습 우선";
+  if (count <= 6) return "추가 확인 필요";
+  return "균형 잡힌 준비";
+}
+function getChecklistFeedback(tier){
+  if (tier === "학습 우선") return "아직 투자 판단보다 공부가 먼저 필요합니다.";
+  if (tier === "추가 확인 필요") return "기본 점검은 했지만 추가 확인이 필요합니다.";
+  return "비교적 균형 잡힌 투자 판단 준비가 되어 있습니다.";
+}
+function getQuizTier(score){
+  if (score <= 2) return "개념 재학습 필요";
+  if (score <= 5) return "지표 해석 연습 필요";
+  return "좋은 이해도";
+}
+function getQuizFeedback(tier){
+  if (tier === "개념 재학습 필요") return "기본 개념부터 다시 학습해보세요.";
+  if (tier === "지표 해석 연습 필요") return "핵심 개념은 이해했지만 지표 해석 연습이 더 필요합니다.";
+  return "초보 학습 단계에서는 좋은 이해도를 보이고 있습니다.";
+}
+
+/* ===================== 3. FEEDBACK ===================== */
+
+function getInvestorProfileResult(type){
+  if (type === "안정형") return {
+    type:type,
+    summary:"변동성보다 원금 보전과 예측 가능성을 중시하는 성향입니다. 큰 손실보다 꾸준하고 안정적인 흐름을 선호합니다.",
+    strengths:["감정적인 매매보다 신중한 판단을 하는 경향이 있습니다.","급격한 하락장에서도 비교적 침착하게 대응할 가능성이 높습니다."],
+    cautions:["지나치게 안정만 추구하면 물가 상승 대비 실질 수익이 낮아질 수 있습니다.","변동성을 지나치게 회피하면 학습 기회 자체를 놓칠 수 있습니다."],
+    studyDirection:["대형 안정주와 배당주, ETF 중심의 자산 구조를 공부해보는 것이 좋습니다.","PBR, 배당수익률 같은 안정성 지표 해석 연습을 해보세요."],
+    riskAdvice:"안정형이라도 자산을 한 곳에만 두기보다, 소액이라도 다양한 자산 유형을 학습 삼아 공부해보는 것을 권장합니다."
+  };
+  if (type === "균형형") return {
+    type:type,
+    summary:"안정성과 수익 가능성을 함께 고려하는 균형 잡힌 성향입니다. 상황에 따라 유연하게 대응하는 편입니다.",
+    strengths:["한쪽으로 치우치지 않고 다양한 자산 유형을 학습하기에 좋은 성향입니다.","리스크와 수익의 균형을 스스로 조절하려는 태도를 갖고 있습니다."],
+    cautions:["너무 많은 정보를 동시에 고려하다 판단이 늦어질 수 있습니다.","균형을 맞춘다는 이유로 원칙 없이 이것저것 섞기만 하면 오히려 리스크 관리가 흐트러질 수 있습니다."],
+    studyDirection:["대형 안정주, 배당주, 성장주, ETF를 고르게 배분하는 포트폴리오 구조를 공부해보는 것이 좋습니다.","PER, PBR, ROE를 종합적으로 해석하는 연습을 해보세요."],
+    riskAdvice:"균형형은 특정 원칙(예: 자산별 목표 비중)을 미리 세워두고, 정기적으로 리밸런싱하는 습관을 학습하는 것이 도움이 됩니다."
+  };
+  return {
+    type:type,
+    summary:"높은 변동성을 감수하더라도 수익 가능성을 우선시하는 성향입니다. 새로운 산업과 성장 스토리에 관심이 많습니다.",
+    strengths:["변화하는 산업 트렌드를 빠르게 학습하고 받아들이는 태도를 갖고 있습니다.","높은 변동성 자산의 구조를 이해하는 데 적극적입니다."],
+    cautions:["기대감만으로 판단하면 큰 손실 위험에 노출될 수 있습니다.","잦은 매매 확인은 감정적 의사결정으로 이어지기 쉽습니다."],
+    studyDirection:["성장주와 테마주의 밸류에이션 구조, 그리고 리스크 관리 원칙을 함께 공부해보는 것이 좋습니다.","손절 기준과 리밸런싱 개념을 반드시 함께 학습해보세요."],
+    riskAdvice:"적극형일수록 손실 감내 범위와 손절 기준을 명확히 세워두는 리스크 관리 학습이 특히 중요합니다."
+  };
+}
+
+function getPortfolioFeedback(allocation, metrics){
+  var messages = [];
+  if (allocation.growth >= 40) messages.push("성장주 비중이 높습니다. 수익 가능성은 높지만 변동성도 커질 수 있습니다.");
+  if (allocation.cash >= 30) messages.push("현금 비중이 높습니다. 하락장 대응력은 좋지만 상승장 참여도는 낮을 수 있습니다.");
+  if (allocation.etf >= 40) messages.push("ETF 비중이 높습니다. 분산투자 효과를 기대할 수 있지만 개별 종목보다 큰 수익을 기대하기는 어려울 수 있습니다.");
+  if (metrics.concentratedAsset) messages.push("특정 자산에 60% 이상 집중되어 있어 리스크가 커질 수 있습니다.");
+  if (allocation.dividend >= 40) messages.push("배당주 비중이 높습니다. 안정적인 현금흐름을 기대할 수 있지만 자본 차익은 제한적일 수 있습니다.");
+  if (messages.length === 0) messages.push("여러 자산에 고르게 배분되어 있어 균형 잡힌 학습용 포트폴리오 구조를 보이고 있습니다.");
+  return messages;
+}
+
+function getAiCoachAnswer(question){
+  var normalized = question.trim().toLowerCase();
+  for (var i=0;i<AI_COACH_RULES.length;i++){
+    var rule = AI_COACH_RULES[i];
+    for (var j=0;j<rule.keywords.length;j++){
+      if (normalized.indexOf(rule.keywords[j].toLowerCase()) !== -1){
+        return rule.answer + "\n\n" + AI_ANSWER_DISCLAIMER;
+      }
+    }
+  }
+  return AI_COACH_DEFAULT + "\n\n" + AI_ANSWER_DISCLAIMER;
+}
+
+/* ===================== 4. STATE ===================== */
+
+var state = {
+  section: "dashboard",
+  profileAnswers: [null,null,null,null,null],
+  allocation: { largeCap:20, growth:20, dividend:20, etf:20, cash:20 },
+  portfolioTouched: false,
+  checklistChecked: CHECKLIST_ITEMS.map(function(){ return false; }),
+  quizAnswers: QUIZ_QUESTIONS.map(function(){ return null; }),
+  lessonsOpened: {},
+  selectedStockId: VIRTUAL_STOCKS[0].id,
+  coachHistory: [],
+  chartFeedbackShown: {}
+};
+
+function profileCompleted(){ return state.profileAnswers.every(function(a){ return a !== null; }); }
+function currentInvestorType(){ return profileCompleted() ? getInvestorType(state.profileAnswers.reduce(function(s,v){return s+(v||0);},0)) : null; }
+function checklistScore(){ return state.checklistChecked.filter(Boolean).length; }
+function quizCompletedFn(){ return state.quizAnswers.every(function(a){ return a !== null; }); }
+function quizScoreFn(){
+  var sum = 0;
+  state.quizAnswers.forEach(function(a,i){ if (a !== null && a === QUIZ_QUESTIONS[i].answerIndex) sum++; });
+  return sum;
+}
+function lessonsOpenedCount(){ return Object.keys(state.lessonsOpened).length; }
+function completionRate(){
+  var pm = calculatePortfolioMetrics(state.allocation);
+  var modules = [
+    profileCompleted(),
+    state.portfolioTouched && pm.isValid,
+    checklistScore() > 0,
+    quizCompletedFn(),
+    lessonsOpenedCount() >= Math.ceil(LESSON_CARDS.length/2)
+  ];
+  var done = modules.filter(Boolean).length;
+  return Math.round((done/modules.length)*100);
+}
+
+/* ===================== 5. HELPERS ===================== */
+
+function esc(str){
+  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function buildLineChartSVG(data){
+  var width=600, height=260, padLeft=44, padRight=16, padTop=14, padBottom=26;
+  var values = data.map(function(d){ return d.price; });
+  var minV = Math.min.apply(null, values), maxV = Math.max.apply(null, values);
+  var rangePad = (maxV-minV)*0.18 || maxV*0.1;
+  var yMin = Math.max(0, minV-rangePad), yMax = maxV+rangePad;
+  var innerW = width-padLeft-padRight, innerH = height-padTop-padBottom;
+  var stepX = innerW/(data.length-1);
+  var pts = data.map(function(d,i){
+    var x = padLeft+i*stepX;
+    var y = padTop+innerH-((d.price-yMin)/(yMax-yMin))*innerH;
+    return {x:x,y:y};
+  });
+  var pathD = pts.map(function(p,i){ return (i===0?"M":"L")+p.x.toFixed(1)+","+p.y.toFixed(1); }).join(" ");
+  var ticks=4, gridLines="", yLabels="";
+  for (var i=0;i<=ticks;i++){
+    var v = yMin+(yMax-yMin)*i/ticks;
+    var y = padTop+innerH-(i/ticks)*innerH;
+    gridLines += '<line x1="'+padLeft+'" y1="'+y.toFixed(1)+'" x2="'+(width-padRight)+'" y2="'+y.toFixed(1)+'" stroke="#e2e8f0" stroke-width="1"/>';
+    yLabels += '<text x="'+(padLeft-8)+'" y="'+(y+4).toFixed(1)+'" font-size="11" fill="#64748b" text-anchor="end">'+Math.round(v/1000)+'k</text>';
+  }
+  var xLabels = "";
+  data.forEach(function(d,i){
+    var x = padLeft+i*stepX;
+    xLabels += '<text x="'+x.toFixed(1)+'" y="'+(height-6)+'" font-size="10" fill="#64748b" text-anchor="middle">'+d.month+'</text>';
+  });
+  var dots = pts.map(function(p){ return '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="2.5" fill="#1fb28c" />'; }).join("");
+  return '<svg viewBox="0 0 '+width+' '+height+'" class="stock-chart-svg" preserveAspectRatio="xMidYMid meet">'
+    + gridLines + yLabels + xLabels
+    + '<path d="'+pathD+'" fill="none" stroke="#1fb28c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'
+    + dots
+    + '</svg>';
+}
+
+/* ===================== 6. SECTION RENDERERS ===================== */
+
+function teacherPointsHTML(){
+  var points = [
+    "AI는 복잡한 금융 개념을 초보자 눈높이로 쉽게 설명할 수 있다.",
+    "AI는 투자 판단을 대신하는 것이 아니라 학습과 점검을 돕는 도구이다.",
+    "AI는 모의 데이터와 시뮬레이션을 통해 리스크 관리 교육에 활용될 수 있다.",
+    "교육 현장에서는 AI를 개념 학습, 퀴즈, 진단, 포트폴리오 시뮬레이션, 리포트 생성 도구로 사용할 수 있다.",
+    "실제 투자는 반드시 본인의 책임과 충분한 검토가 필요하다."
+  ];
+  return '<div class="teacher-box"><p class="teacher-eyebrow">교수자 시연 포인트</p><ul>'
+    + points.map(function(p){ return '<li><span class="teacher-arrow">▸</span><span>'+esc(p)+'</span></li>'; }).join("")
+    + '</ul></div>';
+}
+
+function renderDashboard(){
+  var pm = calculatePortfolioMetrics(state.allocation);
+  var goals = ["주식 기본 개념 이해하기","재무지표와 리스크 살펴보기","모의 포트폴리오를 구성해보기"];
+  var cards = [
+    { label:"투자 성향", value: profileCompleted() ? currentInvestorType() : "진단 전", sub: profileCompleted() ? "진단 완료" : "투자 성향 진단에서 확인해보세요" },
+    { label:"모의 포트폴리오 위험도", value: state.portfolioTouched ? pm.riskLevel : "구성 전", sub: state.portfolioTouched ? ("위험 점수 "+pm.riskScore+"/100") : "포트폴리오를 구성해보세요" },
+    { label:"학습 완료율", value: completionRate()+"%", sub:"5개 모듈 기준", mint:true },
+    { label:"체크리스트 점수", value: checklistScore()+" / 10", sub:"투자 판단 체크리스트" },
+    { label:"퀴즈 점수", value: quizCompletedFn() ? (quizScoreFn()+" / 7") : "응시 전", sub:"초보자 주식 퀴즈" }
+  ];
+  return '<section class="view">'
+    + '<div class="card hero"><div class="hero-inner">'
+    + '<p class="hero-eyebrow">AI 주식 투자 학습 코치</p>'
+    + '<h1 class="hero-title">주식 투자는 예측보다 원칙,<br>감정보다 리스크 관리가 중요합니다.</h1>'
+    + '<p class="hero-sub">'+EDU_DISCLAIMER+'</p>'
+    + '<div class="hero-actions">'
+    + '<button class="btn-hero-primary" data-nav="profile">투자 성향 진단 시작하기</button>'
+    + '<button class="btn-hero-secondary" data-nav="lessons">기초 학습 카드 보기</button>'
+    + '</div></div></div>'
+    + '<div><h2 class="section-title">오늘의 학습 목표</h2><div class="grid grid-3">'
+    + goals.map(function(g,i){ return '<div class="card goal-card"><span class="goal-num">'+(i+1)+'</span><p class="goal-text">'+esc(g)+'</p></div>'; }).join("")
+    + '</div></div>'
+    + '<div><h2 class="section-title">학습 현황 요약</h2><div class="grid grid-5">'
+    + cards.map(function(c){ return '<div class="card summary-card"><p class="summary-label">'+esc(c.label)+'</p><p class="summary-value'+(c.mint?' mint':'')+'">'+esc(c.value)+'</p><p class="summary-sub">'+esc(c.sub)+'</p></div>'; }).join("")
+    + '</div></div>'
+    + '</section>';
+}
+function bindDashboard(root){
+  root.querySelectorAll("[data-nav]").forEach(function(btn){
+    btn.addEventListener("click", function(){ navigate(btn.getAttribute("data-nav")); });
+  });
+}
+
+function renderProfile(){
+  var html = '<section class="view">'
+    + '<div><h2 class="section-title">투자 성향 진단</h2><p class="section-desc">5개의 질문에 답하면 나의 투자 성향을 학습 목적으로 분석해드립니다.</p></div>'
+    + '<div class="card card-pad">';
+  PROFILE_QUESTIONS.forEach(function(q, qIndex){
+    html += '<div class="q-block"><p class="q-title">'+(qIndex+1)+'. '+esc(q.question)+'</p><div class="opt-grid">';
+    q.options.forEach(function(opt, oi){
+      var selected = state.profileAnswers[qIndex] === opt.score;
+      html += '<button class="opt-btn'+(selected?' selected':'')+'" data-q="'+qIndex+'" data-score="'+opt.score+'">'+esc(opt.text)+'</button>';
+    });
+    html += '</div></div>';
+  });
+  var answered = state.profileAnswers.filter(function(a){ return a !== null; }).length;
+  html += '<p class="progress-note">'+answered+' / '+PROFILE_QUESTIONS.length+' 문항 응답 완료</p></div>';
+  html += '<div id="profile-result">' + profileResultHTML() + '</div>';
+  html += '</section>';
+  return html;
+}
+function profileResultHTML(){
+  if (!profileCompleted()) return "";
+  var result = getInvestorProfileResult(currentInvestorType());
+  return '<div class="card card-pad">'
+    + '<p class="result-eyebrow">진단 결과</p><p class="result-type">'+esc(result.type)+'</p><p class="result-summary">'+esc(result.summary)+'</p>'
+    + '<div class="grid grid-2" style="margin-top:16px;">'
+    + '<div><p class="subhead">장점</p><ul class="plain-list">'+result.strengths.map(function(s){return '<li><span class="tick">✓</span><span>'+esc(s)+'</span></li>';}).join("")+'</ul></div>'
+    + '<div><p class="subhead">주의할 점</p><ul class="plain-list">'+result.cautions.map(function(s){return '<li><span class="warn">!</span><span>'+esc(s)+'</span></li>';}).join("")+'</ul></div>'
+    + '</div>'
+    + '<div style="margin-top:16px;"><p class="subhead">적합한 학습 방향</p><ul class="plain-list">'+result.studyDirection.map(function(s){return '<li><span class="dot">·</span><span>'+esc(s)+'</span></li>';}).join("")+'</ul></div>'
+    + '<div class="risk-badge" style="margin-top:16px;">'+esc(result.riskAdvice)+'</div>'
+    + '<div class="disclaimer" style="margin-top:12px;">본 결과는 특정 종목 매수·매도를 권유하는 것이 아니라, 학습 방향을 제안하기 위한 교육용 참고자료입니다.</div>'
+    + '</div>';
+}
+function bindProfile(root){
+  root.querySelectorAll(".opt-btn").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var qi = parseInt(btn.getAttribute("data-q"),10);
+      var score = parseInt(btn.getAttribute("data-score"),10);
+      state.profileAnswers[qi] = score;
+      renderSection();
+    });
+  });
+}
+
+function renderLessons(){
+  var html = '<section class="view">'
+    + '<div><h2 class="section-title">주식 기초 학습 카드</h2><p class="section-desc">투자에 앞서 알아야 할 기본 개념을 카드로 살펴보세요. ('+lessonsOpenedCount()+' / '+LESSON_CARDS.length+' 열람)</p></div>'
+    + '<div class="grid grid-3">';
+  LESSON_CARDS.forEach(function(card){
+    var isOpen = !!state.lessonsOpened[card.id];
+    html += '<div class="card lesson-card">'
+      + '<p class="lesson-term">'+esc(card.term)+'</p>'
+      + '<p class="lesson-summary">'+esc(card.summary)+'</p>'
+      + '<p class="lesson-analogy">💡 '+esc(card.analogy)+'</p>'
+      + '<p class="lesson-caution">⚠ '+esc(card.caution)+'</p>'
+      + (isOpen ? '<div class="lesson-detail">'+esc(card.detail)+'</div>' : '')
+      + '<button class="btn-secondary lesson-toggle" data-id="'+card.id+'">'+(isOpen?"접기":"더 알아보기")+'</button>'
+      + '</div>';
+  });
+  html += '</div></section>';
+  return html;
+}
+function bindLessons(root){
+  root.querySelectorAll(".lesson-toggle").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var id = btn.getAttribute("data-id");
+      if (state.lessonsOpened[id]) delete state.lessonsOpened[id]; else state.lessonsOpened[id] = true;
+      renderSection();
+    });
+  });
+}
+
+function stockDetailAndChartHTML(stock){
+  var feedbackShown = !!state.chartFeedbackShown[stock.id];
+  return '<div class="detail-grid">'
+    + '<div class="card card-pad">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+    + '<h3 style="margin:0;font-size:20px;font-weight:800;color:var(--navy-900);">'+esc(stock.name)+'</h3>'
+    + '<span class="badge-type">'+esc(stock.type)+'</span></div>'
+    + '<p style="margin-top:8px;font-size:13.5px;line-height:1.7;color:var(--slate-600);">'+esc(stock.description)+'</p>'
+    + '<div class="stat-row">'
+    + statBox("현재가", stock.price.toLocaleString()+"원")
+    + statBox("PER", stock.per)
+    + statBox("PBR", stock.pbr)
+    + statBox("ROE", stock.roe+"%")
+    + statBox("배당수익률", stock.dividendYield+"%")
+    + statBox("변동성", stock.volatility)
+    + '</div>'
+    + section("장점", stock.pros, "tick", "✓")
+    + section("위험요인", stock.risks, "warn", "!")
+    + section("공부할 포인트", stock.studyPoints, "dot", "·")
+    + '<div class="interp-box"><p class="subhead">관련 재무지표 해석</p>'+esc(stock.indicatorInterpretation)+'</div>'
+    + section("초보자가 조심해야 할 오해", stock.misconceptions, "warn", "!")
+    + '</div>'
+    + '<div class="card card-pad">'
+    + '<div class="chart-head"><p style="margin:0;font-size:13.5px;font-weight:700;color:var(--navy-800);">'+esc(stock.name)+' · 12개월 가상 주가 흐름 ('+esc(stock.chartPattern)+')</p>'
+    + '<span class="fake-data-badge">가상 데이터</span></div>'
+    + buildLineChartSVG(stock.priceHistory)
+    + '<div class="chart-question-box">'
+    + '<p style="margin:0;font-size:14px;font-weight:600;color:var(--navy-800);">이 차트만 보고 투자 판단을 해도 될까요?</p>'
+    + '<button class="btn-secondary" style="margin-top:12px;" data-chart-feedback="'+stock.id+'">답 확인하기</button>'
+    + (feedbackShown ? '<p class="chart-feedback">차트는 참고 자료일 뿐입니다. 기업의 실적, 재무상태, 산업 전망, 리스크, 투자 기간을 함께 검토해야 합니다.</p>' : '')
+    + '</div></div>'
+    + '</div>';
+}
+function statBox(label, value){
+  return '<div class="stat-box"><p class="stat-label">'+esc(label)+'</p><p class="stat-value">'+esc(value)+'</p></div>';
+}
+function section(title, items, cls, icon){
+  return '<div style="margin-top:16px;"><p class="subhead">'+esc(title)+'</p><ul class="plain-list">'
+    + items.map(function(i){ return '<li><span class="'+cls+'">'+icon+'</span><span>'+esc(i)+'</span></li>'; }).join("")
+    + '</ul></div>';
+}
+
+function renderMarket(){
+  var selected = VIRTUAL_STOCKS.find(function(s){ return s.id === state.selectedStockId; }) || VIRTUAL_STOCKS[0];
+  var html = '<section class="view">'
+    + '<div><h2 class="section-title">가상 종목 학습 · 주가 차트</h2><p class="section-desc">실제 기업이 아닌 가상 종목 5개로 재무지표 해석과 차트 읽는 법을 연습해보세요.</p></div>'
+    + '<div class="grid grid-5">'
+    + VIRTUAL_STOCKS.map(function(s){
+        var active = s.id === state.selectedStockId;
+        return '<button class="stock-pick-card'+(active?' active':'')+'" data-stock="'+s.id+'">'
+          + '<p class="stock-pick-name">'+esc(s.name)+'</p><p class="stock-pick-type">'+esc(s.type)+'</p>'
+          + '<p class="stock-pick-price">'+s.price.toLocaleString()+'원</p><p class="stock-pick-vol">변동성 '+esc(s.volatility)+'</p>'
+          + '</button>';
+      }).join("")
+    + '</div>'
+    + '<div id="stock-detail-wrap">' + stockDetailAndChartHTML(selected) + '</div>'
+    + '</section>';
+  return html;
+}
+function bindMarket(root){
+  root.querySelectorAll("[data-stock]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      state.selectedStockId = btn.getAttribute("data-stock");
+      renderSection();
+    });
+  });
+  bindChartFeedback(root);
+}
+function bindChartFeedback(root){
+  root.querySelectorAll("[data-chart-feedback]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      state.chartFeedbackShown[btn.getAttribute("data-chart-feedback")] = true;
+      renderSection();
+    });
+  });
+}
+
+function renderPortfolio(){
+  var pm = calculatePortfolioMetrics(state.allocation);
+  var html = '<section class="view">'
+    + '<div><h2 class="section-title">모의 포트폴리오 시뮬레이터</h2><p class="section-desc">가상 투자금 1,000만 원을 자산별로 배분하고, 리스크와 분산투자 효과를 학습해보세요.</p></div>'
+    + '<div class="card card-pad" id="alloc-panel">';
+  ASSET_KEYS.forEach(function(key){
+    html += '<div class="alloc-row">'
+      + '<div class="alloc-head"><span class="alloc-name">'+ASSET_LABELS[key]+'</span>'
+      + '<span class="alloc-value" id="alloc-label-'+key+'">'+state.allocation[key]+'% <span class="alloc-won">('+(state.allocation[key]*100000).toLocaleString()+'원)</span></span></div>'
+      + '<div class="alloc-controls">'
+      + '<input type="range" min="0" max="100" value="'+state.allocation[key]+'" id="range-'+key+'" data-asset="'+key+'">'
+      + '<input type="number" min="0" max="100" value="'+state.allocation[key]+'" id="number-'+key+'" data-asset="'+key+'">'
+      + '</div></div>';
+  });
+  html += '<div class="valid-banner '+(pm.isValid?"ok":"bad")+'" id="valid-banner">현재 배분 합계: <span id="total-percent">'+pm.totalPercent+'</span>% · <span id="valid-msg">'+(pm.isValid?"100%를 정확히 채웠습니다.":"비율 합계가 100%가 되어야 합니다.")+'</span></div>'
+    + '</div>';
+
+  var metricRows = [
+    ["예상 위험도","riskScore",pm.riskScore,pm.riskLevel],
+    ["안정성","stability",pm.stability,""],
+    ["성장 가능성","growthPotential",pm.growthPotential,""],
+    ["현금 대응력","cashResilience",pm.cashResilience,""],
+    ["배당 기대 수준","dividendExpectation",pm.dividendExpectation,""],
+    ["분산투자 점수","diversificationScore",pm.diversificationScore,""]
+  ];
+  html += '<div class="grid grid-3" id="metric-grid">'
+    + metricRows.map(function(m){
+        return '<div class="card metric-card">'
+        + '<p class="metric-label">'+m[0]+'</p>'
+        + '<p class="metric-value" id="metric-'+m[1]+'">'+m[2]+'<span>/100</span></p>'
+        + (m[3] ? '<p class="metric-extra" id="metric-extra-'+m[1]+'">'+m[3]+'</p>' : '<p class="metric-extra" id="metric-extra-'+m[1]+'" style="visibility:hidden;">-</p>')
+        + '<div class="metric-bar-track"><div class="metric-bar-fill" id="metric-bar-'+m[1]+'" style="width:'+Math.min(100,m[2])+'%;"></div></div>'
+        + '</div>';
+      }).join("")
+    + '</div>';
+
+  html += '<div class="card card-pad"><p class="subhead">학습용 피드백</p><div id="portfolio-feedback">'
+    + getPortfolioFeedback(state.allocation, pm).map(function(m){ return '<p class="feedback-line">💬 '+esc(m)+'</p>'; }).join("")
+    + '</div></div>';
+
+  html += '<div class="disclaimer">이 시뮬레이터의 배분과 결과는 실제 투자 성과를 예측하지 않으며, 학습 목적의 가상 계산입니다.</div>';
+  html += '</section>';
+  return html;
+}
+function bindPortfolio(root){
+  ASSET_KEYS.forEach(function(key){
+    var range = root.querySelector("#range-"+key);
+    var number = root.querySelector("#number-"+key);
+    function onChange(v){
+      var clamped = Math.max(0, Math.min(100, Math.round(v) || 0));
+      state.allocation[key] = clamped;
+      state.portfolioTouched = true;
+      range.value = clamped;
+      number.value = clamped;
+      updatePortfolioUI(root);
+    }
+    range.addEventListener("input", function(){ onChange(Number(range.value)); });
+    number.addEventListener("input", function(){ onChange(Number(number.value)); });
+  });
+}
+function updatePortfolioUI(root){
+  var pm = calculatePortfolioMetrics(state.allocation);
+  ASSET_KEYS.forEach(function(key){
+    var label = root.querySelector("#alloc-label-"+key);
+    label.innerHTML = state.allocation[key]+'% <span class="alloc-won">('+(state.allocation[key]*100000).toLocaleString()+'원)</span>';
+  });
+  root.querySelector("#total-percent").textContent = pm.totalPercent;
+  root.querySelector("#valid-msg").textContent = pm.isValid ? "100%를 정확히 채웠습니다." : "비율 합계가 100%가 되어야 합니다.";
+  var banner = root.querySelector("#valid-banner");
+  banner.className = "valid-banner " + (pm.isValid ? "ok" : "bad");
+
+  var metricMap = { riskScore:[pm.riskScore,pm.riskLevel], stability:[pm.stability,""], growthPotential:[pm.growthPotential,""],
+    cashResilience:[pm.cashResilience,""], dividendExpectation:[pm.dividendExpectation,""], diversificationScore:[pm.diversificationScore,""] };
+  Object.keys(metricMap).forEach(function(k){
+    var val = metricMap[k][0], extra = metricMap[k][1];
+    root.querySelector("#metric-"+k).innerHTML = val+"<span>/100</span>";
+    root.querySelector("#metric-bar-"+k).style.width = Math.min(100,val)+"%";
+    var extraEl = root.querySelector("#metric-extra-"+k);
+    if (extra){ extraEl.style.visibility="visible"; extraEl.textContent = extra; } else { extraEl.style.visibility="hidden"; }
+  });
+  root.querySelector("#portfolio-feedback").innerHTML = getPortfolioFeedback(state.allocation, pm).map(function(m){ return '<p class="feedback-line">💬 '+esc(m)+'</p>'; }).join("");
+}
+
+function renderChecklist(){
+  var score = checklistScore(), tier = getChecklistTier(score);
+  var html = '<section class="view">'
+    + '<div><h2 class="section-title">투자 판단 체크리스트</h2><p class="section-desc">투자를 결정하기 전에 스스로 점검해볼 항목들입니다.</p></div>'
+    + '<div class="card card-pad">'
+    + CHECKLIST_ITEMS.map(function(item, i){
+        return '<label class="check-item"><input type="checkbox" data-idx="'+i+'" '+(state.checklistChecked[i]?"checked":"")+'><span>'+esc(item)+'</span></label>';
+      }).join("")
+    + '</div>'
+    + '<div class="card card-pad" id="checklist-result">' + checklistResultHTML(score, tier) + '</div>'
+    + '</section>';
+  return html;
+}
+function checklistResultHTML(score, tier){
+  return '<div class="score-row"><span class="label">체크 결과</span><span class="value" id="checklist-score-value">'+score+' / 10</span></div>'
+    + '<div class="score-bar-track"><div class="score-bar-fill" id="checklist-bar" style="width:'+(score/10*100)+'%;"></div></div>'
+    + '<p class="tier-feedback" id="checklist-tier">['+tier+'] '+getChecklistFeedback(tier)+'</p>';
+}
+function bindChecklist(root){
+  root.querySelectorAll("[data-idx]").forEach(function(cb){
+    cb.addEventListener("change", function(){
+      var idx = parseInt(cb.getAttribute("data-idx"),10);
+      state.checklistChecked[idx] = cb.checked;
+      var score = checklistScore(), tier = getChecklistTier(score);
+      root.querySelector("#checklist-result").innerHTML = checklistResultHTML(score, tier);
+    });
+  });
+}
+
+function quizOptionClass(qIndex, optIndex){
+  var selected = state.quizAnswers[qIndex];
+  var answered = selected !== null;
+  var isCorrect = optIndex === QUIZ_QUESTIONS[qIndex].answerIndex;
+  var isSelected = selected === optIndex;
+  if (!answered) return "opt-btn";
+  if (isSelected && isCorrect) return "opt-btn correct";
+  if (isSelected && !isCorrect) return "opt-btn wrong";
+  if (isCorrect) return "opt-btn correct-muted";
+  return "opt-btn";
+}
+function renderQuiz(){
+  var html = '<section class="view">'
+    + '<div><h2 class="section-title">초보자 주식 퀴즈</h2><p class="section-desc">7개의 객관식 문제로 오늘 배운 개념을 점검해보세요.</p></div>'
+    + '<div id="quiz-list">';
+  QUIZ_QUESTIONS.forEach(function(q, qi){ html += quizQuestionHTML(qi); });
+  html += '</div>';
+  html += '<div id="quiz-summary">' + quizSummaryHTML() + '</div>';
+  html += '</section>';
+  return html;
+}
+function quizQuestionHTML(qi){
+  var q = QUIZ_QUESTIONS[qi];
+  var answered = state.quizAnswers[qi] !== null;
+  var html = '<div class="card quiz-card" id="quiz-q-'+qi+'">'
+    + '<p class="quiz-topic">'+esc(q.topic)+'</p><p class="quiz-question">'+(qi+1)+'. '+esc(q.question)+'</p>'
+    + '<div class="opt-grid" style="margin-top:12px;">'
+    + q.options.map(function(opt, oi){
+        return '<button class="'+quizOptionClass(qi,oi)+'" data-qi="'+qi+'" data-oi="'+oi+'" '+(answered?"disabled":"")+'>'+esc(opt)+'</button>';
+      }).join("")
+    + '</div>';
+  if (answered){
+    html += '<div class="quiz-explain">'+(state.quizAnswers[qi]===q.answerIndex?"✅ 정답입니다. ":"❌ 오답입니다. ")+esc(q.explanation)+'</div>';
+  }
+  html += '</div>';
+  return html;
+}
+function quizSummaryHTML(){
+  if (!quizCompletedFn()) return "";
+  var score = quizScoreFn(), tier = getQuizTier(score);
+  return '<div class="card card-pad"><p class="subhead">퀴즈 결과</p><p class="quiz-summary-score">'+score+' / '+QUIZ_QUESTIONS.length+'</p>'
+    + '<p class="tier-feedback">['+tier+'] '+getQuizFeedback(tier)+'</p></div>';
+}
+function bindQuiz(root){
+  root.querySelectorAll("[data-qi]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var qi = parseInt(btn.getAttribute("data-qi"),10);
+      var oi = parseInt(btn.getAttribute("data-oi"),10);
+      if (state.quizAnswers[qi] !== null) return;
+      state.quizAnswers[qi] = oi;
+      document.getElementById("quiz-q-"+qi).outerHTML = quizQuestionHTML(qi);
+      bindQuizQuestion(root, qi);
+      document.getElementById("quiz-summary").innerHTML = quizSummaryHTML();
+    });
+  });
+}
+function bindQuizQuestion(root, qi){
+  var block = document.getElementById("quiz-q-"+qi);
+  block.querySelectorAll("[data-qi]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var q2 = parseInt(btn.getAttribute("data-qi"),10);
+      var oi = parseInt(btn.getAttribute("data-oi"),10);
+      if (state.quizAnswers[q2] !== null) return;
+      state.quizAnswers[q2] = oi;
+      document.getElementById("quiz-q-"+q2).outerHTML = quizQuestionHTML(q2);
+      bindQuizQuestion(root, q2);
+      document.getElementById("quiz-summary").innerHTML = quizSummaryHTML();
+    });
+  });
+}
+
+function renderCoach(){
+  var html = '<section class="view">'
+    + '<div><h2 class="section-title">AI 주식 학습 코치</h2><p class="section-desc">궁금한 주식 개념을 질문하면 키워드 기반 규칙으로 학습 설명을 제공합니다. (외부 AI API 미연결)</p></div>'
+    + '<div class="card card-pad">'
+    + '<form id="coach-form" class="coach-form"><input type="text" id="coach-input" placeholder="예: PER이 뭐예요?"><button type="submit" class="btn-primary">질문하기</button></form>'
+    + '<div class="example-chips">' + EXAMPLE_QUESTIONS.map(function(q){ return '<button class="example-chip" data-example="'+esc(q)+'">'+esc(q)+'</button>'; }).join("") + '</div>'
+    + '</div>'
+    + '<div id="coach-history">' + coachHistoryHTML() + '</div>'
+    + '</section>';
+  return html;
+}
+function coachHistoryHTML(){
+  if (state.coachHistory.length === 0) return '<p class="empty-hint">질문을 입력하거나 예시 질문을 눌러보세요.</p>';
+  var arr = state.coachHistory.slice().reverse();
+  return arr.map(function(e){
+    return '<div class="card coach-entry"><p class="coach-q">Q. '+esc(e.question)+'</p><p class="coach-a">'+esc(e.answer)+'</p></div>';
+  }).join("");
+}
+function bindCoach(root){
+  function ask(q){
+    var trimmed = q.trim();
+    if (!trimmed) return;
+    var answer = getAiCoachAnswer(trimmed);
+    state.coachHistory.push({ question:trimmed, answer:answer });
+    document.getElementById("coach-history").innerHTML = coachHistoryHTML();
+    document.getElementById("coach-input").value = "";
+  }
+  root.querySelector("#coach-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    ask(document.getElementById("coach-input").value);
+  });
+  root.querySelectorAll("[data-example]").forEach(function(btn){
+    btn.addEventListener("click", function(){ ask(btn.getAttribute("data-example")); });
+  });
+}
+
+function buildReportText(){
+  var lines = [];
+  lines.push("====== AI 주식 투자 학습 코치 · 월간 학습 리포트 ======");
+  lines.push("");
+  lines.push("[투자 성향 요약]");
+  if (profileCompleted()){
+    var result = getInvestorProfileResult(currentInvestorType());
+    lines.push("유형: " + currentInvestorType());
+    lines.push(result.summary);
+  } else {
+    lines.push("아직 투자 성향 진단을 완료하지 않았습니다.");
+  }
+  lines.push("");
+  lines.push("[현재 모의 포트폴리오 특징]");
+  var pm = calculatePortfolioMetrics(state.allocation);
+  if (state.portfolioTouched){
+    var allocText = ASSET_KEYS.map(function(k){ return ASSET_LABELS[k]+" "+state.allocation[k]+"%"; }).join(", ");
+    lines.push("배분: " + allocText);
+    lines.push("위험도 " + pm.riskLevel + "(" + pm.riskScore + "/100), 분산투자 점수 " + pm.diversificationScore + "/100");
+  } else {
+    lines.push("아직 모의 포트폴리오를 구성하지 않았습니다.");
+  }
+  lines.push("");
+  lines.push("[강점]");
+  if (profileCompleted()){
+    getInvestorProfileResult(currentInvestorType()).strengths.forEach(function(s){ lines.push("- " + s); });
+  } else {
+    lines.push("- 진단 완료 후 확인 가능합니다.");
+  }
+  lines.push("");
+  lines.push("[주의할 점]");
+  if (profileCompleted()){
+    getInvestorProfileResult(currentInvestorType()).cautions.forEach(function(c){ lines.push("- " + c); });
+  }
+  if (state.portfolioTouched && pm.concentratedAsset){
+    lines.push("- 특정 자산에 60% 이상 집중되어 있어 리스크가 커질 수 있습니다.");
+  }
+  lines.push("- 체크리스트 " + checklistScore() + "/10 (" + getChecklistTier(checklistScore()) + "), 퀴즈 " + (quizCompletedFn() ? (quizScoreFn()+"/7 ("+getQuizTier(quizScoreFn())+")") : "미응시"));
+  lines.push("");
+  lines.push("[더 공부해야 할 개념]");
+  if (profileCompleted()){
+    getInvestorProfileResult(currentInvestorType()).studyDirection.forEach(function(s){ lines.push("- " + s); });
+  } else {
+    lines.push("- PER, PBR, ROE, 분산투자, 리스크 관리 기본 개념");
+  }
+  lines.push("");
+  lines.push("[다음 학습 과제 3가지]");
+  lines.push("1. 가상 종목 5개의 재무지표를 비교하고 차이를 설명해보기");
+  lines.push("2. 포트폴리오 배분을 바꿔가며 위험도와 분산투자 점수 변화 관찰하기");
+  lines.push("3. 초보자 퀴즈를 다시 풀어 취약한 개념 점검하기");
+  lines.push("");
+  lines.push("[교육용 안내]");
+  lines.push("본 리포트는 투자 권유가 아니라 학습 진행 상황을 정리한 교육용 시뮬레이션 결과입니다. 실제 투자 판단은 본인의 책임으로 충분히 검토해야 합니다.");
+  return lines.join("\n");
+}
+function renderReport(){
+  return '<section class="view">'
+    + '<div><h2 class="section-title">월간 학습 리포트</h2><p class="section-desc">진단 결과, 포트폴리오 구성, 체크리스트, 퀴즈 점수를 바탕으로 학습 리포트를 자동 생성합니다.</p></div>'
+    + '<div class="card card-pad">'
+    + '<div class="report-head"><p class="report-title">리포트 (복사 가능)</p><button class="btn-secondary" id="copy-report-btn">텍스트 복사하기</button></div>'
+    + '<textarea id="report-textarea" readonly>'+esc(buildReportText())+'</textarea>'
+    + '</div>'
+    + '<div class="disclaimer">본 프로그램은 투자 권유가 아니라 교육용 시뮬레이션입니다. 리포트에 포함된 모든 데이터는 브라우저 내에서만 계산되며 저장되지 않습니다.</div>'
+    + '</section>';
+}
+function bindReport(root){
+  var btn = root.querySelector("#copy-report-btn");
+  btn.addEventListener("click", function(){
+    var ta = document.getElementById("report-textarea");
+    var text = ta.value;
+    function done(ok){ btn.textContent = ok ? "복사됨 ✓" : "복사 실패"; setTimeout(function(){ btn.textContent = "텍스트 복사하기"; }, 2000); }
+    if (navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(text).then(function(){ done(true); }).catch(function(){ fallbackCopy(ta, done); });
+    } else {
+      fallbackCopy(ta, done);
+    }
+  });
+}
+function fallbackCopy(ta, done){
+  try {
+    ta.removeAttribute("readonly");
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    var ok = document.execCommand("copy");
+    ta.setAttribute("readonly","");
+    done(ok);
+  } catch (e){ done(false); }
+}
+
+/* ===================== 7. NAV / APP SHELL ===================== */
+
+var NAV_ITEMS = [
+  { id:"dashboard", label:"대시보드" },
+  { id:"profile", label:"투자 성향 진단" },
+  { id:"lessons", label:"기초 학습 카드" },
+  { id:"market", label:"가상 종목 · 차트" },
+  { id:"portfolio", label:"포트폴리오 시뮬레이터" },
+  { id:"checklist", label:"투자 체크리스트" },
+  { id:"quiz", label:"초보자 퀴즈" },
+  { id:"coach", label:"AI 학습 코치" },
+  { id:"report", label:"월간 리포트" }
+];
+
+function renderShell(){
+  var root = document.getElementById("root");
+  root.innerHTML =
+    '<header class="app-header"><div class="container">'
+    + '<div class="header-top"><div class="logo-box"><svg width="18" height="18" viewBox="0 0 32 32" fill="none">'
+    + '<path d="M6 21L12 14L17 18L26 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'
+    + '<path d="M20 8H26V14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
+    + '<div><p class="brand-title">AI 주식 투자 학습 코치</p><p class="brand-sub">교육용 모의투자 시뮬레이션</p></div></div>'
+    + '<nav class="app-nav" id="app-nav">' + NAV_ITEMS.map(function(it){ return '<button data-nav="'+it.id+'">'+it.label+'</button>'; }).join("") + '</nav>'
+    + '</div><div class="disclaimer-bar">⚠ '+EDU_DISCLAIMER+' 모든 종목·가격·수익률은 가상 데이터입니다.</div></header>'
+    + '<main id="main-content"></main>'
+    + '<footer class="app-footer">' + teacherPointsHTML() + '</footer>';
+
+  document.querySelectorAll("#app-nav [data-nav]").forEach(function(btn){
+    btn.addEventListener("click", function(){ navigate(btn.getAttribute("data-nav")); });
+  });
+}
+
+function updateNavActive(){
+  document.querySelectorAll("#app-nav [data-nav]").forEach(function(btn){
+    btn.classList.toggle("active", btn.getAttribute("data-nav") === state.section);
+  });
+}
+
+function renderSection(){
+  var main = document.getElementById("main-content");
+  var section = state.section;
+  if (section === "dashboard"){ main.innerHTML = renderDashboard(); bindDashboard(main); }
+  else if (section === "profile"){ main.innerHTML = renderProfile(); bindProfile(main); }
+  else if (section === "lessons"){ main.innerHTML = renderLessons(); bindLessons(main); }
+  else if (section === "market"){ main.innerHTML = renderMarket(); bindMarket(main); }
+  else if (section === "portfolio"){ main.innerHTML = renderPortfolio(); bindPortfolio(main); }
+  else if (section === "checklist"){ main.innerHTML = renderChecklist(); bindChecklist(main); }
+  else if (section === "quiz"){ main.innerHTML = renderQuiz(); bindQuiz(main); }
+  else if (section === "coach"){ main.innerHTML = renderCoach(); bindCoach(main); }
+  else if (section === "report"){ main.innerHTML = renderReport(); bindReport(main); }
+  updateNavActive();
+}
+
+function navigate(section){
+  state.section = section;
+  renderSection();
+  window.scrollTo(0,0);
+}
+
+renderShell();
+navigate("dashboard");
+
+</script>
+</body>
+</html>
