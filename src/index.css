@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-slate-50 text-navy-900 antialiased;
+}
+
+.card {
+  @apply rounded-card bg-white shadow-card border border-slate-100;
+}
+
+.disclaimer {
+  @apply rounded-lg border border-mint-200 bg-mint-50 px-4 py-2.5 text-sm text-mint-800;
+}
+
+.risk-badge {
+  @apply rounded-lg border border-orange-200 bg-orange-50 px-4 py-2.5 text-sm text-orange-700;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-lg bg-navy-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-navy-600 disabled:cursor-not-allowed disabled:opacity-40;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-lg border border-navy-200 bg-white px-4 py-2 text-sm font-semibold text-navy-700 transition hover:bg-navy-50;
+}
+
+.section-title {
+  @apply text-xl font-bold text-navy-900 sm:text-2xl;
+}
