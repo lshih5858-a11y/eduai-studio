@@ -165,9 +165,15 @@ export function AssignmentFeedback() {
               tabs={selected.answers.map((a) => ({ key: a.id, label: a.studentLabel }))}
               active={activeStudentId ?? ''}
               onChange={setActiveStudentId}
+              idPrefix="feedback-student"
             />
             {activeAnswer && (
-              <div className="rounded-2xl border border-brand-100 bg-white p-6 sm:p-8">
+              <div
+                className="rounded-2xl border border-brand-100 bg-white p-6 sm:p-8"
+                role="tabpanel"
+                id={`feedback-student-panel-${activeAnswer.id}`}
+                aria-labelledby={`feedback-student-tab-${activeAnswer.id}`}
+              >
                 <p className="mb-5 text-sm text-brand-400">(가상 예시 답안 — 실제 학생 정보 아님)</p>
                 <div className="space-y-5">
                   <TextareaField

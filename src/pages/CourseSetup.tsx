@@ -52,9 +52,14 @@ export function CourseSetup() {
       />
 
       <form onSubmit={handleSubmit}>
-        <Tabs tabs={tabs} active={activeTab} onChange={setActiveTab} />
+        <Tabs tabs={tabs} active={activeTab} onChange={setActiveTab} idPrefix="course-setup" />
 
-        <div className="rounded-2xl border border-brand-100 bg-white p-6 sm:p-8">
+        <div
+          className="rounded-2xl border border-brand-100 bg-white p-6 sm:p-8"
+          role="tabpanel"
+          id={`course-setup-panel-${activeTab}`}
+          aria-labelledby={`course-setup-tab-${activeTab}`}
+        >
           {activeTab === 'basic' && (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <TextField
