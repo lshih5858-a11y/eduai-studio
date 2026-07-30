@@ -91,30 +91,36 @@ export function WeeklyPlan() {
         title="16주 수업설계"
         description="주차별 주제, 학습 목표, 교수·학생 활동, AI 활용 방법을 설계하세요."
         actions={
-          <>
-            <Button onClick={handleGenerate}>
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
-              16주 자동 예시 생성
-            </Button>
-            <Button onClick={handleCopy} disabled={plan.length === 0}>
+          <Button onClick={handleGenerate}>
+            <Sparkles className="h-4 w-4" aria-hidden="true" />
+            16주 자동 예시 생성
+          </Button>
+        }
+      />
+
+      {/* 보조 동작 모음: 저장 이후에 활용하는 내보내기·초기화 기능이라 한 단계 가볍게 배치 */}
+      {plan.length > 0 && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-2 border-b border-brand-100 pb-4">
+          <div className="flex flex-wrap gap-2">
+            <Button variant="ghost" onClick={handleCopy}>
               <Copy className="h-4 w-4" aria-hidden="true" />
               복사
             </Button>
-            <Button onClick={handleDownload} disabled={plan.length === 0}>
+            <Button variant="ghost" onClick={handleDownload}>
               <Download className="h-4 w-4" aria-hidden="true" />
               파일로 저장
             </Button>
-            <Button onClick={handlePrint} disabled={plan.length === 0}>
+            <Button variant="ghost" onClick={handlePrint}>
               <Printer className="h-4 w-4" aria-hidden="true" />
               인쇄
             </Button>
-            <Button variant="danger" onClick={() => setConfirmAction('reset')} disabled={plan.length === 0}>
-              <RotateCcw className="h-4 w-4" aria-hidden="true" />
-              전체 초기화
-            </Button>
-          </>
-        }
-      />
+          </div>
+          <Button variant="danger" onClick={() => setConfirmAction('reset')}>
+            <RotateCcw className="h-4 w-4" aria-hidden="true" />
+            전체 초기화
+          </Button>
+        </div>
+      )}
 
       {plan.length === 0 ? (
         <EmptyState
