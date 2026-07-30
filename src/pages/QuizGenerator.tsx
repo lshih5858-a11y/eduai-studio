@@ -54,7 +54,7 @@ export function QuizGenerator() {
   const createSet = () => {
     const newSet: QuizSet = {
       id: generateId('set'),
-      title: `새 퀴즈 세트 ${sets.length + 1}`,
+      title: `새 퀴즈 ${sets.length + 1}`,
       createdAt: new Date().toISOString(),
       items: [],
     }
@@ -115,16 +115,12 @@ export function QuizGenerator() {
     <div>
       <PageHeader
         title="퀴즈 생성기"
-        description="OX, 객관식, 단답형, 사례형 문항을 난이도별로 생성하고 직접 다듬어 저장하세요."
+        description="유형과 난이도를 고르면 빈 문항이 만들어집니다. 문항마다 문제·정답·해설을 직접 채워 넣으세요."
         actions={
           <>
             <Button onClick={createSet}>
               <Plus className="h-4 w-4" aria-hidden="true" />
-              새 퀴즈 세트
-            </Button>
-            <Button onClick={handleCopy} disabled={!selectedSet || selectedSet.items.length === 0}>
-              <Copy className="h-4 w-4" aria-hidden="true" />
-              복사
+              새 퀴즈 만들기
             </Button>
             <Button variant="primary" onClick={handleSave}>
               <Save className="h-4 w-4" aria-hidden="true" />
@@ -135,13 +131,13 @@ export function QuizGenerator() {
       />
 
       {sets.length > 0 && (
-        <div className="mb-5 flex flex-wrap gap-2">
+        <div className="mb-6 flex flex-wrap gap-2">
           {sets.map((s) => (
             <button
               key={s.id}
               type="button"
               onClick={() => setSelectedSetId(s.id)}
-              className={`rounded-full px-3.5 py-1.5 text-xs font-medium ${
+              className={`rounded-full px-4 py-2 text-sm font-medium ${
                 s.id === selectedSetId ? 'bg-brand-700 text-white' : 'bg-brand-100 text-brand-700 hover:bg-brand-200'
               }`}
             >
@@ -153,34 +149,31 @@ export function QuizGenerator() {
 
       {!selectedSet ? (
         <EmptyState
-          title="선택된 퀴즈 세트가 없습니다"
-          description="'새 퀴즈 세트' 버튼을 눌러 퀴즈 세트를 만들어보세요."
+          title="아직 만든 퀴즈가 없습니다"
+          description="'새 퀴즈 만들기' 버튼을 눌러 시작해보세요."
           action={
             <Button variant="primary" onClick={createSet}>
               <Plus className="h-4 w-4" aria-hidden="true" />
-              새 퀴즈 세트 만들기
+              새 퀴즈 만들기
             </Button>
           }
         />
       ) : (
-        <div className="space-y-6">
-          <div className="rounded-2xl border border-brand-100 bg-white p-5">
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div className="flex-1">
-                <TextField
-                  label="퀴즈 세트 제목"
-                  htmlFor="set-title"
-                  value={selectedSet.title}
-                  onChange={(e) => updateSetTitle(e.target.value)}
-                />
-              </div>
-              <Button variant="danger" onClick={() => setConfirmDeleteSet(selectedSet.id)}>
-                <Trash2 className="h-4 w-4" aria-hidden="true" />
-                세트 삭제
-              </Button>
+        <div className="space-y-8">
+          {/* 입력 영역: 문항을 만드는 조건을 설정하는 곳 */}
+          <section className="rounded-2xl border border-brand-200 bg-brand-50/60 p-6 sm:p-8">
+            <h2 className="mb-5 text-lg font-semibold text-brand-900">1단계 · 문항 만들기</h2>
+
+            <div className="mb-6">
+              <TextField
+                label="퀴즈 제목"
+                htmlFor="set-title"
+                value={selectedSet.title}
+                onChange={(e) => updateSetTitle(e.target.value)}
+              />
             </div>
 
-            <div className="grid grid-cols-1 gap-3 border-t border-brand-100 pt-4 sm:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <SelectField
                 label="문항 유형"
                 htmlFor="new-type"
@@ -221,99 +214,119 @@ export function QuizGenerator() {
                 </Button>
               </div>
             </div>
-          </div>
 
-          {selectedSet.items.length === 0 ? (
-            <EmptyState title="아직 생성된 문항이 없습니다" description="위에서 유형과 난이도, 문항 수를 선택하고 '문항 생성'을 눌러보세요." />
-          ) : (
-            <div className="space-y-4">
-              {selectedSet.items.map((item, idx) => (
-                <div key={item.id} className="rounded-2xl border border-brand-100 bg-white p-4 sm:p-5">
-                  <div className="mb-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-brand-100 px-2.5 py-1 text-xs font-bold text-brand-700">
-                        문항 {idx + 1}
-                      </span>
-                      <span className="rounded-full bg-accent-100 px-2.5 py-1 text-xs font-medium text-accent-800">
-                        {item.type} · {item.difficulty}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeItem(item.id)}
-                      aria-label="문항 삭제"
-                      className="rounded-lg p-1.5 text-brand-400 hover:bg-red-50 hover:text-red-600"
-                    >
-                      <Trash2 className="h-4 w-4" aria-hidden="true" />
-                    </button>
-                  </div>
-
-                  <div className="space-y-3">
-                    <TextareaField
-                      label="문항 내용"
-                      htmlFor={`q-${item.id}`}
-                      rows={2}
-                      value={item.question}
-                      onChange={(e) => updateItem(item.id, { question: e.target.value })}
-                    />
-
-                    {item.type === '객관식' && item.options && (
-                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                        {item.options.map((opt, optIdx) => (
-                          <TextField
-                            key={optIdx}
-                            label={`보기 ${optIdx + 1}`}
-                            htmlFor={`opt-${item.id}-${optIdx}`}
-                            value={opt}
-                            onChange={(e) => {
-                              const options = [...(item.options ?? [])]
-                              options[optIdx] = e.target.value
-                              updateItem(item.id, { options })
-                            }}
-                          />
-                        ))}
-                      </div>
-                    )}
-
-                    {item.type === 'OX' ? (
-                      <SelectField
-                        label="정답"
-                        htmlFor={`a-${item.id}`}
-                        value={item.answer}
-                        onChange={(e) => updateItem(item.id, { answer: e.target.value })}
-                      >
-                        <option value="O">O</option>
-                        <option value="X">X</option>
-                      </SelectField>
-                    ) : (
-                      <TextareaField
-                        label="정답"
-                        htmlFor={`a-${item.id}`}
-                        rows={2}
-                        value={item.answer}
-                        onChange={(e) => updateItem(item.id, { answer: e.target.value })}
-                      />
-                    )}
-
-                    <TextareaField
-                      label="해설"
-                      htmlFor={`e-${item.id}`}
-                      rows={2}
-                      value={item.explanation}
-                      onChange={(e) => updateItem(item.id, { explanation: e.target.value })}
-                    />
-                  </div>
-                </div>
-              ))}
+            <div className="mt-6 flex justify-end border-t border-brand-200 pt-4">
+              <Button variant="danger" onClick={() => setConfirmDeleteSet(selectedSet.id)}>
+                <Trash2 className="h-4 w-4" aria-hidden="true" />
+                이 퀴즈 전체 삭제
+              </Button>
             </div>
-          )}
+          </section>
+
+          {/* 결과 영역: 만들어진 문항을 확인하고 다듬는 곳 */}
+          <section>
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold text-brand-900">
+                2단계 · 생성된 문항 ({selectedSet.items.length}개)
+              </h2>
+              <Button onClick={handleCopy} disabled={selectedSet.items.length === 0}>
+                <Copy className="h-4 w-4" aria-hidden="true" />
+                문항 전체 복사
+              </Button>
+            </div>
+
+            {selectedSet.items.length === 0 ? (
+              <EmptyState title="아직 생성된 문항이 없습니다" description="위 1단계에서 유형과 난이도, 문항 수를 선택하고 '문항 생성'을 눌러보세요." />
+            ) : (
+              <div className="space-y-5">
+                {selectedSet.items.map((item, idx) => (
+                  <div key={item.id} className="rounded-2xl border border-brand-100 bg-white p-5 sm:p-6">
+                    <div className="mb-4 flex items-center justify-between">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-brand-100 px-3 py-1 text-sm font-bold text-brand-700">
+                          문항 {idx + 1}
+                        </span>
+                        <span className="rounded-full bg-accent-100 px-3 py-1 text-sm font-medium text-accent-800">
+                          {item.type} · {item.difficulty}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item.id)}
+                        aria-label="문항 삭제"
+                        className="rounded-lg p-2 text-brand-400 hover:bg-red-50 hover:text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      <TextareaField
+                        label="문항 내용"
+                        htmlFor={`q-${item.id}`}
+                        rows={2}
+                        value={item.question}
+                        onChange={(e) => updateItem(item.id, { question: e.target.value })}
+                      />
+
+                      {item.type === '객관식' && item.options && (
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          {item.options.map((opt, optIdx) => (
+                            <TextField
+                              key={optIdx}
+                              label={`보기 ${optIdx + 1}`}
+                              htmlFor={`opt-${item.id}-${optIdx}`}
+                              value={opt}
+                              onChange={(e) => {
+                                const options = [...(item.options ?? [])]
+                                options[optIdx] = e.target.value
+                                updateItem(item.id, { options })
+                              }}
+                            />
+                          ))}
+                        </div>
+                      )}
+
+                      {item.type === 'OX' ? (
+                        <SelectField
+                          label="정답"
+                          htmlFor={`a-${item.id}`}
+                          value={item.answer}
+                          onChange={(e) => updateItem(item.id, { answer: e.target.value })}
+                        >
+                          <option value="O">O</option>
+                          <option value="X">X</option>
+                        </SelectField>
+                      ) : (
+                        <TextareaField
+                          label="정답"
+                          htmlFor={`a-${item.id}`}
+                          rows={2}
+                          value={item.answer}
+                          onChange={(e) => updateItem(item.id, { answer: e.target.value })}
+                        />
+                      )}
+
+                      <TextareaField
+                        label="해설"
+                        htmlFor={`e-${item.id}`}
+                        rows={2}
+                        value={item.explanation}
+                        onChange={(e) => updateItem(item.id, { explanation: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         </div>
       )}
 
       <ConfirmModal
         open={confirmDeleteSet !== null}
-        title="퀴즈 세트를 삭제할까요?"
-        description="세트 안의 모든 문항이 함께 삭제되며 되돌릴 수 없습니다."
+        title="이 퀴즈를 삭제할까요?"
+        description="안에 있는 모든 문항이 함께 삭제되며 되돌릴 수 없습니다."
         confirmLabel="삭제"
         onConfirm={() => confirmDeleteSet && deleteSet(confirmDeleteSet)}
         onCancel={() => setConfirmDeleteSet(null)}

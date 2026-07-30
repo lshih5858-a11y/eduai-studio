@@ -102,7 +102,7 @@ export function WeeklyPlan() {
             </Button>
             <Button onClick={handleDownload} disabled={plan.length === 0}>
               <Download className="h-4 w-4" aria-hidden="true" />
-              JSON 다운로드
+              파일로 저장
             </Button>
             <Button onClick={handlePrint} disabled={plan.length === 0}>
               <Printer className="h-4 w-4" aria-hidden="true" />
@@ -140,10 +140,10 @@ export function WeeklyPlan() {
                   className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left sm:px-5"
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <span className="shrink-0 rounded-lg bg-brand-100 px-2.5 py-1 text-xs font-bold text-brand-700">
+                    <span className="shrink-0 rounded-lg bg-brand-100 px-3 py-1 text-sm font-bold text-brand-700">
                       {week.week}주차
                     </span>
-                    <span className="truncate text-sm font-medium text-brand-950">{week.topic || '(주제 미입력)'}</span>
+                    <span className="truncate text-base font-medium text-brand-950">{week.topic || '(주제 미입력)'}</span>
                   </div>
                   <ChevronDown
                     className={`h-4 w-4 shrink-0 text-brand-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}

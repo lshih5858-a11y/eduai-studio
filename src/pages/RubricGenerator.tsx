@@ -100,7 +100,7 @@ export function RubricGenerator() {
     <div>
       <PageHeader
         title="루브릭 생성기"
-        description="평가 영역별 배점과 4단계 성취수준을 설계하면 총점이 자동으로 계산됩니다."
+        description="채점 기준표를 만듭니다. 평가 영역별 배점을 정하면 총점이 자동으로 더해집니다."
         actions={
           <>
             <Button onClick={createRubric}>
@@ -116,13 +116,13 @@ export function RubricGenerator() {
       />
 
       {rubrics.length > 0 && (
-        <div className="mb-5 flex flex-wrap gap-2">
+        <div className="mb-6 flex flex-wrap gap-2">
           {rubrics.map((r) => (
             <button
               key={r.id}
               type="button"
               onClick={() => setSelectedId(r.id)}
-              className={`rounded-full px-3.5 py-1.5 text-xs font-medium ${
+              className={`rounded-full px-4 py-2 text-sm font-medium ${
                 r.id === selectedId ? 'bg-brand-700 text-white' : 'bg-brand-100 text-brand-700 hover:bg-brand-200'
               }`}
             >
@@ -144,9 +144,11 @@ export function RubricGenerator() {
           }
         />
       ) : (
-        <div className="space-y-6">
-          <div className="rounded-2xl border border-brand-100 bg-white p-5">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="space-y-8">
+          {/* 입력 영역: 과제 기본 정보 */}
+          <section className="rounded-2xl border border-brand-200 bg-brand-50/60 p-6 sm:p-8">
+            <h2 className="mb-5 text-lg font-semibold text-brand-900">1단계 · 기본 정보</h2>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <TextField
                 label="과제명"
                 htmlFor="assignmentName"
@@ -156,107 +158,148 @@ export function RubricGenerator() {
               <TextField
                 label="평가 목적"
                 htmlFor="purpose"
+                placeholder="이 채점표로 무엇을 평가하는지 적어주세요"
                 value={selected.purpose}
                 onChange={(e) => patchRubric({ purpose: e.target.value })}
               />
             </div>
-            <div className="mt-4 flex items-center justify-between rounded-lg bg-brand-50 px-4 py-3">
-              <span className="text-sm font-medium text-brand-700">총점 (자동 계산)</span>
-              <span className="text-xl font-bold text-brand-800">{totalPoints}점</span>
-            </div>
-            <div className="mt-4 flex justify-end">
+            <div className="mt-6 flex justify-end border-t border-brand-200 pt-4">
               <Button variant="danger" onClick={() => setConfirmDelete(selected.id)}>
                 <Trash2 className="h-4 w-4" aria-hidden="true" />
-                루브릭 삭제
+                이 루브릭 전체 삭제
               </Button>
             </div>
-          </div>
+          </section>
 
-          <div className="space-y-4">
-            {selected.criteria.map((criterion, cIdx) => (
-              <div key={criterion.id} className="rounded-2xl border border-brand-100 bg-white p-4 sm:p-5">
-                <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                  <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-[1fr_140px]">
-                    <TextField
-                      label={`평가 영역 ${cIdx + 1} 이름`}
-                      htmlFor={`crit-name-${criterion.id}`}
-                      value={criterion.name}
-                      onChange={(e) => patchCriterion(criterion.id, { name: e.target.value })}
-                    />
-                    <TextField
-                      label="배점"
-                      htmlFor={`crit-points-${criterion.id}`}
-                      type="number"
-                      min={0}
-                      value={criterion.maxPoints}
-                      onChange={(e) => patchCriterion(criterion.id, { maxPoints: Number(e.target.value) || 0 })}
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeCriterion(criterion.id)}
-                    aria-label="평가 영역 삭제"
-                    className="rounded-lg p-2 text-brand-400 hover:bg-red-50 hover:text-red-600"
-                  >
-                    <Trash2 className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[640px] border-collapse text-sm">
-                    <thead>
-                      <tr className="bg-brand-50 text-left text-xs font-semibold text-brand-600">
-                        <th className="rounded-l-lg px-3 py-2">성취수준</th>
-                        <th className="px-3 py-2">설명</th>
-                        <th className="rounded-r-lg px-3 py-2 w-24">배점</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {criterion.levels.map((level, lIdx) => (
-                        <tr key={level.level} className="border-b border-brand-50 last:border-0">
-                          <td className="px-3 py-2 font-medium text-brand-800">{level.level}</td>
-                          <td className="px-3 py-2">
-                            <input
-                              className="w-full rounded-lg border border-brand-200 px-2.5 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                              value={level.description}
-                              onChange={(e) => patchLevel(criterion.id, lIdx, { description: e.target.value })}
-                              aria-label={`${criterion.name || '평가 영역'} - ${level.level} 설명`}
-                            />
-                          </td>
-                          <td className="px-3 py-2">
-                            <input
-                              type="number"
-                              className="w-full rounded-lg border border-brand-200 px-2.5 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                              value={level.points}
-                              onChange={(e) => patchLevel(criterion.id, lIdx, { points: Number(e.target.value) || 0 })}
-                              aria-label={`${criterion.name || '평가 영역'} - ${level.level} 배점`}
-                            />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+          {/* 결과 영역: 평가 영역과 배점표 */}
+          <section>
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold text-brand-900">2단계 · 평가 영역과 배점</h2>
+              <div className="flex items-center gap-2 rounded-full bg-brand-700 px-4 py-2 text-white">
+                <span className="text-sm font-medium">총점</span>
+                <span className="text-lg font-bold">{totalPoints}점</span>
               </div>
-            ))}
+            </div>
 
-            <Button onClick={addCriterion} className="w-full justify-center border-dashed">
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              평가 영역 추가
-            </Button>
-          </div>
+            <div className="space-y-5">
+              {selected.criteria.map((criterion, cIdx) => (
+                <div key={criterion.id} className="rounded-2xl border border-brand-100 bg-white p-5 sm:p-6">
+                  <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-[1fr_140px]">
+                      <TextField
+                        label={`평가 영역 ${cIdx + 1} 이름`}
+                        htmlFor={`crit-name-${criterion.id}`}
+                        placeholder="예: 내용의 정확성"
+                        value={criterion.name}
+                        onChange={(e) => patchCriterion(criterion.id, { name: e.target.value })}
+                      />
+                      <TextField
+                        label="배점"
+                        htmlFor={`crit-points-${criterion.id}`}
+                        type="number"
+                        min={0}
+                        value={criterion.maxPoints}
+                        onChange={(e) => patchCriterion(criterion.id, { maxPoints: Number(e.target.value) || 0 })}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeCriterion(criterion.id)}
+                      aria-label="평가 영역 삭제"
+                      className="rounded-lg p-2 text-brand-400 hover:bg-red-50 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </div>
 
-          {selected.criteria.length > 0 && (
-            <TextareaField
-              label="루브릭 전체 표 미리보기 (텍스트)"
-              htmlFor="rubric-preview"
-              rows={4}
-              readOnly
-              value={selected.criteria
-                .map((c) => `${c.name || '(영역명 없음)'} (${c.maxPoints}점): ${c.levels.map((l) => `${l.level} ${l.points}점`).join(' / ')}`)
-                .join('\n')}
-            />
-          )}
+                  {/* 데스크톱: 표 형태 */}
+                  <div className="hidden overflow-x-auto sm:block">
+                    <table className="w-full border-collapse text-base">
+                      <thead>
+                        <tr className="bg-brand-50 text-left text-sm font-semibold text-brand-600">
+                          <th className="rounded-l-lg px-3 py-2.5 w-28">성취수준</th>
+                          <th className="px-3 py-2.5">설명</th>
+                          <th className="rounded-r-lg px-3 py-2.5 w-28">배점</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {criterion.levels.map((level, lIdx) => (
+                          <tr key={level.level} className="border-b border-brand-50 last:border-0">
+                            <td className="px-3 py-2.5 font-medium text-brand-800">{level.level}</td>
+                            <td className="px-3 py-2.5">
+                              <input
+                                className="w-full rounded-lg border border-brand-200 px-3 py-2 text-base focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                value={level.description}
+                                onChange={(e) => patchLevel(criterion.id, lIdx, { description: e.target.value })}
+                                aria-label={`${criterion.name || '평가 영역'} - ${level.level} 설명`}
+                              />
+                            </td>
+                            <td className="px-3 py-2.5">
+                              <input
+                                type="number"
+                                className="w-full rounded-lg border border-brand-200 px-3 py-2 text-base focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                value={level.points}
+                                onChange={(e) => patchLevel(criterion.id, lIdx, { points: Number(e.target.value) || 0 })}
+                                aria-label={`${criterion.name || '평가 영역'} - ${level.level} 배점`}
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* 모바일: 표 대신 카드 형태로 전환 */}
+                  <div className="space-y-3 sm:hidden">
+                    {criterion.levels.map((level, lIdx) => (
+                      <div key={level.level} className="rounded-xl border border-brand-100 bg-brand-50/50 p-4">
+                        <p className="mb-2 text-base font-semibold text-brand-800">{level.level}</p>
+                        <label className="mb-1 block text-sm text-brand-600" htmlFor={`m-desc-${criterion.id}-${lIdx}`}>
+                          설명
+                        </label>
+                        <input
+                          id={`m-desc-${criterion.id}-${lIdx}`}
+                          className="mb-3 w-full rounded-lg border border-brand-200 bg-white px-3 py-2 text-base focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                          value={level.description}
+                          onChange={(e) => patchLevel(criterion.id, lIdx, { description: e.target.value })}
+                        />
+                        <label className="mb-1 block text-sm text-brand-600" htmlFor={`m-pts-${criterion.id}-${lIdx}`}>
+                          배점
+                        </label>
+                        <input
+                          id={`m-pts-${criterion.id}-${lIdx}`}
+                          type="number"
+                          className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2 text-base focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                          value={level.points}
+                          onChange={(e) => patchLevel(criterion.id, lIdx, { points: Number(e.target.value) || 0 })}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              <Button onClick={addCriterion} className="w-full justify-center border-dashed">
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                평가 영역 추가
+              </Button>
+            </div>
+
+            {selected.criteria.length > 0 && (
+              <div className="mt-6">
+                <TextareaField
+                  label="전체 내용 미리보기 (글로 정리된 형태)"
+                  htmlFor="rubric-preview"
+                  hint="인쇄물이나 문서에 붙여넣을 때 사용하세요."
+                  rows={4}
+                  readOnly
+                  value={selected.criteria
+                    .map((c) => `${c.name || '(영역명 없음)'} (${c.maxPoints}점): ${c.levels.map((l) => `${l.level} ${l.points}점`).join(' / ')}`)
+                    .join('\n')}
+                />
+              </div>
+            )}
+          </section>
         </div>
       )}
 

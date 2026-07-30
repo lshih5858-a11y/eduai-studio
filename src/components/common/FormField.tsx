@@ -11,18 +11,18 @@ interface FieldWrapperProps {
 function FieldWrapper({ label, htmlFor, required, hint, children }: FieldWrapperProps) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-brand-900">
+      <label htmlFor={htmlFor} className="mb-2 block text-base font-medium text-brand-900">
         {label}
         {required && <span className="ml-0.5 text-red-500">*</span>}
       </label>
       {children}
-      {hint && <p className="mt-1 text-xs text-brand-500">{hint}</p>}
+      {hint && <p className="mt-1.5 text-sm text-brand-500">{hint}</p>}
     </div>
   )
 }
 
 const baseInputClass =
-  'w-full rounded-lg border border-brand-200 bg-white px-3 py-2 text-sm text-brand-950 shadow-sm placeholder:text-brand-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
+  'w-full rounded-lg border border-brand-200 bg-white px-3.5 py-2.5 text-base text-brand-950 shadow-sm placeholder:text-brand-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
 
 type TextFieldProps = FieldWrapperProps & InputHTMLAttributes<HTMLInputElement>
 
