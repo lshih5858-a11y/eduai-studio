@@ -44,93 +44,95 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
     }, 2200)
   }, [])
 
-  const persist = useCallback((updater: (prev: ProjectData) => ProjectData) => {
-    setData((prev) => {
-      const next = updater(prev)
-      const withTimestamp = { ...next, updatedAt: new Date().toISOString() }
-      saveProjectData(withTimestamp)
-      return withTimestamp
-    })
-  }, [])
+  const FAILURE_MESSAGE = '브라우저 저장 공간 문제로 데이터를 저장하지 못했습니다. 내보내기로 백업해주세요.'
+
+  const persist = useCallback(
+    (updater: (prev: ProjectData) => ProjectData, successMessage: string) => {
+      let saved = false
+      setData((prev) => {
+        const next = updater(prev)
+        const withTimestamp = { ...next, updatedAt: new Date().toISOString() }
+        saved = saveProjectData(withTimestamp)
+        return withTimestamp
+      })
+      notify(saved ? successMessage : FAILURE_MESSAGE)
+    },
+    [notify],
+  )
 
   const setCourseInfo = useCallback(
     (info: CourseInfo) => {
-      persist((prev) => ({ ...prev, courseInfo: info }))
-      notify('과목 설정이 저장되었습니다.')
+      persist((prev) => ({ ...prev, courseInfo: info }), '과목 설정이 저장되었습니다.')
     },
-    [persist, notify],
+    [persist],
   )
 
   const setWeeklyPlan = useCallback(
     (plan: WeekPlan[]) => {
-      persist((prev) => ({ ...prev, weeklyPlan: plan }))
-      notify('16주 수업설계가 저장되었습니다.')
+      persist((prev) => ({ ...prev, weeklyPlan: plan }), '16주 수업설계가 저장되었습니다.')
     },
-    [persist, notify],
+    [persist],
   )
 
   const setQuizSets = useCallback(
     (sets: QuizSet[]) => {
-      persist((prev) => ({ ...prev, quizSets: sets }))
-      notify('퀴즈가 저장되었습니다.')
+      persist((prev) => ({ ...prev, quizSets: sets }), '퀴즈가 저장되었습니다.')
     },
-    [persist, notify],
+    [persist],
   )
 
   const setRubrics = useCallback(
     (rubrics: Rubric[]) => {
-      persist((prev) => ({ ...prev, rubrics }))
-      notify('루브릭이 저장되었습니다.')
+      persist((prev) => ({ ...prev, rubrics }), '루브릭이 저장되었습니다.')
     },
-    [persist, notify],
+    [persist],
   )
 
   const setFeedbackSets = useCallback(
     (sets: FeedbackSet[]) => {
-      persist((prev) => ({ ...prev, feedbackSets: sets }))
-      notify('과제 피드백이 저장되었습니다.')
+      persist((prev) => ({ ...prev, feedbackSets: sets }), '과제 피드백이 저장되었습니다.')
     },
-    [persist, notify],
+    [persist],
   )
 
   const setTutorQuestions = useCallback(
     (questions: TutorQuestion[]) => {
-      persist((prev) => ({ ...prev, tutorQuestions: questions }))
-      notify('AI 튜터 자료가 저장되었습니다.')
+      persist((prev) => ({ ...prev, tutorQuestions: questions }), 'AI 튜터 자료가 저장되었습니다.')
     },
-    [persist, notify],
+    [persist],
   )
 
   const loadExample = useCallback(
     (pkg: ExampleCoursePackage) => {
-      persist(() => ({
-        courseInfo: pkg.courseInfo,
-        weeklyPlan: pkg.weeklyPlan,
-        quizSets: pkg.quizSets,
-        rubrics: pkg.rubrics,
-        feedbackSets: pkg.feedbackSets,
-        tutorQuestions: pkg.tutorQuestions,
-        lastLoadedExample: pkg.label,
-        updatedAt: new Date().toISOString(),
-      }))
-      notify(`'${pkg.label}' 예시 데이터를 불러왔습니다.`)
+      persist(
+        () => ({
+          courseInfo: pkg.courseInfo,
+          weeklyPlan: pkg.weeklyPlan,
+          quizSets: pkg.quizSets,
+          rubrics: pkg.rubrics,
+          feedbackSets: pkg.feedbackSets,
+          tutorQuestions: pkg.tutorQuestions,
+          lastLoadedExample: pkg.label,
+          updatedAt: new Date().toISOString(),
+        }),
+        `'${pkg.label}' 예시 데이터를 불러왔습니다.`,
+      )
     },
-    [persist, notify],
+    [persist],
   )
 
   const resetAll = useCallback(() => {
     const empty = createEmptyProjectData()
-    saveProjectData(empty)
+    const saved = saveProjectData(empty)
     setData(empty)
-    notify('모든 데이터가 초기화되었습니다.')
+    notify(saved ? '모든 데이터가 초기화되었습니다.' : FAILURE_MESSAGE)
   }, [notify])
 
   const importData = useCallback(
     (incoming: ProjectData) => {
-      persist(() => incoming)
-      notify('데이터를 불러왔습니다.')
+      persist(() => incoming, '데이터를 불러왔습니다.')
     },
-    [persist, notify],
+    [persist],
   )
 
   const value = useMemo<ProjectDataContextValue>(

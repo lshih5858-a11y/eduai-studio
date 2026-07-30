@@ -32,7 +32,7 @@ function createBlankFeedbackSet(): FeedbackSet {
 }
 
 export function AssignmentFeedback() {
-  const { data, setFeedbackSets, notify } = useProjectData()
+  const { data, setFeedbackSets } = useProjectData()
   const [sets, setSets] = useState<FeedbackSet[]>(data.feedbackSets)
   const [selectedId, setSelectedId] = useState<string | null>(data.feedbackSets[0]?.id ?? null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
@@ -69,7 +69,6 @@ export function AssignmentFeedback() {
 
   const handleSave = () => {
     setFeedbackSets(sets.map((s) => (s.id === selected?.id ? { ...s, updatedAt: new Date().toISOString() } : s)))
-    notify('과제 피드백이 저장되었습니다.')
   }
 
   return (

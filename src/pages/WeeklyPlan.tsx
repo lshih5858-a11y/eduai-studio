@@ -181,8 +181,8 @@ export function WeeklyPlan() {
       )}
 
       {plan.length > 0 && (
-        <div className="no-print sticky bottom-4 mt-6 flex justify-end">
-          <Button variant="primary" onClick={handleSave} className="shadow-lg">
+        <div className="no-print pointer-events-none sticky bottom-4 mt-6 flex justify-end">
+          <Button variant="primary" onClick={handleSave} className="pointer-events-auto shadow-lg">
             <Save className="h-4 w-4" aria-hidden="true" />
             저장
           </Button>

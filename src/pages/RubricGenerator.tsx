@@ -35,7 +35,7 @@ function createBlankRubric(): Rubric {
 }
 
 export function RubricGenerator() {
-  const { data, setRubrics, notify } = useProjectData()
+  const { data, setRubrics } = useProjectData()
   const [rubrics, setLocalRubrics] = useState<Rubric[]>(data.rubrics)
   const [selectedId, setSelectedId] = useState<string | null>(data.rubrics[0]?.id ?? null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
@@ -92,7 +92,6 @@ export function RubricGenerator() {
 
   const handleSave = () => {
     setRubrics(rubrics.map((r) => (r.id === selected?.id ? { ...r, updatedAt: new Date().toISOString() } : r)))
-    notify('루브릭이 저장되었습니다.')
   }
 
   const totalPoints = selected ? selected.criteria.reduce((sum, c) => sum + (Number(c.maxPoints) || 0), 0) : 0
