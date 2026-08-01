@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+  /* 기본 글자 크기를 키워 가독성을 높인다 (여백도 rem 단위라 함께 넓어짐) */
+  font-size: 18px;
+}
+
+body {
+  @apply bg-brand-50 text-brand-950 antialiased;
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 17px;
+  }
+}
+
+*:focus-visible {
+  outline: 2px solid #dd9127;
+  outline-offset: 2px;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+  }
+}
