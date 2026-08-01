@@ -9,6 +9,7 @@ import { QuizGenerator } from './pages/QuizGenerator'
 import { RubricGenerator } from './pages/RubricGenerator'
 import { AssignmentFeedback } from './pages/AssignmentFeedback'
 import { AITutor } from './pages/AITutor'
+import { DesignAgent } from './pages/DesignAgent'
 import { Settings } from './pages/Settings'
 import type { MenuKey } from './types'
 
@@ -31,6 +32,8 @@ function AppContent() {
         return <AssignmentFeedback />
       case 'aiTutor':
         return <AITutor />
+      case 'designAgent':
+        return <DesignAgent />
       case 'settings':
         return <Settings />
       default:

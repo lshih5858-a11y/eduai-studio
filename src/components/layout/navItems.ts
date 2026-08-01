@@ -8,6 +8,7 @@ import {
   Settings as SettingsIcon,
   Sparkles,
   Table2,
+  Wand2,
 } from 'lucide-react'
 import type { MenuKey } from '../../types'
 
@@ -25,6 +26,7 @@ export const navItems: NavItem[] = [
   { key: 'rubric', label: '루브릭 생성기', icon: Table2 },
   { key: 'feedback', label: '과제 피드백', icon: ClipboardList },
   { key: 'aiTutor', label: 'AI 튜터', icon: Sparkles },
+  { key: 'designAgent', label: 'AI 설계 에이전트', icon: Wand2 },
   { key: 'settings', label: '설정 및 사용 안내', icon: SettingsIcon },
 ]
 

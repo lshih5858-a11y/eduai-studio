@@ -7,6 +7,7 @@ export type MenuKey =
   | 'rubric'
   | 'feedback'
   | 'aiTutor'
+  | 'designAgent'
   | 'settings'
 
 // 수업 형태
